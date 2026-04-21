@@ -1,10 +1,31 @@
-﻿add_executable(mosqueeze-bench
+﻿find_package(CLI11 CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+
+if(NOT TARGET SQLite::SQLite3)
+  add_library(SQLite::SQLite3 ALIAS unofficial::sqlite3::sqlite3)
+endif()
+
+add_executable(mosqueeze-bench
   src/main.cpp
+  src/BenchmarkRunner.cpp
+  src/CorpusManager.cpp
+  src/ResultsStore.cpp
 )
 
 target_link_libraries(mosqueeze-bench
   PRIVATE
     libmosqueeze
+    SQLite::SQLite3
+    CLI11::CLI11
+    fmt::fmt
+    spdlog::spdlog
+)
+
+target_include_directories(mosqueeze-bench
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 add_custom_command(TARGET mosqueeze-bench POST_BUILD

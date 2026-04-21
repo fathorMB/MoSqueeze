@@ -8,6 +8,7 @@
     "cli11",
     "fmt",
     "spdlog",
-    "nlohmann-json"
+    "nlohmann-json",
+    "sqlite3"
   ]
 }

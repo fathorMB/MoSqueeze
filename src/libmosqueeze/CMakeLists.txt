@@ -1,9 +1,13 @@
 ﻿find_package(zstd CONFIG REQUIRED)
+find_package(LibLZMA REQUIRED)
+find_package(unofficial-brotli CONFIG REQUIRED)
 
 add_library(libmosqueeze SHARED
   src/Version.cpp
   src/platform/Platform.cpp
   src/engines/ZstdEngine.cpp
+  src/engines/LzmaEngine.cpp
+  src/engines/BrotliEngine.cpp
   src/FileTypeDetector.cpp
 )
 
@@ -22,6 +26,9 @@ target_include_directories(libmosqueeze
 target_link_libraries(libmosqueeze
   PRIVATE
     zstd::libzstd
+    LibLZMA::LibLZMA
+    unofficial::brotli::brotlidec
+    unofficial::brotli::brotlienc
 )
 
 target_compile_features(libmosqueeze PUBLIC cxx_std_20)
