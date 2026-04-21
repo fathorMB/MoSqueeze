@@ -1,0 +1,23 @@
+{
+  "core-plugins": {
+    "file-explorer": true,
+    "global-search": true,
+    "graph-view": true,
+    "markdown-importer": true,
+    "note-composer": true,
+    "open-with-default-app": true,
+    "outline": true,
+    "outline-view": true,
+    "publish": false,
+    "random-note": false,
+    "slash-command": false,
+    "slides": false,
+    "starred": true,
+    "switcher": true,
+    "tag-pane": true,
+    "templates": true,
+    "word-count": true,
+    "workspaces": false
+  },
+  "core-plugins-migration": true
+}
