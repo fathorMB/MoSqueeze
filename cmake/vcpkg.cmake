@@ -1,0 +1,6 @@
+﻿if(NOT DEFINED CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
+  set(_mosqueeze_vcpkg_toolchain "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+  if(EXISTS "${_mosqueeze_vcpkg_toolchain}")
+    set(CMAKE_TOOLCHAIN_FILE "${_mosqueeze_vcpkg_toolchain}" CACHE FILEPATH "vcpkg toolchain file")
+  endif()
+endif()

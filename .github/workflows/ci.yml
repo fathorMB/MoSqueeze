@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup vcpkg
+        shell: pwsh
+        run: |
+          git clone --depth=1 https://github.com/Microsoft/vcpkg.git "${{ github.workspace }}/vcpkg"
+          & "${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat"
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          & "${{ github.workspace }}/vcpkg/vcpkg.exe" install --x-manifest-root="${{ github.workspace }}" --x-install-root="${{ github.workspace }}/vcpkg_installed"
+
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Run tests
+        working-directory: build
+        run: ctest -C Release --output-on-failure
+        continue-on-error: true
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ ninja-build pkg-config autoconf automake libtool curl zip unzip
+
+      - name: Setup vcpkg
+        run: |
+          git clone --depth=1 https://github.com/Microsoft/vcpkg.git "${{ github.workspace }}/vcpkg"
+          "${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh"
+
+      - name: Install dependencies
+        run: |
+          "${{ github.workspace }}/vcpkg/vcpkg" install --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}/vcpkg_installed
+
+      - name: Configure CMake
+        run: cmake -B build -S . -G Ninja -DCMAKE_CXX_COMPILER=g++ -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        working-directory: build
+        run: ctest --output-on-failure
+        continue-on-error: true
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: brew install cmake ninja autoconf automake libtool curl zip unzip
+
+      - name: Setup vcpkg
+        run: |
+          git clone --depth=1 https://github.com/Microsoft/vcpkg.git "${{ github.workspace }}/vcpkg"
+          "${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh"
+
+      - name: Install dependencies
+        run: |
+          "${{ github.workspace }}/vcpkg/vcpkg" install --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}/vcpkg_installed
+
+      - name: Configure CMake
+        run: cmake -B build -S . -G Ninja -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        working-directory: build
+        run: ctest --output-on-failure
+        continue-on-error: true

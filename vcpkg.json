@@ -1,0 +1,13 @@
+﻿{
+  "name": "mosqueeze",
+  "version": "0.1.0",
+  "dependencies": [
+    "zstd",
+    "liblzma",
+    "brotli",
+    "cli11",
+    "fmt",
+    "spdlog",
+    "nlohmann-json"
+  ]
+}
