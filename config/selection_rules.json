@@ -1,0 +1,24 @@
+﻿{
+  "$schema": "https://example.com/schemas/selection-rules.json",
+  "version": 1,
+  "rules": [
+    {
+      "fileType": 0,
+      "algorithm": "zstd",
+      "level": 22,
+      "rationale": "Source code: zstd level 22 for cold storage",
+      "skip": false,
+      "fallbackAlgorithm": "brotli",
+      "fallbackLevel": 11
+    },
+    {
+      "fileType": 6,
+      "algorithm": "",
+      "level": 0,
+      "rationale": "JPEG: already compressed, skip",
+      "skip": true,
+      "fallbackAlgorithm": "",
+      "fallbackLevel": 0
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "main": {
+    "id": "7339666908bcbe0d",
+    "type": "split",
+    "children": [
+      {
+        "id": "ffd19aa0e62f6ef5",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f27b1d8443ecafb9",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "b4b3752db3bbbfcd",
+    "type": "split",
+    "children": [
+      {
+        "id": "78b6e3cb22dad613",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f305b2a0929aedbf",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "a3a40097493cfc39",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "6f844ede160b3377",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "f1292780f91a067d",
+    "type": "split",
+    "children": [
+      {
+        "id": "addce322af6e8a05",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e396dccd4f05f928",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "algorithms.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for algorithms"
+            }
+          },
+          {
+            "id": "4057dcbb6913569f",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "algorithms.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from algorithms"
+            }
+          },
+          {
+            "id": "4ea8b899a229e49e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "666fb6538e9b474a",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "035b1c5b5e6f6c1c",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "algorithms.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of algorithms"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "f27b1d8443ecafb9",
+  "lastOpenFiles": [
+    "guides/analyze-command.md",
+    "decisions/algorithm-selection-engine.md",
+    "algorithms/zstd.md",
+    "index.md",
+    "algorithms 1.md",
+    "algorithms.md",
+    "log.md",
+    "benchmarks/methodology.md",
+    "benchmarks/corpus-selection.md",
+    "benchmarks/results/index.md",
+    "algorithms/brotli.md",
+    "algorithms/comparison-matrix.md"
+  ]
+}

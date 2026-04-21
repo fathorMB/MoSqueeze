@@ -1,57 +1,22 @@
 {
+  "collapse-filter": true,
+  "search": "",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": true,
+  "colorGroups": [],
   "collapse-display": true,
-  "collapse-filter": null,
+  "showArrow": false,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 1,
   "collapse-forces": true,
-  "collapse-left": true,
-  "collapse-meta": true,
-  "collapse-preview": true,
-  "collapse-radius": 10,
-  "collapse-snap": true,
-  "color-groups": [
-    {
-      "query": "path:algorithms",
-      "color": {
-        "a": 1,
-        "b": 0.5,
-        "g": 0.7,
-        "r": 0.3
-      }
-    },
-    {
-      "query": "path:decisions",
-      "color": {
-        "a": 1,
-        "b": 0.7,
-        "g": 0.5,
-        "r": 0.9
-      }
-    },
-    {
-      "query": "path:benchmarks",
-      "color": {
-        "a": 1,
-        "b": 0.9,
-        "g": 0.6,
-        "r": 0.2
-      }
-    },
-    {
-      "query": "path:guides",
-      "color": {
-        "a": 1,
-        "b": 0.4,
-        "g": 0.8,
-        "r": 0.3
-      }
-    }
-  ],
-  "edge-arrow": true,
-  "edge-opacity": 0.7,
-  "edge-sibling": true,
-  "edges": true,
-  "node-opacity": 1,
-  "node-size": 12,
-  "show-arrow": true,
-  "show orphan-nodes": true,
-  "show tags": true
+  "centerStrength": 0.518713248970312,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "scale": 1,
+  "close": false
 }
