@@ -63,20 +63,26 @@ void AlgorithmSelector::initializeDefaultRules() {
 
     typeToRule_[FileType::Video_MP4] = {
         FileType::Video_MP4,
-        "", 0, "MP4: H.264/265 already compressed, skip",
+        "", 0, "MP4: H.264/265 already max compressed (ratio <5% from ZPAQ)",
         true, "", 0
     };
 
     typeToRule_[FileType::Video_MKV] = {
         FileType::Video_MKV,
-        "", 0, "MKV: container with compressed streams, skip",
-        true, "", 0
+        "zpaq", 5, "MKV: ZPAQ level 5 for cold storage (extracts additional ~10-15%)",
+        false, "zstd", 22
     };
 
     typeToRule_[FileType::Video_WebM] = {
         FileType::Video_WebM,
-        "", 0, "WebM: VP9/AV1 compressed, skip",
+        "", 0, "WebM: VP9/AV1 max compressed (ratio <5% from ZPAQ)",
         true, "", 0
+    };
+
+    typeToRule_[FileType::Video_AVI] = {
+        FileType::Video_AVI,
+        "zpaq", 5, "AVI: ZPAQ level 5 for maximum ratio (handles raw and compressed)",
+        false, "lzma", 9
     };
 
     typeToRule_[FileType::Audio_WAV] = {

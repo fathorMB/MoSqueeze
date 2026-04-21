@@ -83,6 +83,23 @@ add_custom_command(TARGET ZpaqEngine_test POST_BUILD
 
 add_test(NAME ZpaqEngine_test COMMAND ZpaqEngine_test)
 
+add_executable(VideoFileType_test
+  unit/VideoFileType_test.cpp
+)
+
+target_link_libraries(VideoFileType_test
+  PRIVATE
+    libmosqueeze
+)
+
+add_custom_command(TARGET VideoFileType_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:VideoFileType_test>
+)
+
+add_test(NAME VideoFileType_test COMMAND VideoFileType_test)
+
 add_executable(FileTypeDetector_test
   unit/FileTypeDetector_test.cpp
 )

@@ -45,6 +45,7 @@ enum class FileType {
     Video_MP4,
     Video_MKV,
     Video_WebM,
+    Video_AVI,
 
     // Audio
     Audio_WAV,

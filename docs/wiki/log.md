@@ -46,3 +46,7 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `algorithms/comparison-matrix.md` to mark ZPAQ as implemented (vendored + streaming adapters)
 - Updated `decisions/file-type-to-algorithm.md` with `Binary_Database -> zpaq level 5` (+ fallback)
 - Updated `guides/adding-new-engine.md` with real vendoring integration path used by ZPAQ
+
+### Feature Docs: Video Support (Issue #21)
+- `algorithms/video-compression.md` - AVI/MKV strategy for cold storage with ZPAQ level 5
+- Updated `index.md` links to include video compression guidance

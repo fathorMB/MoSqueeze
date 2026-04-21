@@ -157,6 +157,12 @@ FileClassification FileTypeDetector::detect(const std::filesystem::path& path) {
 
 FileClassification FileTypeDetector::detectFromMagic(const std::vector<uint8_t>& buffer) {
     if (buffer.size() >= 12 &&
+        buffer[0] == 'R' && buffer[1] == 'I' && buffer[2] == 'F' && buffer[3] == 'F' &&
+        buffer[8] == 'A' && buffer[9] == 'V' && buffer[10] == 'I') {
+        return makeClassification(FileType::Video_AVI, "video/x-msvideo", false, true, ".avi");
+    }
+
+    if (buffer.size() >= 12 &&
         buffer[0] == 0x52 && buffer[1] == 0x49 && buffer[2] == 0x46 && buffer[3] == 0x46 &&
         buffer[8] == 0x57 && buffer[9] == 0x45 && buffer[10] == 0x42 && buffer[11] == 0x50) {
         return makeClassification(FileType::Image_WebP, "image/webp", true, false, "");
@@ -232,9 +238,9 @@ FileClassification FileTypeDetector::detectFromExtension(const std::string& ext)
         {".m4a", makeClassification(FileType::Audio_MP3, "audio/mp4", true, false, ".m4a")},
 
         {".mp4", makeClassification(FileType::Video_MP4, "video/mp4", true, false, ".mp4")},
-        {".mkv", makeClassification(FileType::Video_MKV, "video/x-matroska", true, false, ".mkv")},
+        {".mkv", makeClassification(FileType::Video_MKV, "video/x-matroska", true, true, ".mkv")},
         {".webm", makeClassification(FileType::Video_WebM, "video/webm", true, false, ".webm")},
-        {".avi", makeClassification(FileType::Video_MP4, "video/x-msvideo", true, false, ".avi")},
+        {".avi", makeClassification(FileType::Video_AVI, "video/x-msvideo", false, true, ".avi")},
         {".mov", makeClassification(FileType::Video_MP4, "video/quicktime", true, false, ".mov")},
 
         {".zip", makeClassification(FileType::Archive_ZIP, "application/zip", true, false, ".zip")},
@@ -331,7 +337,7 @@ void FileTypeDetector::registerCommonTypes() {
         {{0x4D, 0x5A}, 0, FileType::Binary_Executable, "application/vnd.microsoft.portable-executable", false, true},
         {{0x53, 0x51, 0x4C, 0x69, 0x74, 0x65, 0x20, 0x66, 0x6F, 0x72, 0x6D, 0x61, 0x74, 0x20, 0x33, 0x00}, 0, FileType::Binary_Database, "application/vnd.sqlite3", false, true},
 
-        {{0x1A, 0x45, 0xDF, 0xA3}, 0, FileType::Video_MKV, "video/x-matroska", true, false},
+        {{0x1A, 0x45, 0xDF, 0xA3}, 0, FileType::Video_MKV, "video/x-matroska", true, true},
         {{0x49, 0x44, 0x33}, 0, FileType::Audio_MP3, "audio/mpeg", true, false},
         {{0x66, 0x4C, 0x61, 0x43}, 0, FileType::Audio_FLAC, "audio/flac", true, false}
     };
