@@ -1,6 +1,6 @@
 # Benchmark Methodology
 
-**Summary**: Come vengono eseguiti i benchmark in MoSqueeze.
+**Summary**: How MoSqueeze benchmark runs are executed with the enhanced `mosqueeze-bench` tool.
 
 **Last updated**: 2026-04-22
 
@@ -8,203 +8,113 @@
 
 ## Overview
 
-MoSqueeze usa un benchmark harness per generare dati comparativi reali tra algoritmi.
+MoSqueeze uses `mosqueeze-bench` to generate comparable measurements across engines and levels.
 
-### Tool
+Example:
 
 ```bash
-mosqueeze-bench --corpus corpus/ --output results/
+mosqueeze-bench --directory ./corpus --iterations 5 --warmup 2 --output benchmarks/results
 ```
 
 ---
 
-## Misurazioni
-
-### Metriche Primary
+## Measured Metrics
 
 | Metric | Unit | Description |
 |--------|------|-------------|
-| **Ratio** | factor | `originalBytes / compressedBytes` |
-| **Encode Time** | ms | Tempo di compressione |
-| **Decode Time** | ms | Tempo di decompressione |
-| **Peak Memory** | bytes | Memoria massima usata |
+| Ratio | factor | `originalBytes / compressedBytes` |
+| Encode Time | ms | Compression duration |
+| Decode Time | ms | Decompression duration (optional) |
+| Peak Memory | bytes | Peak memory from engine result (optional) |
 
-### Metriche Derivate
+Derived values:
 
-- **Throughput**: `originalBytes / encodeTime` (MB/s)
-- **Space Savings**: `(1 - 1/ratio) * 100` (%)
-
----
-
-## Corpus
-
-### Standard Corpus Structure
-
-```
-corpus/
-├── text/
-│   ├── code/         # .cpp, .py, .js, .ts, .rs
-│   ├── json/         # Large JSON datasets
-│   ├── xml/          # RSS, SOAP, configs
-│   ├── logs/         # Server logs, app logs
-│   └── markdown/     # README, docs
-├── binary/
-│   ├── exec/         # ELF, PE executables
-│   ├── database/     # SQLite, MDB
-│   └── data/         # Custom binary formats
-├── image/
-│   ├── png/          # Unoptimized PNGs
-│   └── raw/          # BMP, TIFF
-└── archive/
-    └── tar/          # Plain tar files
-```
-
-### Selection Criteria
-
-1. **Rappresentatività** — File tipici per caso d'uso reale
-2. **Dimensione variabile** — Da KB a GB
-3. **Content diversity** — Testo, binario, mixed
-4. **Openness** — Nessun copyright issue
-
-### Files Correnti
-
-```
-# Generati o scaricati per test
-corpus/text/code/
-├── large.cpp         # 2.1 MB C++ source
-├── bundle.js         # 5.8 MB minified JS
-└── kernel_sources/   # 15 MB Linux kernel subset
-
-corpus/text/json/
-├── large_dataset.json  # 5.2 MB JSON
-└── twitter_sample.json # 12 MB tweets
-
-corpus/binary/exec/
-├── test_binary.exe    # 8 MB
-└── libsomething.so    # 4 MB
-```
+- Throughput: `originalBytes / encodeTime`
+- Space savings: `(1 - 1/ratio) * 100`
 
 ---
 
-## Execution
+## Execution Model
 
-### Grid Search
+For each selected file:
 
-Per ogni file, testiamo tutti gli algoritmi × tutti i livelli:
+1. Select engines (`--algorithms` or `--all-engines`)
+2. Select levels (`--levels`, `--default-only`, or engine defaults)
+3. Run warmup iterations (`--warmup`)
+4. Run measured iterations (`--iterations`)
+5. Record result rows per measured run
 
-```python
-algorithms = ['zstd', 'lzma', 'brotli']
-levels = {
-    'zstd': [3, 10, 19, 22],
-    'lzma': [3, 6, 9],
-    'brotli': [6, 9, 11]
-}
+Runtime controls:
 
-for file in corpus:
-    for algo in algorithms:
-        for level in levels[algo]:
-            run_benchmark(file, algo, level)
-```
-
-### Controls
-
-- **Cold runs**: 3x per stabilità statistiche
-- **Memory isolation**: Ogni run fresh process
-- **CPU isolation**: Affinity pinning quando possibile
-- **Timing**: `std::chrono::steady_clock` high resolution
+- `--max-time` for per-step timeout guard
+- `--no-decode` to skip decode benchmark
+- `--no-memory` to disable memory field capture
+- `--verbose` for progress callback output
 
 ---
 
-## Results Storage
+## Statistics
 
-### SQLite Schema
+`BenchmarkRunner::computeStats(...)` aggregates results by `algorithm/level`:
 
-```sql
-CREATE TABLE benchmark_results (
-    id INTEGER PRIMARY KEY,
-    timestamp TEXT,
-    algorithm TEXT,
-    level INTEGER,
-    file_path TEXT,
-    file_type TEXT,
-    original_bytes INTEGER,
-    compressed_bytes INTEGER,
-    encode_time_ms INTEGER,
-    decode_time_ms INTEGER,
-    peak_memory_bytes INTEGER
-);
-```
+- mean ratio + stddev ratio
+- mean encode time + stddev encode time
+- mean decode time + stddev decode time
+- mean peak memory
+- sample count (`iterations`)
 
-### JSON Export
+---
+
+## Result Storage and Exports
+
+Default output directory: `benchmarks/results`
+
+- SQLite database: `results.sqlite3`
+- Default exports (if `--export` is not set):
+  - `results.json`
+  - `results.csv`
+- Explicit exports:
+  - `--format json`
+  - `--format csv`
+  - `--format markdown`
+  - `--format html`
+
+JSON export format is an array of rows:
 
 ```json
-{
-  "timestamp": "2026-04-22T15:30:00Z",
-  "results": [
-    {
-      "algorithm": "zstd",
-      "level": 19,
-      "file": "corpus/text/code/large.cpp",
-      "fileType": "Text_SourceCode",
-      "originalBytes": 2100000,
-      "compressedBytes": 540000,
-      "encodeTimeMs": 1200,
-      "decodeTimeMs": 45,
-      "peakMemoryBytes": 134000000
-    }
-  ]
-}
+[
+  {
+    "algorithm": "zstd",
+    "level": 19,
+    "file": "corpus/text/code/large.cpp",
+    "fileType": 1,
+    "originalBytes": 2100000,
+    "compressedBytes": 540000,
+    "encodeMs": 1200,
+    "decodeMs": 45,
+    "peakMemoryBytes": 134000000,
+    "ratio": 3.89
+  }
+]
 ```
 
 ---
 
-## Reproducibility
+## Comparison Runs
 
-### Hash Verification
+You can compare current results against previous exports:
 
 ```bash
-# Calcolato pre-compressione
-sha256sum corpus/file.txt > corpus/file.txt.sha256
+mosqueeze-bench --directory ./corpus --compare ./benchmarks/results/previous.json
+mosqueeze-bench --directory ./corpus --compare ./benchmarks/results/previous.csv --diff-only
 ```
 
-### Environment Recording
-
-```json
-{
-  "environment": {
-    "os": "Ubuntu 22.04",
-    "cpu": "AMD Ryzen 9 5900X",
-    "memory": "64 GB DDR4",
-    "compiler": "GCC 12.2",
-    "zstd_version": "1.5.5",
-    "lzma_version": "5.4.1",
-    "brotli_version": "1.0.9"
-  }
-}
-```
-
----
-
-## Analysis
-
-### Reporting
-
-Dopo ogni run:
-1. Export JSON + CSV
-2. Generate graphs (scripts/generate_graphs.py)
-3. Update wiki con risultati notevoli
-
-### Comparison
-
-Si possono confrontare run diverse:
-- Tra versioni MoSqueeze
-- Tra hardware diversi
-- Tempo evoluzione (regression detection)
+Comparison grouping key: `file + algorithm + level`.
 
 ---
 
 ## Related Pages
 
-- [[corpus-selection]] — Dettagli sui file di test
-- [[graphs/ratio-by-algorithm]] — Grafici risultati
-- [[results/index]] — Risultati storici
+- [[corpus-selection]] - Test corpus criteria
+- [[results/index]] - Historical benchmark archive
+- [[../guides/benchmark-tool]] - Full CLI guide

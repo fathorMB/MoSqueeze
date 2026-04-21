@@ -1,17 +1,35 @@
-﻿#include <mosqueeze/bench/BenchmarkRunner.hpp>
+#include <mosqueeze/bench/BenchmarkRunner.hpp>
 
 #include <mosqueeze/FileTypeDetector.hpp>
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_map>
 #include <unordered_set>
 
 namespace mosqueeze::bench {
+namespace {
+
+double variance(const std::vector<double>& values, double mean) {
+    if (values.empty()) {
+        return 0.0;
+    }
+    double sum = 0.0;
+    for (double value : values) {
+        const double delta = value - mean;
+        sum += delta * delta;
+    }
+    return sum / static_cast<double>(values.size());
+}
+
+} // namespace
 
 BenchmarkRunner::BenchmarkRunner() = default;
+BenchmarkRunner::~BenchmarkRunner() = default;
 
 void BenchmarkRunner::registerEngine(std::unique_ptr<ICompressionEngine> engine) {
     if (!engine) {
@@ -20,28 +38,127 @@ void BenchmarkRunner::registerEngine(std::unique_ptr<ICompressionEngine> engine)
     engines_.push_back(std::move(engine));
 }
 
+std::vector<std::string> BenchmarkRunner::availableAlgorithms() const {
+    std::vector<std::string> names;
+    names.reserve(engines_.size());
+    for (const auto& engine : engines_) {
+        names.push_back(engine->name());
+    }
+    std::sort(names.begin(), names.end());
+    return names;
+}
+
+std::vector<int> BenchmarkRunner::availableLevels(const std::string& algorithm) const {
+    auto* engine = findEngine(algorithm);
+    if (!engine) {
+        return {};
+    }
+    auto levels = engine->supportedLevels();
+    std::sort(levels.begin(), levels.end());
+    return levels;
+}
+
 ICompressionEngine* BenchmarkRunner::findEngine(const std::string& name) const {
     auto it = std::find_if(engines_.begin(), engines_.end(), [&](const auto& engine) {
         return engine->name() == name;
     });
-
     return it == engines_.end() ? nullptr : it->get();
+}
+
+BenchmarkResult BenchmarkRunner::runIteration(
+    ICompressionEngine* engine,
+    const std::filesystem::path& file,
+    int level,
+    const BenchmarkConfig& config,
+    FileType fileType) const {
+    std::ifstream in(file, std::ios::binary);
+    if (!in) {
+        throw std::runtime_error("Failed to open file for benchmark: " + file.string());
+    }
+
+    std::ostringstream compressed;
+    CompressionOptions opts{};
+    opts.level = level;
+    opts.extreme = level >= engine->maxLevel();
+
+    const auto encodeStart = std::chrono::steady_clock::now();
+    CompressionResult encodeResult = engine->compress(in, compressed, opts);
+    const auto encodeEnd = std::chrono::steady_clock::now();
+    const auto encodeDuration = std::chrono::duration_cast<std::chrono::milliseconds>(encodeEnd - encodeStart);
+
+    if (encodeDuration > config.maxTimePerFile) {
+        throw std::runtime_error(
+            "Compression exceeded max time for file: " + file.string() + " (" + engine->name() + ")");
+    }
+
+    std::chrono::milliseconds decodeDuration{0};
+    if (config.runDecode) {
+        std::istringstream compressedInput(compressed.str());
+        std::ostringstream decompressed;
+
+        const auto decodeStart = std::chrono::steady_clock::now();
+        engine->decompress(compressedInput, decompressed);
+        const auto decodeEnd = std::chrono::steady_clock::now();
+        decodeDuration = std::chrono::duration_cast<std::chrono::milliseconds>(decodeEnd - decodeStart);
+
+        if (decodeDuration > config.maxTimePerFile) {
+            throw std::runtime_error(
+                "Decompression exceeded max time for file: " + file.string() + " (" + engine->name() + ")");
+        }
+    }
+
+    BenchmarkResult row{};
+    row.algorithm = engine->name();
+    row.level = level;
+    row.file = file;
+    row.fileType = fileType;
+    row.originalBytes = encodeResult.originalBytes;
+    row.compressedBytes = encodeResult.compressedBytes;
+    row.encodeTime = encodeDuration;
+    row.decodeTime = decodeDuration;
+    row.peakMemoryBytes = config.trackMemory ? encodeResult.peakMemoryBytes : 0;
+    return row;
 }
 
 std::vector<BenchmarkResult> BenchmarkRunner::run(
     const std::vector<std::filesystem::path>& files,
     const std::vector<std::string>& algorithms,
     const std::vector<int>& levels) {
+    BenchmarkConfig config;
+    config.files = files;
+    config.algorithms = algorithms;
+    config.levels = levels;
+    return runWithConfig(config);
+}
+
+std::vector<BenchmarkResult> BenchmarkRunner::runGrid(
+    const std::vector<std::filesystem::path>& files) {
+    BenchmarkConfig config;
+    config.files = files;
+    config.allEngines = true;
+    return runWithConfig(config);
+}
+
+std::vector<BenchmarkResult> BenchmarkRunner::runWithConfig(const BenchmarkConfig& config) {
     if (engines_.empty()) {
         throw std::runtime_error("No engines registered in BenchmarkRunner");
     }
 
-    std::unordered_set<std::string> selectedAlgorithms(algorithms.begin(), algorithms.end());
+    if (config.files.empty()) {
+        return {};
+    }
 
     std::vector<ICompressionEngine*> selectedEngines;
-    for (const auto& engine : engines_) {
-        if (selectedAlgorithms.empty() || selectedAlgorithms.count(engine->name()) > 0) {
+    if (config.allEngines || config.algorithms.empty()) {
+        for (const auto& engine : engines_) {
             selectedEngines.push_back(engine.get());
+        }
+    } else {
+        std::unordered_set<std::string> selectedAlgorithms(config.algorithms.begin(), config.algorithms.end());
+        for (const auto& engine : engines_) {
+            if (selectedAlgorithms.count(engine->name()) > 0) {
+                selectedEngines.push_back(engine.get());
+            }
         }
     }
 
@@ -49,72 +166,154 @@ std::vector<BenchmarkResult> BenchmarkRunner::run(
         throw std::runtime_error("No matching engines found for requested algorithms");
     }
 
+    std::unordered_map<std::string, std::vector<int>> levelsByAlgorithm;
+    for (auto* engine : selectedEngines) {
+        std::vector<int> levelSet;
+        if (config.defaultOnly) {
+            levelSet = {engine->defaultLevel()};
+        } else if (config.levels.empty()) {
+            levelSet = engine->supportedLevels();
+        } else {
+            const auto supported = engine->supportedLevels();
+            for (int level : config.levels) {
+                if (std::find(supported.begin(), supported.end(), level) != supported.end()) {
+                    levelSet.push_back(level);
+                }
+            }
+            if (levelSet.empty()) {
+                levelSet.push_back(engine->defaultLevel());
+            }
+        }
+        std::sort(levelSet.begin(), levelSet.end());
+        levelSet.erase(std::unique(levelSet.begin(), levelSet.end()), levelSet.end());
+        levelsByAlgorithm[engine->name()] = std::move(levelSet);
+    }
+
+    const int iterations = std::max(1, config.iterations);
+    const int warmups = std::max(0, config.warmupIterations);
+    int unitsPerFile = 0;
+    for (auto* engine : selectedEngines) {
+        unitsPerFile += static_cast<int>(levelsByAlgorithm[engine->name()].size()) * (iterations + warmups);
+    }
+    const int totalWork = std::max(1, unitsPerFile * static_cast<int>(config.files.size()));
+    int completedWork = 0;
+
     FileTypeDetector detector;
     std::vector<BenchmarkResult> results;
 
-    for (const auto& file : files) {
+    auto lastProgressEmit = std::chrono::steady_clock::time_point{};
+    auto emitProgress = [&](const std::filesystem::path& file,
+                            const std::string& algorithm,
+                            int level,
+                            int currentIteration,
+                            bool force) {
+        if (!config.hasProgressCallback()) {
+            return;
+        }
+
+        const auto now = std::chrono::steady_clock::now();
+        if (!force && lastProgressEmit != std::chrono::steady_clock::time_point{} &&
+            (now - lastProgressEmit) < std::chrono::milliseconds(100)) {
+            return;
+        }
+
+        ProgressInfo info{};
+        info.currentFile = file;
+        info.currentAlgorithm = algorithm;
+        info.currentLevel = level;
+        info.currentIteration = currentIteration;
+        info.totalIterations = iterations + warmups;
+        info.totalFiles = static_cast<int>(config.files.size());
+        info.completedFiles = unitsPerFile > 0 ? completedWork / unitsPerFile : 0;
+        info.progress = static_cast<double>(completedWork) / static_cast<double>(totalWork);
+        config.onProgress(info);
+        lastProgressEmit = now;
+    };
+
+    for (const auto& file : config.files) {
+        if (config.hasCancellation() && config.shouldCancel()) {
+            break;
+        }
+
         const auto classification = detector.detect(file);
-
-        for (ICompressionEngine* engine : selectedEngines) {
-            std::vector<int> levelSet;
-            if (levels.empty()) {
-                levelSet = engine->supportedLevels();
-            } else {
-                const auto supported = engine->supportedLevels();
-                for (int level : levels) {
-                    if (std::find(supported.begin(), supported.end(), level) != supported.end()) {
-                        levelSet.push_back(level);
-                    }
-                }
-                if (levelSet.empty()) {
-                    levelSet.push_back(engine->defaultLevel());
-                }
-            }
-
+        for (auto* engine : selectedEngines) {
+            const auto& levelSet = levelsByAlgorithm.at(engine->name());
             for (int level : levelSet) {
-                std::ifstream in(file, std::ios::binary);
-                if (!in) {
-                    throw std::runtime_error("Failed to open file for benchmark: " + file.string());
+                for (int i = 0; i < warmups; ++i) {
+                    (void)runIteration(engine, file, level, config, classification.type);
+                    ++completedWork;
+                    emitProgress(file, engine->name(), level, i + 1, false);
                 }
 
-                std::ostringstream compressed;
-                CompressionOptions opts{};
-                opts.level = level;
-                opts.extreme = level >= engine->maxLevel();
-
-                const auto encodeStart = std::chrono::steady_clock::now();
-                CompressionResult encodeResult = engine->compress(in, compressed, opts);
-                const auto encodeEnd = std::chrono::steady_clock::now();
-
-                std::istringstream compressedInput(compressed.str());
-                std::ostringstream decompressed;
-
-                const auto decodeStart = std::chrono::steady_clock::now();
-                engine->decompress(compressedInput, decompressed);
-                const auto decodeEnd = std::chrono::steady_clock::now();
-
-                BenchmarkResult row{};
-                row.algorithm = engine->name();
-                row.level = level;
-                row.file = file;
-                row.fileType = classification.type;
-                row.originalBytes = encodeResult.originalBytes;
-                row.compressedBytes = encodeResult.compressedBytes;
-                row.encodeTime = std::chrono::duration_cast<std::chrono::milliseconds>(encodeEnd - encodeStart);
-                row.decodeTime = std::chrono::duration_cast<std::chrono::milliseconds>(decodeEnd - decodeStart);
-                row.peakMemoryBytes = encodeResult.peakMemoryBytes;
-
-                results.push_back(std::move(row));
+                for (int i = 0; i < iterations; ++i) {
+                    results.push_back(runIteration(engine, file, level, config, classification.type));
+                    ++completedWork;
+                    emitProgress(file, engine->name(), level, warmups + i + 1, false);
+                }
             }
         }
     }
 
+    emitProgress({}, "", 0, 0, true);
     return results;
 }
 
-std::vector<BenchmarkResult> BenchmarkRunner::runGrid(
-    const std::vector<std::filesystem::path>& files) {
-    return run(files, {}, {});
+std::unordered_map<std::string, BenchmarkStats> BenchmarkRunner::computeStats(
+    const std::vector<BenchmarkResult>& results) const {
+    std::unordered_map<std::string, std::vector<const BenchmarkResult*>> grouped;
+    for (const auto& result : results) {
+        const std::string key = result.algorithm + "/" + std::to_string(result.level);
+        grouped[key].push_back(&result);
+    }
+
+    std::unordered_map<std::string, BenchmarkStats> stats;
+    for (const auto& [key, values] : grouped) {
+        if (values.empty()) {
+            continue;
+        }
+
+        std::vector<double> ratios;
+        std::vector<double> encode;
+        std::vector<double> decode;
+        std::vector<double> memory;
+        ratios.reserve(values.size());
+        encode.reserve(values.size());
+        decode.reserve(values.size());
+        memory.reserve(values.size());
+
+        double ratioSum = 0.0;
+        double encodeSum = 0.0;
+        double decodeSum = 0.0;
+        double memorySum = 0.0;
+        for (const BenchmarkResult* value : values) {
+            const double ratio = value->ratio();
+            const double encodeMs = static_cast<double>(value->encodeTime.count());
+            const double decodeMs = static_cast<double>(value->decodeTime.count());
+            const double memoryBytes = static_cast<double>(value->peakMemoryBytes);
+
+            ratios.push_back(ratio);
+            encode.push_back(encodeMs);
+            decode.push_back(decodeMs);
+            memory.push_back(memoryBytes);
+
+            ratioSum += ratio;
+            encodeSum += encodeMs;
+            decodeSum += decodeMs;
+            memorySum += memoryBytes;
+        }
+
+        BenchmarkStats row{};
+        row.iterations = static_cast<int>(values.size());
+        row.meanRatio = ratioSum / static_cast<double>(values.size());
+        row.meanEncodeTime = encodeSum / static_cast<double>(values.size());
+        row.meanDecodeTime = decodeSum / static_cast<double>(values.size());
+        row.meanPeakMemory = memorySum / static_cast<double>(values.size());
+        row.stdDevRatio = std::sqrt(variance(ratios, row.meanRatio));
+        row.stdDevEncodeTime = std::sqrt(variance(encode, row.meanEncodeTime));
+        row.stdDevDecodeTime = std::sqrt(variance(decode, row.meanDecodeTime));
+        stats[key] = row;
+    }
+    return stats;
 }
 
 } // namespace mosqueeze::bench

@@ -1,81 +1,480 @@
-﻿#include <mosqueeze/bench/BenchmarkRunner.hpp>
+#include <mosqueeze/bench/BenchmarkRunner.hpp>
 #include <mosqueeze/bench/CorpusManager.hpp>
+#include <mosqueeze/bench/Formatters.hpp>
 #include <mosqueeze/bench/ResultsStore.hpp>
 #include <mosqueeze/engines/BrotliEngine.hpp>
 #include <mosqueeze/engines/LzmaEngine.hpp>
+#include <mosqueeze/engines/ZpaqEngine.hpp>
 #include <mosqueeze/engines/ZstdEngine.hpp>
 
 #include <CLI/CLI.hpp>
+#include <nlohmann/json.hpp>
 
 #include <algorithm>
+#include <chrono>
+#include <cmath>
 #include <filesystem>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
+#include <regex>
+#include <sstream>
+#include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
-int main(int argc, char* argv[]) {
-    CLI::App app{"MoSqueeze Benchmark Harness", "mosqueeze-bench"};
+namespace {
 
-    std::string corpusPath = "benchmarks/corpus";
-    std::string outputPath = "benchmarks/results";
-    bool json = true;
-    bool csv = false;
+std::vector<std::string> splitCsv(const std::string& csv) {
+    std::vector<std::string> values;
+    std::stringstream ss(csv);
+    std::string token;
+    while (std::getline(ss, token, ',')) {
+        if (!token.empty()) {
+            values.push_back(token);
+        }
+    }
+    return values;
+}
 
-    app.add_option("-c,--corpus", corpusPath, "Path to corpus directory");
-    app.add_option("-o,--output", outputPath, "Output directory for results");
-    app.add_flag("--json", json, "Export results as JSON");
-    app.add_flag("--csv", csv, "Export results as CSV");
+std::vector<int> splitCsvIntegers(const std::string& csv) {
+    std::vector<int> values;
+    for (const auto& token : splitCsv(csv)) {
+        values.push_back(std::stoi(token));
+    }
+    return values;
+}
 
-    CLI11_PARSE(app, argc, argv);
+std::string wildcardToRegex(const std::string& pattern) {
+    std::string regex = "^";
+    for (const char c : pattern) {
+        switch (c) {
+            case '*':
+                regex += ".*";
+                break;
+            case '?':
+                regex += ".";
+                break;
+            case '.':
+            case '+':
+            case '(':
+            case ')':
+            case '[':
+            case ']':
+            case '{':
+            case '}':
+            case '^':
+            case '$':
+            case '|':
+            case '\\':
+                regex += '\\';
+                regex += c;
+                break;
+            default:
+                regex += c;
+                break;
+        }
+    }
+    regex += "$";
+    return regex;
+}
 
-    mosqueeze::bench::BenchmarkRunner runner;
+std::vector<std::filesystem::path> globFiles(const std::string& pattern) {
+    std::vector<std::filesystem::path> files;
+    const std::regex matcher(wildcardToRegex(pattern), std::regex::icase);
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(std::filesystem::current_path())) {
+        if (!entry.is_regular_file()) {
+            continue;
+        }
+        if (std::regex_match(entry.path().filename().string(), matcher)) {
+            files.push_back(entry.path());
+        }
+    }
+    return files;
+}
+
+void appendDirectoryFiles(const std::filesystem::path& directory, std::vector<std::filesystem::path>& files) {
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(directory)) {
+        if (entry.is_regular_file()) {
+            files.push_back(entry.path());
+        }
+    }
+}
+
+void appendStdinFiles(std::vector<std::filesystem::path>& files) {
+    std::string line;
+    while (std::getline(std::cin, line)) {
+        if (!line.empty()) {
+            files.emplace_back(line);
+        }
+    }
+}
+
+void dedupeFiles(std::vector<std::filesystem::path>& files) {
+    std::vector<std::filesystem::path> normalized;
+    normalized.reserve(files.size());
+    for (const auto& file : files) {
+        std::error_code ec;
+        const auto canonical = std::filesystem::weakly_canonical(file, ec);
+        normalized.push_back(ec ? std::filesystem::absolute(file) : canonical);
+    }
+    std::sort(normalized.begin(), normalized.end());
+    normalized.erase(std::unique(normalized.begin(), normalized.end()), normalized.end());
+    files = std::move(normalized);
+}
+
+struct ComparisonRow {
+    std::string key;
+    double meanRatio = 0.0;
+    double meanEncodeMs = 0.0;
+    double meanDecodeMs = 0.0;
+};
+
+std::unordered_map<std::string, ComparisonRow> summarize(const std::vector<mosqueeze::bench::BenchmarkResult>& rows) {
+    struct Agg {
+        double ratio = 0.0;
+        double encode = 0.0;
+        double decode = 0.0;
+        int count = 0;
+    };
+    std::unordered_map<std::string, Agg> agg;
+    for (const auto& row : rows) {
+        const std::string key = row.file.string() + "|" + row.algorithm + "|" + std::to_string(row.level);
+        auto& target = agg[key];
+        target.ratio += row.ratio();
+        target.encode += static_cast<double>(row.encodeTime.count());
+        target.decode += static_cast<double>(row.decodeTime.count());
+        ++target.count;
+    }
+
+    std::unordered_map<std::string, ComparisonRow> out;
+    for (const auto& [key, value] : agg) {
+        ComparisonRow row{};
+        row.key = key;
+        row.meanRatio = value.ratio / value.count;
+        row.meanEncodeMs = value.encode / value.count;
+        row.meanDecodeMs = value.decode / value.count;
+        out[key] = row;
+    }
+    return out;
+}
+
+std::vector<mosqueeze::bench::BenchmarkResult> loadComparisonRows(const std::filesystem::path& file) {
+    std::vector<mosqueeze::bench::BenchmarkResult> rows;
+    if (!std::filesystem::exists(file)) {
+        throw std::runtime_error("Comparison file does not exist: " + file.string());
+    }
+
+    const auto ext = file.extension().string();
+    if (ext == ".json") {
+        std::ifstream in(file, std::ios::binary);
+        nlohmann::json payload;
+        in >> payload;
+        if (!payload.is_array()) {
+            throw std::runtime_error("Comparison JSON must be an array");
+        }
+        for (const auto& item : payload) {
+            mosqueeze::bench::BenchmarkResult row{};
+            row.algorithm = item.value("algorithm", "");
+            row.level = item.value("level", 0);
+            row.file = item.value("file", "");
+            row.originalBytes = item.value("originalBytes", static_cast<size_t>(0));
+            row.compressedBytes = item.value("compressedBytes", static_cast<size_t>(0));
+            row.encodeTime = std::chrono::milliseconds(item.value("encodeMs", 0));
+            row.decodeTime = std::chrono::milliseconds(item.value("decodeMs", 0));
+            row.peakMemoryBytes = item.value("peakMemoryBytes", static_cast<size_t>(0));
+            rows.push_back(std::move(row));
+        }
+    } else {
+        std::ifstream in(file, std::ios::binary);
+        std::string line;
+        if (!std::getline(in, line)) {
+            return rows;
+        }
+        while (std::getline(in, line)) {
+            if (line.empty()) {
+                continue;
+            }
+            std::stringstream ss(line);
+            std::vector<std::string> cols;
+            std::string col;
+            while (std::getline(ss, col, ',')) {
+                cols.push_back(col);
+            }
+            if (cols.size() < 9) {
+                continue;
+            }
+            mosqueeze::bench::BenchmarkResult row{};
+            row.algorithm = cols[0];
+            row.level = std::stoi(cols[1]);
+            if (!cols[2].empty() && cols[2].front() == '"' && cols[2].back() == '"') {
+                row.file = cols[2].substr(1, cols[2].size() - 2);
+            } else {
+                row.file = cols[2];
+            }
+            row.originalBytes = static_cast<size_t>(std::stoll(cols[4]));
+            row.compressedBytes = static_cast<size_t>(std::stoll(cols[5]));
+            row.encodeTime = std::chrono::milliseconds(std::stoll(cols[6]));
+            row.decodeTime = std::chrono::milliseconds(std::stoll(cols[7]));
+            row.peakMemoryBytes = static_cast<size_t>(std::stoll(cols[8]));
+            rows.push_back(std::move(row));
+        }
+    }
+    return rows;
+}
+
+void printComparison(
+    const std::vector<mosqueeze::bench::BenchmarkResult>& current,
+    const std::vector<mosqueeze::bench::BenchmarkResult>& previous,
+    bool diffOnly) {
+    const auto currentAgg = summarize(current);
+    const auto previousAgg = summarize(previous);
+    std::cout << "\n=== Comparison ===\n";
+    std::cout << "Key | Ratio Delta | Encode Delta(ms) | Decode Delta(ms)\n";
+    std::cout << "-------------------------------------------------------\n";
+    for (const auto& [key, curr] : currentAgg) {
+        auto it = previousAgg.find(key);
+        if (it == previousAgg.end()) {
+            if (!diffOnly) {
+                std::cout << key << " | new | new | new\n";
+            }
+            continue;
+        }
+        const double ratioDelta = curr.meanRatio - it->second.meanRatio;
+        const double encodeDelta = curr.meanEncodeMs - it->second.meanEncodeMs;
+        const double decodeDelta = curr.meanDecodeMs - it->second.meanDecodeMs;
+        if (diffOnly && std::abs(ratioDelta) < 1e-9 && std::abs(encodeDelta) < 1e-9 && std::abs(decodeDelta) < 1e-9) {
+            continue;
+        }
+        std::cout << key << " | "
+                  << std::fixed << std::setprecision(4) << ratioDelta << " | "
+                  << std::fixed << std::setprecision(2) << encodeDelta << " | "
+                  << std::fixed << std::setprecision(2) << decodeDelta << '\n';
+    }
+}
+
+void registerDefaultEngines(mosqueeze::bench::BenchmarkRunner& runner) {
     runner.registerEngine(std::make_unique<mosqueeze::ZstdEngine>());
     runner.registerEngine(std::make_unique<mosqueeze::LzmaEngine>());
     runner.registerEngine(std::make_unique<mosqueeze::BrotliEngine>());
+    runner.registerEngine(std::make_unique<mosqueeze::ZpaqEngine>());
+}
 
-    mosqueeze::bench::CorpusManager corpus(corpusPath);
-    corpus.downloadStandardCorpus();
+} // namespace
 
-    std::filesystem::create_directories(outputPath);
-    mosqueeze::bench::ResultsStore store((std::filesystem::path(outputPath) / "results.sqlite3"));
+int main(int argc, char* argv[]) {
+    CLI::App app{"MoSqueeze Benchmark Tool", "mosqueeze-bench"};
 
-    std::cout << "MoSqueeze Benchmark Harness v0.1.0\n";
-    std::cout << "Corpus: " << corpus.totalFiles() << " files ("
-              << corpus.totalSize() << " bytes)\n";
+    std::vector<std::filesystem::path> files;
+    std::filesystem::path directory;
+    std::string globPattern;
+    bool useStdin = false;
+    std::filesystem::path corpusPath{"benchmarks/corpus"};
 
-    auto files = corpus.listFiles();
-    std::vector<std::filesystem::path> paths;
-    paths.reserve(files.size());
-    for (const auto& file : files) {
-        paths.push_back(file.path);
+    std::string algorithmsOpt;
+    std::string levelsOpt;
+    bool allEngines = false;
+    bool defaultOnly = false;
+
+    int iterations = 1;
+    int warmup = 0;
+    bool trackMemory = true;
+    bool noMemory = false;
+    int maxTime = 3600;
+    bool runDecode = true;
+    bool noDecode = false;
+
+    std::filesystem::path outputDir{"benchmarks/results"};
+    std::filesystem::path exportFile;
+    std::string format = "json";
+    bool verbose = false;
+    bool quiet = false;
+    bool summary = false;
+    bool noColor = false;
+
+    std::filesystem::path compareFile;
+    bool diffOnly = false;
+
+    bool dryRun = false;
+    bool listEngines = false;
+    bool showVersion = false;
+
+    app.add_option("-f,--file", files, "Add single file to benchmark");
+    app.add_option("-d,--directory", directory, "Add all files from directory (recursive)");
+    app.add_option("-g,--glob", globPattern, "Add files matching glob pattern");
+    app.add_option("-c,--corpus", corpusPath, "Use standard corpus path");
+    app.add_flag("--stdin", useStdin, "Read file paths from stdin");
+
+    app.add_option("-a,--algorithms", algorithmsOpt, "Comma-separated algorithms");
+    app.add_option("-l,--levels", levelsOpt, "Comma-separated levels");
+    app.add_flag("--all-engines", allEngines, "Test all registered engines");
+    app.add_flag("--default-only", defaultOnly, "Use only default level for each engine");
+
+    app.add_option("-i,--iterations", iterations, "Number of iterations")->check(CLI::PositiveNumber);
+    app.add_option("-w,--warmup", warmup, "Warmup iterations")->check(CLI::NonNegativeNumber);
+    app.add_flag("--track-memory", trackMemory, "Track peak memory usage");
+    app.add_flag("--no-memory", noMemory, "Disable memory tracking");
+    app.add_option("--max-time", maxTime, "Max time per compression in seconds")->check(CLI::PositiveNumber);
+    app.add_flag("--decode", runDecode, "Include decompression benchmark");
+    app.add_flag("--no-decode", noDecode, "Skip decompression benchmark");
+
+    app.add_option("-o,--output", outputDir, "Output directory");
+    app.add_option("--export", exportFile, "Export results to file");
+    app.add_option("--format", format, "Export format: json,csv,markdown,html")
+        ->check(CLI::IsMember({"json", "csv", "markdown", "html"}));
+    app.add_flag("-v,--verbose", verbose, "Verbose console output with progress");
+    app.add_flag("-q,--quiet", quiet, "Quiet mode (errors only)");
+    app.add_flag("--summary", summary, "Print summary table only");
+    app.add_flag("--no-color", noColor, "Disable ANSI colors");
+
+    app.add_option("--compare", compareFile, "Compare with previous results (JSON/CSV)");
+    app.add_flag("--diff-only", diffOnly, "Show only files with different results");
+
+    app.add_flag("--dry-run", dryRun, "Show configuration without running");
+    app.add_flag("--list-engines", listEngines, "List available engines and levels");
+    app.add_flag("--version", showVersion, "Show version");
+
+    app.get_formatter()->column_width(34);
+    CLI11_PARSE(app, argc, argv);
+
+    (void)noColor;
+    trackMemory = trackMemory && !noMemory;
+    runDecode = runDecode && !noDecode;
+
+    mosqueeze::bench::BenchmarkRunner runner;
+    registerDefaultEngines(runner);
+
+    if (showVersion) {
+        std::cout << "mosqueeze-bench 0.2.0\n";
+        return 0;
     }
 
-    auto results = runner.runGrid(paths);
+    if (listEngines) {
+        std::cout << "Available engines:\n";
+        for (const auto& name : runner.availableAlgorithms()) {
+            const auto levels = runner.availableLevels(name);
+            std::cout << "  - " << name << " [";
+            for (size_t i = 0; i < levels.size(); ++i) {
+                if (i > 0) {
+                    std::cout << ", ";
+                }
+                std::cout << levels[i];
+            }
+            std::cout << "]\n";
+        }
+        return 0;
+    }
+
+    if (!directory.empty()) {
+        appendDirectoryFiles(directory, files);
+    }
+    if (!globPattern.empty()) {
+        auto globbed = globFiles(globPattern);
+        files.insert(files.end(), globbed.begin(), globbed.end());
+    }
+    if (useStdin) {
+        appendStdinFiles(files);
+    }
+    if (files.empty()) {
+        mosqueeze::bench::CorpusManager corpus(corpusPath);
+        corpus.downloadStandardCorpus();
+        for (const auto& file : corpus.listFiles()) {
+            files.push_back(file.path);
+        }
+    }
+    dedupeFiles(files);
+
+    mosqueeze::bench::BenchmarkConfig config;
+    config.files = files;
+    config.useStdin = useStdin;
+    config.corpusPath = corpusPath;
+    config.algorithms = splitCsv(algorithmsOpt);
+    config.levels = splitCsvIntegers(levelsOpt);
+    config.allEngines = allEngines;
+    config.defaultOnly = defaultOnly;
+    config.iterations = iterations;
+    config.warmupIterations = warmup;
+    config.trackMemory = trackMemory;
+    config.runDecode = runDecode;
+    config.maxTimePerFile = std::chrono::seconds(maxTime);
+
+    if (dryRun) {
+        std::cout << "Configuration\n";
+        std::cout << "  files: " << config.files.size() << '\n';
+        std::cout << "  algorithms: " << (config.algorithms.empty() ? "all" : algorithmsOpt) << '\n';
+        std::cout << "  levels: " << (config.levels.empty() ? "engine defaults" : levelsOpt) << '\n';
+        std::cout << "  allEngines: " << (config.allEngines ? "true" : "false") << '\n';
+        std::cout << "  defaultOnly: " << (config.defaultOnly ? "true" : "false") << '\n';
+        std::cout << "  iterations: " << config.iterations << '\n';
+        std::cout << "  warmupIterations: " << config.warmupIterations << '\n';
+        std::cout << "  trackMemory: " << (config.trackMemory ? "true" : "false") << '\n';
+        std::cout << "  runDecode: " << (config.runDecode ? "true" : "false") << '\n';
+        std::cout << "  maxTimePerFile: " << config.maxTimePerFile.count() << "s\n";
+        return 0;
+    }
+
+    if (verbose) {
+        config.onProgress = [&](const mosqueeze::bench::ProgressInfo& info) {
+            const int pct = static_cast<int>(info.progress * 100.0);
+            std::cout << "\r[" << std::setw(3) << pct << "%] "
+                      << info.currentAlgorithm << "/" << info.currentLevel << " "
+                      << info.currentFile.filename().string()
+                      << " iter " << info.currentIteration << "/" << info.totalIterations << std::flush;
+        };
+    }
+
+    const auto startedAt = std::chrono::steady_clock::now();
+    auto results = runner.runWithConfig(config);
+    const auto stats = runner.computeStats(results);
+    const auto finishedAt = std::chrono::steady_clock::now();
+    if (verbose) {
+        std::cout << '\n';
+    }
+
+    std::filesystem::create_directories(outputDir);
+    mosqueeze::bench::ResultsStore store(outputDir / "results.sqlite3");
     store.clear();
     store.saveAll(results);
 
-    if (json) {
-        const auto jsonPath = std::filesystem::path(outputPath) / "results.json";
-        store.exportJson(jsonPath);
-        std::cout << "Exported JSON to " << jsonPath.string() << "\n";
-    }
-    if (csv) {
-        const auto csvPath = std::filesystem::path(outputPath) / "results.csv";
-        store.exportCsv(csvPath);
-        std::cout << "Exported CSV to " << csvPath.string() << "\n";
+    if (!exportFile.empty()) {
+        std::filesystem::create_directories(exportFile.parent_path());
+        if (format == "json") {
+            store.exportJson(exportFile);
+        } else if (format == "csv") {
+            store.exportCsv(exportFile);
+        } else if (format == "markdown") {
+            std::ofstream out(exportFile, std::ios::binary);
+            out << mosqueeze::bench::Formatters::exportMarkdown(results, &stats);
+        } else if (format == "html") {
+            std::ofstream out(exportFile, std::ios::binary);
+            out << mosqueeze::bench::Formatters::exportHtml(results, &stats);
+        }
+    } else {
+        store.exportJson(outputDir / "results.json");
+        store.exportCsv(outputDir / "results.csv");
     }
 
-    std::cout << "\n=== Top 5 by Ratio ===\n";
-    std::sort(results.begin(), results.end(), [](const auto& lhs, const auto& rhs) {
-        return lhs.ratio() > rhs.ratio();
-    });
+    if (!quiet) {
+        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(finishedAt - startedAt).count();
+        std::cout << "Completed " << results.size() << " benchmark samples in " << elapsed << " ms\n";
+        if (summary || !verbose) {
+            std::cout << mosqueeze::bench::Formatters::formatSummaryTable(results, &stats);
+        } else {
+            for (const auto& row : results) {
+                const auto key = row.algorithm + "/" + std::to_string(row.level);
+                auto it = stats.find(key);
+                std::cout << mosqueeze::bench::Formatters::formatVerbose(
+                    row, it != stats.end() ? &it->second : nullptr) << '\n';
+            }
+        }
+    }
 
-    const size_t topN = std::min<size_t>(results.size(), 5);
-    for (size_t i = 0; i < topN; ++i) {
-        const auto& r = results[i];
-        std::cout << r.algorithm << "/" << r.level << ": "
-                  << r.ratio() << "x (" << r.file.filename().string() << ")\n";
+    if (!compareFile.empty()) {
+        auto previous = loadComparisonRows(compareFile);
+        printComparison(results, previous, diffOnly);
     }
 
     return 0;

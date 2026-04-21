@@ -133,3 +133,20 @@ add_custom_command(TARGET AlgorithmSelector_test POST_BUILD
 )
 
 add_test(NAME AlgorithmSelector_test COMMAND AlgorithmSelector_test)
+
+add_executable(BenchmarkConfig_test
+  unit/BenchmarkConfig_test.cpp
+)
+
+target_link_libraries(BenchmarkConfig_test
+  PRIVATE
+    libmosqueeze
+)
+
+add_custom_command(TARGET BenchmarkConfig_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:BenchmarkConfig_test>
+)
+
+add_test(NAME BenchmarkConfig_test COMMAND BenchmarkConfig_test)

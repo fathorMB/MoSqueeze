@@ -50,3 +50,13 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 ### Feature Docs: Video Support (Issue #21)
 - `algorithms/video-compression.md` - AVI/MKV strategy for cold storage with ZPAQ level 5
 - Updated `index.md` links to include video compression guidance
+
+### Feature Docs: Enhanced Benchmark Tool (Issue #23)
+- Added `guides/benchmark-tool.md` with full enhanced `mosqueeze-bench` CLI reference
+- Updated `benchmarks/methodology.md` to match current implementation:
+  - config-driven execution (`runWithConfig`)
+  - iterations + warmup
+  - timeout, decode/memory toggles
+  - stats aggregation and export behavior
+- Updated `guides/getting-started.md` benchmark examples for new options
+- Updated `index.md` to link the new benchmark guide
