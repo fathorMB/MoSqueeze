@@ -32,6 +32,40 @@ add_custom_command(TARGET ZstdEngine_test POST_BUILD
 
 add_test(NAME ZstdEngine_test COMMAND ZstdEngine_test)
 
+add_executable(LzmaEngine_test
+  unit/LzmaEngine_test.cpp
+)
+
+target_link_libraries(LzmaEngine_test
+  PRIVATE
+    libmosqueeze
+)
+
+add_custom_command(TARGET LzmaEngine_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:LzmaEngine_test>
+)
+
+add_test(NAME LzmaEngine_test COMMAND LzmaEngine_test)
+
+add_executable(BrotliEngine_test
+  unit/BrotliEngine_test.cpp
+)
+
+target_link_libraries(BrotliEngine_test
+  PRIVATE
+    libmosqueeze
+)
+
+add_custom_command(TARGET BrotliEngine_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:BrotliEngine_test>
+)
+
+add_test(NAME BrotliEngine_test COMMAND BrotliEngine_test)
+
 add_executable(FileTypeDetector_test
   unit/FileTypeDetector_test.cpp
 )
