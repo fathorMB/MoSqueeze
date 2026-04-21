@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(MOSQUEEZE_BUILD_TESTS "Build unit tests" ON)
 
+add_subdirectory(third_party/zpaq)
 add_subdirectory(src/libmosqueeze)
 add_subdirectory(src/mosqueeze-cli)
 add_subdirectory(src/mosqueeze-bench)

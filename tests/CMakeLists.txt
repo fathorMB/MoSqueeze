@@ -66,6 +66,23 @@ add_custom_command(TARGET BrotliEngine_test POST_BUILD
 
 add_test(NAME BrotliEngine_test COMMAND BrotliEngine_test)
 
+add_executable(ZpaqEngine_test
+  unit/ZpaqEngine_test.cpp
+)
+
+target_link_libraries(ZpaqEngine_test
+  PRIVATE
+    libmosqueeze
+)
+
+add_custom_command(TARGET ZpaqEngine_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:ZpaqEngine_test>
+)
+
+add_test(NAME ZpaqEngine_test COMMAND ZpaqEngine_test)
+
 add_executable(FileTypeDetector_test
   unit/FileTypeDetector_test.cpp
 )

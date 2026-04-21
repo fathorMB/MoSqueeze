@@ -39,3 +39,10 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - `decisions/algorithm-selection-engine.md` - Rule flow, benchmark override path, JSON rules support
 - `guides/analyze-command.md` - CLI usage for `mosqueeze analyze`
 - Updated `index.md` links for new decision/guide pages
+
+### Feature Docs: ZPAQ Engine (Issue #10)
+- `algorithms/zpaq.md` - ZPAQ overview, trade-offs, and cold-storage usage guidance
+- Updated `index.md` algorithm map and links to include ZPAQ
+- Updated `algorithms/comparison-matrix.md` to mark ZPAQ as implemented (vendored + streaming adapters)
+- Updated `decisions/file-type-to-algorithm.md` with `Binary_Database -> zpaq level 5` (+ fallback)
+- Updated `guides/adding-new-engine.md` with real vendoring integration path used by ZPAQ
