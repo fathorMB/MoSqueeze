@@ -21,6 +21,9 @@ mindmap
       brotli
           Testo web, JSON/XML
           Quality 0-11
+      zpaq
+          Massimo ratio cold storage
+          Levels 1-5
     Decisioni
       FileType Mapping
       Streaming Architecture
@@ -49,6 +52,7 @@ Analisi dettagliata di ogni algoritmo di compressione supportato, con trade-off,
 - [[algorithms/zstd]] - Zstandard: default per la maggior parte dei file
 - [[algorithms/lzma-xz]] - LZMA/XZ: ottimo per binari e database
 - [[algorithms/brotli]] - Brotli: ottimizzato per testo web
+- [[algorithms/zpaq]] - ZPAQ: massima compressione per cold storage estremo
 - [[algorithms/comparison-matrix]] - Tabella comparativa completa
 
 ### [[decisions/]] - Decisioni Architetturali

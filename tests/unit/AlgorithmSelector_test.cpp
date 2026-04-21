@@ -80,6 +80,24 @@ void testBinaryExecutable() {
     std::cout << "[PASS] Binary executable selection\n";
 }
 
+void testBinaryDatabase() {
+    FileClassification classification;
+    classification.type = FileType::Binary_Database;
+    classification.mimeType = "application/vnd.sqlite3";
+    classification.isCompressed = false;
+    classification.canRecompress = true;
+
+    AlgorithmSelector selector;
+    const auto selection = selector.select(classification);
+
+    assert(!selection.shouldSkip);
+    assert(selection.algorithm == "zpaq");
+    assert(selection.level == 5);
+    assert(selection.fallbackAlgorithm == "lzma");
+
+    std::cout << "[PASS] Binary database selection\n";
+}
+
 void testArchiveExtract() {
     FileClassification classification;
     classification.type = FileType::Archive_ZIP;
@@ -126,6 +144,7 @@ int main() {
     testJsonFile();
     testSkipJpeg();
     testBinaryExecutable();
+    testBinaryDatabase();
     testArchiveExtract();
     testUnknownFile();
     testJsonConfig();

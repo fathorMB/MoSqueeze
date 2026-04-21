@@ -6,6 +6,7 @@
 #include <mosqueeze/Version.hpp>
 #include <mosqueeze/engines/BrotliEngine.hpp>
 #include <mosqueeze/engines/LzmaEngine.hpp>
+#include <mosqueeze/engines/ZpaqEngine.hpp>
 #include <mosqueeze/engines/ZstdEngine.hpp>
 #include <spdlog/spdlog.h>
 
@@ -40,9 +41,11 @@ void addAnalyzeCommand(CLI::App& app) {
         const mosqueeze::ZstdEngine zstd;
         const mosqueeze::LzmaEngine lzma;
         const mosqueeze::BrotliEngine brotli;
+        const mosqueeze::ZpaqEngine zpaq;
         selector.registerEngine(&zstd);
         selector.registerEngine(&lzma);
         selector.registerEngine(&brotli);
+        selector.registerEngine(&zpaq);
 
         const auto selection = selector.select(classification, path);
 

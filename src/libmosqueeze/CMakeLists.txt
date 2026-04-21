@@ -9,6 +9,7 @@ add_library(libmosqueeze SHARED
   src/engines/ZstdEngine.cpp
   src/engines/LzmaEngine.cpp
   src/engines/BrotliEngine.cpp
+  src/engines/ZpaqEngine.cpp
   src/FileTypeDetector.cpp
   src/AlgorithmSelector.cpp
 )
@@ -32,6 +33,7 @@ target_link_libraries(libmosqueeze
     unofficial::brotli::brotlidec
     unofficial::brotli::brotlienc
     nlohmann_json::nlohmann_json
+    libzpaq
 )
 
 target_compile_features(libmosqueeze PUBLIC cxx_std_20)

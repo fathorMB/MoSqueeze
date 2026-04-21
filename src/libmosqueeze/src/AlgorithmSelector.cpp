@@ -105,8 +105,8 @@ void AlgorithmSelector::initializeDefaultRules() {
 
     typeToRule_[FileType::Binary_Database] = {
         FileType::Binary_Database,
-        "lzma", 9, "Database: LZMA for repetitive table structures",
-        false, "zstd", 22
+        "zpaq", 5, "Database: ZPAQ level 5 for maximum cold storage ratio",
+        false, "lzma", 9
     };
 
     typeToRule_[FileType::Binary_Chunked] = {
