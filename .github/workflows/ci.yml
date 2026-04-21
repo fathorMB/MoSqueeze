@@ -6,22 +6,19 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
-
 jobs:
   build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup vcpkg
-        uses: microsoft/vcpkg-action@v2
+      - name: Setup vcpkg (latest)
+        uses: microsoft/setup-vcpkg@v1
         with:
           vcpkgGitCommitId: 'a34c873a9717bb888ab2f1c77b81dab4e8d40d88'
 
       - name: Configure CMake
-        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build
         run: cmake --build build --config Release
@@ -38,15 +35,15 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ ninja-build pkg-config
+          sudo apt-get install -y cmake g++ ninja-build pkg-config autoconf automake libtool
 
-      - name: Setup vcpkg
-        uses: microsoft/vcpkg-action@v2
+      - name: Setup vcpkg (latest)
+        uses: microsoft/setup-vcpkg@v1
         with:
           vcpkgGitCommitId: 'a34c873a9717bb888ab2f1c77b81dab4e8d40d88'
 
       - name: Configure CMake
-        run: cmake -B build -S . -G Ninja -DCMAKE_CXX_COMPILER=g++ -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+        run: cmake -B build -S . -G Ninja -DCMAKE_CXX_COMPILER=g++ -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build
         run: cmake --build build
@@ -61,15 +58,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install system dependencies
-        run: brew install cmake ninja
+        run: brew install cmake ninja autoconf automake libtool
 
-      - name: Setup vcpkg
-        uses: microsoft/vcpkg-action@v2
+      - name: Setup vcpkg (latest)
+        uses: microsoft/setup-vcpkg@v1
         with:
           vcpkgGitCommitId: 'a34c873a9717bb888ab2f1c77b81dab4e8d40d88'
 
       - name: Configure CMake
-        run: cmake -B build -S . -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+        run: cmake -B build -S . -G Ninja -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build
         run: cmake --build build
