@@ -54,6 +54,12 @@ MoSqueeze/
 ├── README.md                      # Update with C++ info
 ├── cmake/
 │   └── vcpkg.cmake                # vcpkg toolchain helpers
+├── .vscode/
+│   ├── extensions.json            # Recommended extensions
+│   ├── settings.json              # Workspace settings
+│   ├── launch.json                # Debug configurations
+│   ├── tasks.json                 # Build tasks
+│   └── c_cpp_properties.json      # IntelliSense config
 ├── src/
 │   ├── libmosqueeze/
 │   │   ├── CMakeLists.txt
@@ -350,7 +356,179 @@ jobs:
         run: ctest --output-on-failure
 ```
 
-### 7. .gitignore Updates
+### 7. VS Code Workspace Files
+
+Create `.vscode/` directory with the following files:
+
+#### `.vscode/extensions.json` (Recommended Extensions)
+
+```json
+{
+  "recommendations": [
+    "ms-vscode.cpptools",
+    "ms-vscode.cmake-tools",
+    "twxs.cmake",
+    "ms-vscode.cpptools-extension-pack"
+  ]
+}
+```
+
+#### `.vscode/settings.json`
+
+```json
+{
+  "cmake.configureOnOpen": true,
+  "cmake.configureSettings": {
+    "CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+  },
+  "cmake.buildDirectory": "${workspaceFolder}/build",
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "C_Cpp.errorSquiggles": "Enabled",
+  "files.associations": {
+    "*.hpp": "cpp",
+    "*.cpp": "cpp",
+    "CMakeLists.txt": "cmake",
+    "*.cmake": "cmake"
+  },
+  "editor.formatOnSave": true,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
+}
+```
+
+#### `.vscode/launch.json` (Debug Configurations)
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug mosqueeze-cli",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": ["--version"],
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "lldb" 
+    },
+    {
+      "name": "Debug mosqueeze-cli (Windows)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": ["--version"],
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "windows"
+    }
+  ]
+}
+```
+
+#### `.vscode/tasks.json` (Build Tasks)
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake: Configure",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-B", "build",
+        "-S", ".",
+        "-DCMAKE_TOOLCHAIN_FILE=${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Build (Debug)",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "build", "--config", "Debug"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc", "$msCompile"]
+    },
+    {
+      "label": "CMake: Build (Release)",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "build", "--config", "Release"],
+      "group": "build",
+      "problemMatcher": ["$gcc", "$msCompile"]
+    },
+    {
+      "label": "CMake: Run Tests",
+      "type": "shell",
+      "command": "ctest",
+      "args": ["--test-dir", "build", "--output-on-failure"],
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}
+```
+
+#### `.vscode/c_cpp_properties.json` (IntelliSense)
+
+```json
+{
+  "configurations": [
+    {
+      "name": "Windows",
+      "includePath": [
+        "${workspaceFolder}/src/libmosqueeze/include",
+        "${env:VCPKG_ROOT}/installed/x64-windows/include"
+      ],
+      "compilerPath": "cl.exe",
+      "cStandard": "c23",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "windows-msvc-x64"
+    },
+    {
+      "name": "Linux",
+      "includePath": [
+        "${workspaceFolder}/src/libmosqueeze/include",
+        "${env:VCPKG_ROOT}/installed/x64-linux/include"
+      ],
+      "compilerPath": "/usr/bin/g++",
+      "cStandard": "c23",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "linux-gcc-x64"
+    },
+    {
+      "name": "macOS",
+      "includePath": [
+        "${workspaceFolder}/src/libmosqueeze/include",
+        "${env:VCPKG_ROOT}/installed/arm64-osx/include"
+      ],
+      "compilerPath": "/usr/bin/clang++",
+      "cStandard": "c23",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "macos-clang-arm64"
+    }
+  ],
+  "version": 4
+}
+```
+
+**Note:** After installing VS Code extensions, CMake Tools will auto-detect the configuration and provide:
+- Status bar buttons: 🔨 Build, ▶️ Debug, 🔍 Configure
+- CMake: Configure runs automatically on project open
+- F5 launches the selected target with debugger attached
+
+### 8. .gitignore Updates
 
 Add C++-specific entries:
 
