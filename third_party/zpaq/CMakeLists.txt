@@ -11,6 +11,9 @@ target_include_directories(libzpaq
 
 target_compile_features(libzpaq PUBLIC cxx_std_17)
 
+# Required for linking into shared library (libmosqueeze.so)
+set_target_properties(libzpaq PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 if(WIN32)
   target_link_libraries(libzpaq PUBLIC advapi32)
 else()
