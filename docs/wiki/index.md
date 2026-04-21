@@ -53,6 +53,7 @@ Analisi dettagliata di ogni algoritmo di compressione supportato, con trade-off,
 - [[algorithms/lzma-xz]] - LZMA/XZ: ottimo per binari e database
 - [[algorithms/brotli]] - Brotli: ottimizzato per testo web
 - [[algorithms/zpaq]] - ZPAQ: massima compressione per cold storage estremo
+- [[algorithms/video-compression]] - Strategia video cold storage (AVI/MKV con ZPAQ)
 - [[algorithms/comparison-matrix]] - Tabella comparativa completa
 
 ### [[decisions/]] - Decisioni Architetturali
