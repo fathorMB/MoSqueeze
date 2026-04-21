@@ -1,13 +1,43 @@
 ﻿#pragma once
 
-#include <mosqueeze/Types.hpp>
+#include <mosqueeze/FileClassification.hpp>
+
+#include <cstdint>
+#include <filesystem>
+#include <optional>
 #include <string>
+#include <vector>
 
 namespace mosqueeze {
 
 class FileTypeDetector {
 public:
-    static FileType detectFromPath(const std::string& path);
+    FileTypeDetector();
+
+    FileClassification detect(const std::filesystem::path& path);
+
+    // Detection by magic bytes (most reliable)
+    FileClassification detectFromMagic(const std::vector<uint8_t>& buffer);
+
+    // Extension-based fallback detection
+    FileClassification detectFromExtension(const std::string& ext);
+
+    // Text sniffing (UTF-8/plain code/log/structured)
+    FileClassification detectTextContent(const std::vector<uint8_t>& buffer);
+
+private:
+    struct MagicEntry {
+        std::vector<uint8_t> bytes;
+        size_t offset = 0;
+        FileType type = FileType::Unknown;
+        std::string mime;
+        bool isCompressed = false;
+        bool canRecompress = true;
+    };
+
+    std::vector<MagicEntry> magicEntries_;
+
+    void registerCommonTypes();
 };
 
 } // namespace mosqueeze
