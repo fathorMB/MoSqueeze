@@ -79,6 +79,7 @@ Dati reali dalle esecuzioni del benchmark harness.
 Documentazione operativa.
 
 - [[guides/getting-started]] - Build, test, contribuire
+- [[guides/benchmark-tool]] - Enhanced `mosqueeze-bench` usage and options
 - [[guides/adding-new-engine]] - Step-by-step per nuovo algoritmo
 - [[guides/cold-storage-patterns]] - Best practices archiviazione
 - [[guides/analyze-command]] - Come usare `mosqueeze analyze`

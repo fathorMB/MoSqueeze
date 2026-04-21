@@ -202,15 +202,17 @@ Global options:
 ## Running Benchmarks
 
 ```bash
-# Run benchmark on corpus
-./mosqueeze-bench --corpus corpus/ --output results/
+# Dry run configuration
+./mosqueeze-bench --directory ./corpus --iterations 3 --warmup 1 --dry-run
 
-# With specific algorithms
-./mosqueeze-bench --corpus corpus/ --algorithms zstd,lzma
+# Run benchmark on directory with selected engines
+./mosqueeze-bench --directory ./corpus --algorithms zstd,lzma,brotli,zpaq --summary
 
-# Export formats
-./mosqueeze-bench --corpus corpus/ --json --csv
+# Export Markdown report
+./mosqueeze-bench --directory ./corpus --export ./benchmarks/results/report.md --format markdown
 ```
+
+For full CLI reference and comparison workflow, see [[benchmark-tool]].
 
 ---
 

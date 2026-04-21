@@ -1,11 +1,13 @@
-﻿#pragma once
+#pragma once
 
 #include <mosqueeze/ICompressionEngine.hpp>
+#include <mosqueeze/bench/BenchmarkConfig.hpp>
 #include <mosqueeze/bench/BenchmarkResult.hpp>
 
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace mosqueeze::bench {
@@ -13,8 +15,11 @@ namespace mosqueeze::bench {
 class BenchmarkRunner {
 public:
     BenchmarkRunner();
+    ~BenchmarkRunner();
 
     void registerEngine(std::unique_ptr<ICompressionEngine> engine);
+    std::vector<std::string> availableAlgorithms() const;
+    std::vector<int> availableLevels(const std::string& algorithm) const;
 
     std::vector<BenchmarkResult> run(
         const std::vector<std::filesystem::path>& files,
@@ -24,9 +29,20 @@ public:
     std::vector<BenchmarkResult> runGrid(
         const std::vector<std::filesystem::path>& files);
 
+    std::vector<BenchmarkResult> runWithConfig(const BenchmarkConfig& config);
+
+    std::unordered_map<std::string, BenchmarkStats> computeStats(
+        const std::vector<BenchmarkResult>& results) const;
+
 private:
     std::vector<std::unique_ptr<ICompressionEngine>> engines_;
     ICompressionEngine* findEngine(const std::string& name) const;
+    BenchmarkResult runIteration(
+        ICompressionEngine* engine,
+        const std::filesystem::path& file,
+        int level,
+        const BenchmarkConfig& config,
+        FileType fileType) const;
 };
 
 } // namespace mosqueeze::bench

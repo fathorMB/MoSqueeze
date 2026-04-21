@@ -42,6 +42,19 @@ Expected output:
 mosqueeze v0.1.0
 ```
 
+## Run Benchmark Tool
+
+```bash
+# List engines and levels
+./build/src/mosqueeze-bench/mosqueeze-bench --list-engines
+
+# Benchmark a directory with multiple iterations
+./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --iterations 5 --warmup 2 --summary
+
+# Export HTML report
+./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --export ./benchmarks/results/report.html --format html
+```
+
 ## Run Tests
 
 ```bash
@@ -58,6 +71,7 @@ ctest --output-on-failure
 - [Algorithm Comparison Matrix](docs/wiki/algorithms/comparison-matrix.md) — Which algorithm for which file type
 - [FileType → Algorithm Mapping](docs/wiki/decisions/file-type-to-algorithm.md) — Decision guide
 - [Benchmark Results](docs/wiki/benchmarks/graphs/ratio-by-algorithm.md) — Performance data
+- [Benchmark Tool Guide](docs/wiki/guides/benchmark-tool.md) — Full `mosqueeze-bench` CLI and exports
 - [Getting Started Guide](docs/wiki/guides/getting-started.md) — Full setup instructions
 
 ## License

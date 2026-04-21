@@ -1,7 +1,8 @@
-﻿find_package(CLI11 CONFIG REQUIRED)
+find_package(CLI11 CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 if(NOT TARGET SQLite::SQLite3)
   add_library(SQLite::SQLite3 ALIAS unofficial::sqlite3::sqlite3)
@@ -11,6 +12,7 @@ add_executable(mosqueeze-bench
   src/main.cpp
   src/BenchmarkRunner.cpp
   src/CorpusManager.cpp
+  src/Formatters.cpp
   src/ResultsStore.cpp
 )
 
@@ -21,6 +23,7 @@ target_link_libraries(mosqueeze-bench
     CLI11::CLI11
     fmt::fmt
     spdlog::spdlog
+    nlohmann_json::nlohmann_json
 )
 
 target_include_directories(mosqueeze-bench
