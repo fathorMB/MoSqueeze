@@ -1,0 +1,29 @@
+﻿{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug mosqueeze-cli",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": ["--version"],
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "Debug mosqueeze-cli (Windows)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": ["--version"],
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "windows"
+    }
+  ]
+}
