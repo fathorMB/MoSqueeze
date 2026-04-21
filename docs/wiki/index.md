@@ -21,13 +21,11 @@ mindmap
       brotli
           Testo web, JSON/XML
           Quality 0-11
-      zpaq
-          Extreme cold storage
     Decisioni
       FileType Mapping
       Streaming Architecture
       Compression Levels
-    Benchmark
+      Benchmarks
       Methodology
       Corpus
       Results
@@ -87,6 +85,26 @@ Documentazione operativa.
 | Log/Database | lzma | 9 | Pattern ripetitivi |
 | PNG/GIF | zstd | 19 | Già compressi, ma migliorabili |
 | JPEG/MP4 | SKIP | — | Ricomprimere peggiora |
+
+---
+
+## Quick Links
+
+### Per Iniziare
+1. [[guides/getting-started]] — Setup ambiente
+2. [[algorithms/comparison-matrix]] — Quale algoritmo usare
+
+### Per Sviluppare
+1. [[guides/adding-new-engine]] — Aggiungere un algoritmo
+2. [[decisions/streaming-architecture]] — Capire l'architettura
+
+### Per Decidere
+1. [[decisions/file-type-to-algorithm]] — FileType → Algoritmo
+2. [[decisions/compression-levels]] — Livello di compressione
+
+### Per Benchmarking
+1. [[benchmarks/methodology]] — Metodologia
+2. [[benchmarks/graphs/ratio-by-algorithm]] — Risultati visualizzati
 
 ---
 

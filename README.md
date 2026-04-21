@@ -48,3 +48,18 @@ mosqueeze v0.1.0
 cd build
 ctest --output-on-failure
 ```
+
+## Documentation
+
+**📚 [Wiki/Knowledge Base](docs/wiki/)** — Comprehensive documentation with algorithm comparisons, benchmarks, and guides.
+
+### Quick Links
+
+- [Algorithm Comparison Matrix](docs/wiki/algorithms/comparison-matrix.md) — Which algorithm for which file type
+- [FileType → Algorithm Mapping](docs/wiki/decisions/file-type-to-algorithm.md) — Decision guide
+- [Benchmark Results](docs/wiki/benchmarks/graphs/ratio-by-algorithm.md) — Performance data
+- [Getting Started Guide](docs/wiki/guides/getting-started.md) — Full setup instructions
+
+## License
+
+MIT
