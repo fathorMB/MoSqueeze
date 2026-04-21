@@ -1,6 +1,7 @@
 ﻿find_package(zstd CONFIG REQUIRED)
 find_package(LibLZMA REQUIRED)
 find_package(unofficial-brotli CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 add_library(libmosqueeze SHARED
   src/Version.cpp
@@ -9,6 +10,7 @@ add_library(libmosqueeze SHARED
   src/engines/LzmaEngine.cpp
   src/engines/BrotliEngine.cpp
   src/FileTypeDetector.cpp
+  src/AlgorithmSelector.cpp
 )
 
 set_target_properties(libmosqueeze PROPERTIES
@@ -29,6 +31,7 @@ target_link_libraries(libmosqueeze
     LibLZMA::LibLZMA
     unofficial::brotli::brotlidec
     unofficial::brotli::brotlienc
+    nlohmann_json::nlohmann_json
 )
 
 target_compile_features(libmosqueeze PUBLIC cxx_std_20)

@@ -82,3 +82,20 @@ add_custom_command(TARGET FileTypeDetector_test POST_BUILD
 )
 
 add_test(NAME FileTypeDetector_test COMMAND FileTypeDetector_test)
+
+add_executable(AlgorithmSelector_test
+  unit/AlgorithmSelector_test.cpp
+)
+
+target_link_libraries(AlgorithmSelector_test
+  PRIVATE
+    libmosqueeze
+)
+
+add_custom_command(TARGET AlgorithmSelector_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:AlgorithmSelector_test>
+)
+
+add_test(NAME AlgorithmSelector_test COMMAND AlgorithmSelector_test)
