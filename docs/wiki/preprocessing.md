@@ -11,6 +11,19 @@ Current implementation status:
 - `bayer-raw`: reversible byte-plane transform for `Image_Raw` payloads (experimental baseline).
 - `zstd-dict`: training/load flow implemented; preprocess step currently pass-through.
 
+## Bayer RAW (RAF) Parsing Fix
+
+`bayer-raw` now parses Fuji RAF structure and transforms only the RAW Bayer image region.
+
+Before this fix, the transform was applied to the entire file (header + metadata + image payload), which could reduce compression quality and risk structural corruption for camera-specific containers.
+
+Current behavior:
+
+- RAF header/metadata/trailing sections are preserved byte-for-byte
+- Bayer byte-plane transform is applied only to the detected RAW image segment
+- unparseable/non-RAF RAW payloads safely fall back to pass-through (`metadata version 0`)
+- postprocess supports both new region-based metadata (`version 2`) and legacy full-file metadata (`version 1`)
+
 ## Available Preprocessors
 
 | Name | File Types | Typical Improvement (Target) |
