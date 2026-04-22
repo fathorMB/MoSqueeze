@@ -1,7 +1,8 @@
-﻿find_package(zstd CONFIG REQUIRED)
+find_package(zstd CONFIG REQUIRED)
 find_package(LibLZMA REQUIRED)
 find_package(unofficial-brotli CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(pugixml CONFIG REQUIRED)
 
 add_library(libmosqueeze SHARED
   src/Version.cpp
@@ -12,6 +13,12 @@ add_library(libmosqueeze SHARED
   src/engines/ZpaqEngine.cpp
   src/FileTypeDetector.cpp
   src/AlgorithmSelector.cpp
+  src/PreprocessorSelector.cpp
+  src/CompressionPipeline.cpp
+  src/preprocessors/JsonCanonicalizer.cpp
+  src/preprocessors/XmlCanonicalizer.cpp
+  src/preprocessors/ImageMetaStripper.cpp
+  src/preprocessors/DictionaryPreprocessor.cpp
 )
 
 set_target_properties(libmosqueeze PROPERTIES
@@ -33,6 +40,7 @@ target_link_libraries(libmosqueeze
     unofficial::brotli::brotlidec
     unofficial::brotli::brotlienc
     nlohmann_json::nlohmann_json
+    pugixml::pugixml
     libzpaq
 )
 
