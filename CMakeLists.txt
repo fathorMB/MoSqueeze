@@ -1,5 +1,8 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
+# Enable automatic DLL copying for Windows
+set(VCPKG_APPLOCAL_DEPS ON CACHE BOOL "Copy vcpkg DLLs to output directory" FORCE)
+
 include(cmake/vcpkg.cmake OPTIONAL)
 
 project(MoSqueeze VERSION 0.1.0 LANGUAGES CXX)
