@@ -13,6 +13,9 @@ int main() {
     assert(config.maxTimePerFile.count() == 3600);
     assert(config.threadCount == 0);
     assert(!config.sequential);
+    assert(config.preprocessMode == "none");
+    assert(!config.usePreprocessing());
+    assert(!config.autoPreprocess());
     assert(config.getEffectiveThreadCount() >= 1);
     assert(config.files.empty());
     assert(!config.useStdin);
@@ -21,6 +24,12 @@ int main() {
     assert(config.getEffectiveThreadCount() == 3);
     config.sequential = true;
     assert(config.getEffectiveThreadCount() == 1);
+    config.preprocessMode = "auto";
+    assert(config.usePreprocessing());
+    assert(config.autoPreprocess());
+    config.preprocessMode = "image-meta-strip";
+    assert(config.usePreprocessing());
+    assert(!config.autoPreprocess());
 
     bool called = false;
     config.onProgress = [&](const mosqueeze::bench::ProgressInfo& info) {

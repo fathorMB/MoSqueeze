@@ -56,6 +56,9 @@ mosqueeze v0.1.0
 # Parallel run with explicit thread count + JSON/CSV exports
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --threads 8 --output ./benchmarks/results --json --csv
 
+# Run benchmark with automatic preprocessing selection
+./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --preprocess auto --default-only --verbose
+
 # Export HTML report
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --export ./benchmarks/results/report.html --format html
 ```

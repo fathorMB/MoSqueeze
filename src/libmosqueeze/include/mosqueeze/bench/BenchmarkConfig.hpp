@@ -52,12 +52,15 @@ struct BenchmarkConfig {
 
     int threadCount = 0;
     bool sequential = false;
+    std::string preprocessMode = "none";
 
     std::function<void(const ProgressInfo&)> onProgress;
     std::function<bool()> shouldCancel;
 
     bool hasProgressCallback() const { return static_cast<bool>(onProgress); }
     bool hasCancellation() const { return static_cast<bool>(shouldCancel); }
+    bool usePreprocessing() const { return preprocessMode != "none"; }
+    bool autoPreprocess() const { return preprocessMode == "auto"; }
     int getEffectiveThreadCount() const {
         if (sequential) {
             return 1;

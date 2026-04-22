@@ -2,6 +2,11 @@
 #include <mosqueeze/bench/ThreadPool.hpp>
 
 #include <mosqueeze/FileTypeDetector.hpp>
+#include <mosqueeze/PreprocessorSelector.hpp>
+#include <mosqueeze/preprocessors/BayerPreprocessor.hpp>
+#include <mosqueeze/preprocessors/ImageMetaStripper.hpp>
+#include <mosqueeze/preprocessors/JsonCanonicalizer.hpp>
+#include <mosqueeze/preprocessors/XmlCanonicalizer.hpp>
 
 #include <algorithm>
 #include <atomic>
@@ -77,6 +82,22 @@ std::unordered_map<std::string, std::vector<int>> buildLevelMap(
     return levelsByAlgorithm;
 }
 
+std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name) {
+    if (name == "bayer-raw") {
+        return std::make_unique<BayerPreprocessor>();
+    }
+    if (name == "image-meta-strip") {
+        return std::make_unique<ImageMetaStripper>();
+    }
+    if (name == "json-canonical") {
+        return std::make_unique<JsonCanonicalizer>();
+    }
+    if (name == "xml-canonical") {
+        return std::make_unique<XmlCanonicalizer>();
+    }
+    return nullptr;
+}
+
 } // namespace
 
 BenchmarkRunner::BenchmarkRunner() = default;
@@ -127,13 +148,56 @@ BenchmarkResult BenchmarkRunner::runIteration(
         throw std::runtime_error("Failed to open file for benchmark: " + file.string());
     }
 
+    std::string rawContent((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    std::string contentToCompress = rawContent;
+    PreprocessMetrics preprocessMetrics{};
+
+    if (config.usePreprocessing()) {
+        preprocessMetrics.type = config.autoPreprocess() ? "none" : config.preprocessMode;
+        preprocessMetrics.originalBytes = rawContent.size();
+        preprocessMetrics.processedBytes = rawContent.size();
+
+        std::unique_ptr<IPreprocessor> selectedByName = createPreprocessor(config.preprocessMode);
+        std::unique_ptr<PreprocessorSelector> selector;
+        IPreprocessor* preprocessor = nullptr;
+        if (config.autoPreprocess()) {
+            selector = std::make_unique<PreprocessorSelector>();
+            preprocessor = selector->selectBest(fileType);
+        } else {
+            preprocessor = selectedByName.get();
+        }
+
+        if (preprocessor != nullptr) {
+            preprocessMetrics.type = preprocessor->name();
+            preprocessMetrics.improvement = preprocessor->estimatedImprovement(fileType);
+            if (preprocessor->canProcess(fileType)) {
+                std::istringstream preprocessInput(rawContent);
+                std::ostringstream preprocessOutput;
+                const auto preprocessStart = std::chrono::steady_clock::now();
+                const PreprocessResult preprocessResult =
+                    preprocessor->preprocess(preprocessInput, preprocessOutput, fileType);
+                const auto preprocessEnd = std::chrono::steady_clock::now();
+
+                contentToCompress = preprocessOutput.str();
+                preprocessMetrics.originalBytes =
+                    preprocessResult.originalBytes > 0 ? preprocessResult.originalBytes : rawContent.size();
+                preprocessMetrics.processedBytes =
+                    preprocessResult.processedBytes > 0 ? preprocessResult.processedBytes : contentToCompress.size();
+                preprocessMetrics.preprocessingTimeMs =
+                    std::chrono::duration<double, std::milli>(preprocessEnd - preprocessStart).count();
+                preprocessMetrics.applied = true;
+            }
+        }
+    }
+
+    std::istringstream input(contentToCompress);
     std::ostringstream compressed;
     CompressionOptions opts{};
     opts.level = level;
     opts.extreme = level >= engine->maxLevel();
 
     const auto encodeStart = std::chrono::steady_clock::now();
-    CompressionResult encodeResult = engine->compress(in, compressed, opts);
+    CompressionResult encodeResult = engine->compress(input, compressed, opts);
     const auto encodeEnd = std::chrono::steady_clock::now();
     const auto encodeDuration = std::chrono::duration_cast<std::chrono::milliseconds>(encodeEnd - encodeStart);
 
@@ -163,11 +227,12 @@ BenchmarkResult BenchmarkRunner::runIteration(
     row.level = level;
     row.file = file;
     row.fileType = fileType;
-    row.originalBytes = encodeResult.originalBytes;
+    row.originalBytes = config.usePreprocessing() ? rawContent.size() : encodeResult.originalBytes;
     row.compressedBytes = encodeResult.compressedBytes;
     row.encodeTime = encodeDuration;
     row.decodeTime = decodeDuration;
     row.peakMemoryBytes = config.trackMemory ? encodeResult.peakMemoryBytes : 0;
+    row.preprocess = preprocessMetrics;
     return row;
 }
 

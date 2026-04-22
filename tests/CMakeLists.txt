@@ -151,6 +151,37 @@ add_custom_command(TARGET BenchmarkConfig_test POST_BUILD
 
 add_test(NAME BenchmarkConfig_test COMMAND BenchmarkConfig_test)
 
+add_executable(BenchmarkPreprocess_test
+  unit/BenchmarkPreprocess_test.cpp
+  ../src/mosqueeze-bench/src/BenchmarkRunner.cpp
+  ../src/mosqueeze-bench/src/ResultsStore.cpp
+  ../src/mosqueeze-bench/src/ThreadPool.cpp
+)
+
+target_include_directories(BenchmarkPreprocess_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/mosqueeze-bench/include
+)
+
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+if(NOT TARGET SQLite::SQLite3 AND TARGET unofficial::sqlite3::sqlite3)
+  add_library(SQLite::SQLite3 ALIAS unofficial::sqlite3::sqlite3)
+endif()
+
+target_link_libraries(BenchmarkPreprocess_test
+  PRIVATE
+    libmosqueeze
+    SQLite::SQLite3
+)
+
+add_custom_command(TARGET BenchmarkPreprocess_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:BenchmarkPreprocess_test>
+)
+
+add_test(NAME BenchmarkPreprocess_test COMMAND BenchmarkPreprocess_test)
+
 add_executable(ThreadPool_test
   unit/ThreadPool_test.cpp
   ../src/mosqueeze-bench/src/ThreadPool.cpp

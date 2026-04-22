@@ -26,6 +26,8 @@ mosqueeze-bench --directory ./corpus --iterations 5 --warmup 2 --output benchmar
 | Encode Time | ms | Compression duration |
 | Decode Time | ms | Decompression duration (optional) |
 | Peak Memory | bytes | Peak memory from engine result (optional) |
+| Preprocess Time | ms | Time spent in preprocessing stage (optional) |
+| Total Ratio | factor | `preprocess.originalBytes / compressedBytes` when preprocessing is applied |
 
 Derived values:
 
@@ -49,6 +51,7 @@ Runtime controls:
 - `--max-time` for per-step timeout guard
 - `--no-decode` to skip decode benchmark
 - `--no-memory` to disable memory field capture
+- `--preprocess` to enable file preprocessing (`none`, `auto`, or explicit preprocessor name)
 - `--verbose` for progress callback output
 - parallel mode (`--threads > 1`) automatically disables memory capture to avoid process-wide misattribution
 
@@ -96,7 +99,16 @@ JSON export format is an array of rows:
     "encodeMs": 1200,
     "decodeMs": 45,
     "peakMemoryBytes": 134000000,
-    "ratio": 3.89
+    "ratio": 3.89,
+    "totalRatio": 4.11,
+    "preprocess": {
+      "type": "json-canonical",
+      "originalBytes": 2100000,
+      "processedBytes": 1950000,
+      "timeMs": 4.2,
+      "improvement": 0.15,
+      "applied": true
+    }
   }
 ]
 ```
