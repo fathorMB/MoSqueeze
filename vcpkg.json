@@ -1,6 +1,8 @@
 ﻿{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "mosqueeze",
   "version": "0.1.0",
+  "builtin-baseline": "42f37e46d37baf7b218966434b91116bddf73461",
   "dependencies": [
     "zstd",
     "liblzma",
