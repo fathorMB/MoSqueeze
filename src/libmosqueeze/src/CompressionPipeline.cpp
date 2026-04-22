@@ -4,6 +4,7 @@
 #include <mosqueeze/preprocessors/BayerPreprocessor.hpp>
 #include <mosqueeze/preprocessors/ImageMetaStripper.hpp>
 #include <mosqueeze/preprocessors/JsonCanonicalizer.hpp>
+#include <mosqueeze/preprocessors/PngOptimizer.hpp>
 #include <mosqueeze/preprocessors/XmlCanonicalizer.hpp>
 
 #include <algorithm>
@@ -49,6 +50,8 @@ std::unique_ptr<IPreprocessor> createPreprocessor(PreprocessorType type) {
             return std::make_unique<DictionaryPreprocessor>();
         case PreprocessorType::BayerPreprocessor:
             return std::make_unique<BayerPreprocessor>();
+        case PreprocessorType::PngOptimizer:
+            return std::make_unique<PngOptimizer>();
         case PreprocessorType::None:
         default:
             return nullptr;

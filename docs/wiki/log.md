@@ -94,3 +94,8 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `preprocessing.md` with `bayer-raw` RAF region-only transform behavior
 - Documented safe fallback mode for unparseable/non-RAF raw payloads
 - Documented metadata compatibility (`version 2` region mode + legacy `version 1`)
+
+### Feature Docs: PNG Optimization (Issue #13)
+- Updated `preprocessing.md` with `png-optimizer` behavior and availability
+- Updated `guides/benchmark-tool.md` preprocess mode list to include `png-optimizer`
+- Updated `guides/analyze-command.md` `--preprocess` values to include `png-optimizer`
