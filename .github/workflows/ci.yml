@@ -16,6 +16,7 @@ jobs:
         shell: pwsh
         run: |
           git clone --depth=1 https://github.com/Microsoft/vcpkg.git "${{ github.workspace }}/vcpkg"
+          git -C "${{ github.workspace }}/vcpkg" fetch --unshallow --tags
           & "${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat"
 
       - name: Install dependencies
@@ -47,6 +48,7 @@ jobs:
       - name: Setup vcpkg
         run: |
           git clone --depth=1 https://github.com/Microsoft/vcpkg.git "${{ github.workspace }}/vcpkg"
+          git -C "${{ github.workspace }}/vcpkg" fetch --unshallow --tags
           "${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh"
 
       - name: Install dependencies
@@ -75,6 +77,7 @@ jobs:
       - name: Setup vcpkg
         run: |
           git clone --depth=1 https://github.com/Microsoft/vcpkg.git "${{ github.workspace }}/vcpkg"
+          git -C "${{ github.workspace }}/vcpkg" fetch --unshallow --tags
           "${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh"
 
       - name: Install dependencies
