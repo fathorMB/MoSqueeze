@@ -43,6 +43,9 @@ struct BenchmarkConfig {
 
     int iterations = 1;
     int warmupIterations = 0;
+    // Track peak memory usage during compression.
+    // Note: parallel runs disable this automatically because memory sampling
+    // is process-wide and cannot be attributed to individual file operations.
     bool trackMemory = true;
     bool runDecode = true;
     std::chrono::seconds maxTimePerFile{3600};
