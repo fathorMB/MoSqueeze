@@ -1,11 +1,15 @@
 #include <mosqueeze/bench/BenchmarkRunner.hpp>
+#include <mosqueeze/bench/ThreadPool.hpp>
 
 #include <mosqueeze/FileTypeDetector.hpp>
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <fstream>
+#include <future>
+#include <mutex>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
@@ -24,6 +28,53 @@ double variance(const std::vector<double>& values, double mean) {
         sum += delta * delta;
     }
     return sum / static_cast<double>(values.size());
+}
+
+std::vector<ICompressionEngine*> selectEngines(
+    const std::vector<std::unique_ptr<ICompressionEngine>>& engines,
+    const BenchmarkConfig& config) {
+    std::vector<ICompressionEngine*> selectedEngines;
+    if (config.allEngines || config.algorithms.empty()) {
+        for (const auto& engine : engines) {
+            selectedEngines.push_back(engine.get());
+        }
+    } else {
+        std::unordered_set<std::string> selectedAlgorithms(config.algorithms.begin(), config.algorithms.end());
+        for (const auto& engine : engines) {
+            if (selectedAlgorithms.count(engine->name()) > 0) {
+                selectedEngines.push_back(engine.get());
+            }
+        }
+    }
+    return selectedEngines;
+}
+
+std::unordered_map<std::string, std::vector<int>> buildLevelMap(
+    const std::vector<ICompressionEngine*>& engines,
+    const BenchmarkConfig& config) {
+    std::unordered_map<std::string, std::vector<int>> levelsByAlgorithm;
+    for (auto* engine : engines) {
+        std::vector<int> levelSet;
+        if (config.defaultOnly) {
+            levelSet = {engine->defaultLevel()};
+        } else if (config.levels.empty()) {
+            levelSet = engine->supportedLevels();
+        } else {
+            const auto supported = engine->supportedLevels();
+            for (int level : config.levels) {
+                if (std::find(supported.begin(), supported.end(), level) != supported.end()) {
+                    levelSet.push_back(level);
+                }
+            }
+            if (levelSet.empty()) {
+                levelSet.push_back(engine->defaultLevel());
+            }
+        }
+        std::sort(levelSet.begin(), levelSet.end());
+        levelSet.erase(std::unique(levelSet.begin(), levelSet.end()), levelSet.end());
+        levelsByAlgorithm[engine->name()] = std::move(levelSet);
+    }
+    return levelsByAlgorithm;
 }
 
 } // namespace
@@ -148,52 +199,19 @@ std::vector<BenchmarkResult> BenchmarkRunner::runWithConfig(const BenchmarkConfi
         return {};
     }
 
-    std::vector<ICompressionEngine*> selectedEngines;
-    if (config.allEngines || config.algorithms.empty()) {
-        for (const auto& engine : engines_) {
-            selectedEngines.push_back(engine.get());
-        }
-    } else {
-        std::unordered_set<std::string> selectedAlgorithms(config.algorithms.begin(), config.algorithms.end());
-        for (const auto& engine : engines_) {
-            if (selectedAlgorithms.count(engine->name()) > 0) {
-                selectedEngines.push_back(engine.get());
-            }
-        }
-    }
+    std::vector<ICompressionEngine*> selectedEngines = selectEngines(engines_, config);
 
     if (selectedEngines.empty()) {
         throw std::runtime_error("No matching engines found for requested algorithms");
     }
 
-    std::unordered_map<std::string, std::vector<int>> levelsByAlgorithm;
-    for (auto* engine : selectedEngines) {
-        std::vector<int> levelSet;
-        if (config.defaultOnly) {
-            levelSet = {engine->defaultLevel()};
-        } else if (config.levels.empty()) {
-            levelSet = engine->supportedLevels();
-        } else {
-            const auto supported = engine->supportedLevels();
-            for (int level : config.levels) {
-                if (std::find(supported.begin(), supported.end(), level) != supported.end()) {
-                    levelSet.push_back(level);
-                }
-            }
-            if (levelSet.empty()) {
-                levelSet.push_back(engine->defaultLevel());
-            }
-        }
-        std::sort(levelSet.begin(), levelSet.end());
-        levelSet.erase(std::unique(levelSet.begin(), levelSet.end()), levelSet.end());
-        levelsByAlgorithm[engine->name()] = std::move(levelSet);
-    }
+    const std::unordered_map<std::string, std::vector<int>> levelsByAlgorithm = buildLevelMap(selectedEngines, config);
 
     const int iterations = std::max(1, config.iterations);
     const int warmups = std::max(0, config.warmupIterations);
     int unitsPerFile = 0;
     for (auto* engine : selectedEngines) {
-        unitsPerFile += static_cast<int>(levelsByAlgorithm[engine->name()].size()) * (iterations + warmups);
+        unitsPerFile += static_cast<int>(levelsByAlgorithm.at(engine->name()).size()) * (iterations + warmups);
     }
     const int totalWork = std::max(1, unitsPerFile * static_cast<int>(config.files.size()));
     int completedWork = 0;
@@ -256,6 +274,143 @@ std::vector<BenchmarkResult> BenchmarkRunner::runWithConfig(const BenchmarkConfi
 
     emitProgress({}, "", 0, 0, true);
     return results;
+}
+
+void BenchmarkRunner::processFile(
+    const std::filesystem::path& file,
+    const std::vector<ICompressionEngine*>& engines,
+    const BenchmarkConfig& config,
+    std::vector<BenchmarkResult>& results,
+    std::mutex& resultsMutex,
+    std::atomic<int>& completedCount,
+    std::atomic<size_t>& completedBytes) const {
+    FileTypeDetector detector;
+    const auto classification = detector.detect(file);
+    const auto levelsByAlgorithm = buildLevelMap(engines, config);
+    const int iterations = std::max(1, config.iterations);
+    const int warmups = std::max(0, config.warmupIterations);
+
+    std::vector<BenchmarkResult> localResults;
+    for (ICompressionEngine* engine : engines) {
+        if (config.hasCancellation() && config.shouldCancel()) {
+            break;
+        }
+        auto it = levelsByAlgorithm.find(engine->name());
+        if (it == levelsByAlgorithm.end()) {
+            continue;
+        }
+        const auto& levelSet = it->second;
+
+        for (int level : levelSet) {
+            if (config.hasCancellation() && config.shouldCancel()) {
+                break;
+            }
+            for (int i = 0; i < warmups; ++i) {
+                if (config.hasCancellation() && config.shouldCancel()) {
+                    break;
+                }
+                (void)runIteration(engine, file, level, config, classification.type);
+            }
+            for (int i = 0; i < iterations; ++i) {
+                if (config.hasCancellation() && config.shouldCancel()) {
+                    break;
+                }
+                localResults.push_back(runIteration(engine, file, level, config, classification.type));
+            }
+        }
+    }
+
+    if (!localResults.empty()) {
+        std::lock_guard<std::mutex> lock(resultsMutex);
+        results.insert(results.end(), localResults.begin(), localResults.end());
+    }
+
+    std::error_code ec;
+    const auto bytes = static_cast<size_t>(std::filesystem::file_size(file, ec));
+    if (!ec) {
+        completedBytes.fetch_add(bytes, std::memory_order_relaxed);
+    }
+    completedCount.fetch_add(1, std::memory_order_relaxed);
+}
+
+std::vector<BenchmarkResult> BenchmarkRunner::runParallel(const BenchmarkConfig& config) {
+    if (engines_.empty()) {
+        throw std::runtime_error("No engines registered in BenchmarkRunner");
+    }
+
+    if (config.files.empty()) {
+        return {};
+    }
+
+    std::vector<ICompressionEngine*> selectedEngines = selectEngines(engines_, config);
+    if (selectedEngines.empty()) {
+        throw std::runtime_error("No matching engines found for requested algorithms");
+    }
+
+    const int threadCount = std::max(1, config.getEffectiveThreadCount());
+    ThreadPool pool(static_cast<size_t>(threadCount));
+
+    std::vector<BenchmarkResult> allResults;
+    allResults.reserve(config.files.size() * selectedEngines.size() * std::max(1, config.iterations));
+    std::mutex resultsMutex;
+    std::atomic<int> completedCount{0};
+    std::atomic<size_t> completedBytes{0};
+    std::atomic<bool> cancelled{false};
+    std::mutex progressMutex;
+    auto lastProgress = std::chrono::steady_clock::time_point{};
+
+    auto maybeReportProgress = [&](const std::filesystem::path& file, bool force) {
+        if (!config.hasProgressCallback()) {
+            return;
+        }
+
+        std::lock_guard<std::mutex> lock(progressMutex);
+        const auto now = std::chrono::steady_clock::now();
+        if (!force && lastProgress != std::chrono::steady_clock::time_point{} &&
+            (now - lastProgress) < std::chrono::milliseconds(50)) {
+            return;
+        }
+
+        ProgressInfo info{};
+        info.currentFile = file;
+        info.completedFiles = completedCount.load(std::memory_order_relaxed);
+        info.totalFiles = static_cast<int>(config.files.size());
+        info.progress = static_cast<double>(info.completedFiles) / static_cast<double>(info.totalFiles);
+        config.onProgress(info);
+        lastProgress = now;
+    };
+
+    std::vector<std::future<void>> futures;
+    futures.reserve(config.files.size());
+    for (const auto& file : config.files) {
+        futures.push_back(pool.submit([&, file]() {
+            if (cancelled.load(std::memory_order_relaxed)) {
+                return;
+            }
+            if (config.hasCancellation() && config.shouldCancel()) {
+                cancelled.store(true, std::memory_order_relaxed);
+                return;
+            }
+
+            processFile(
+                file,
+                selectedEngines,
+                config,
+                allResults,
+                resultsMutex,
+                completedCount,
+                completedBytes);
+            maybeReportProgress(file, false);
+        }));
+    }
+
+    pool.waitAll();
+    for (auto& future : futures) {
+        future.get();
+    }
+
+    maybeReportProgress({}, true);
+    return allResults;
 }
 
 std::unordered_map<std::string, BenchmarkStats> BenchmarkRunner::computeStats(

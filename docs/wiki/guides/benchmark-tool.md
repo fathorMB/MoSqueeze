@@ -124,9 +124,33 @@ Comparison keys are grouped by `file + algorithm + level`.
 
 ---
 
+## Parallel Execution
+
+For large benchmark sets, use built-in file-level parallelism:
+
+```bash
+# Auto-detect worker threads
+./mosqueeze-bench --directory ./images --default-only
+
+# Explicit worker count
+./mosqueeze-bench --directory ./images --threads 8
+
+# Force single-threaded mode
+./mosqueeze-bench --directory ./images --sequential
+```
+
+Notes:
+
+- parallel mode processes different files concurrently
+- each file still runs engines/levels sequentially within the worker
+- `--verbose` progress updates are mutex-protected and rate-limited
+
+---
+
 ## Implementation Notes
 
 - `BenchmarkRunner::runWithConfig(...)` is the primary execution path.
+- `BenchmarkRunner::runParallel(...)` is used when effective thread count is greater than 1.
 - Legacy `run()` and `runGrid()` remain supported.
 - Progress callbacks are rate-limited to avoid console flooding.
 - `computeStats(...)` returns aggregated means and standard deviations grouped by `algorithm/level`.

@@ -14,6 +14,7 @@ add_executable(mosqueeze-bench
   src/CorpusManager.cpp
   src/Formatters.cpp
   src/ResultsStore.cpp
+  src/ThreadPool.cpp
 )
 
 target_link_libraries(mosqueeze-bench
