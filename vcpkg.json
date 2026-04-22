@@ -9,6 +9,7 @@
     "fmt",
     "spdlog",
     "nlohmann-json",
-    "sqlite3"
+    "sqlite3",
+    "pugixml"
   ]
 }

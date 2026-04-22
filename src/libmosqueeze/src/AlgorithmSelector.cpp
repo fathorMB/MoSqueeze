@@ -151,18 +151,18 @@ Selection AlgorithmSelector::select(
     const std::filesystem::path& file) const {
     (void)file;
 
-    if (!classification.canRecompress || classification.recommendation == "skip") {
-        Selection skipSelection;
-        skipSelection.shouldSkip = true;
-        skipSelection.rationale = "File type marked as skip: " + classification.mimeType;
-        return skipSelection;
-    }
-
     if (classification.recommendation == "extract-then-compress") {
         Selection extractSelection;
         extractSelection.shouldSkip = true;
         extractSelection.rationale = "Archive detected: extract contents first, then compress individually";
         return extractSelection;
+    }
+
+    if (!classification.canRecompress || classification.recommendation == "skip") {
+        Selection skipSelection;
+        skipSelection.shouldSkip = true;
+        skipSelection.rationale = "File type marked as skip: " + classification.mimeType;
+        return skipSelection;
     }
 
     if (hasBenchmarkData_) {

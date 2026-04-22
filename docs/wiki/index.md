@@ -84,6 +84,10 @@ Documentazione operativa.
 - [[guides/cold-storage-patterns]] - Best practices archiviazione
 - [[guides/analyze-command]] - Come usare `mosqueeze analyze`
 
+### [[preprocessing]] - Reversible Preprocessing
+
+Panoramica della pipeline di preprocessing lossless prima della compressione.
+
 ---
 
 ## Changelog

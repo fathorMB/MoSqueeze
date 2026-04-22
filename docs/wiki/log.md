@@ -60,3 +60,7 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
   - stats aggregation and export behavior
 - Updated `guides/getting-started.md` benchmark examples for new options
 - Updated `index.md` to link the new benchmark guide
+
+### Feature Docs: Preprocessing Engine (Issue #31)
+- Added `preprocessing.md` with preprocessing overview and trailing-header format
+- Updated `index.md` to include preprocessing section

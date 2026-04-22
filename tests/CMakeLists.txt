@@ -162,3 +162,58 @@ target_include_directories(ThreadPool_test
 )
 
 add_test(NAME ThreadPool_test COMMAND ThreadPool_test)
+
+add_executable(JsonCanonicalizer_test
+  unit/JsonCanonicalizer_test.cpp
+)
+target_link_libraries(JsonCanonicalizer_test PRIVATE libmosqueeze)
+add_custom_command(TARGET JsonCanonicalizer_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:JsonCanonicalizer_test>
+)
+add_test(NAME JsonCanonicalizer_test COMMAND JsonCanonicalizer_test)
+
+add_executable(XmlCanonicalizer_test
+  unit/XmlCanonicalizer_test.cpp
+)
+target_link_libraries(XmlCanonicalizer_test PRIVATE libmosqueeze)
+add_custom_command(TARGET XmlCanonicalizer_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:XmlCanonicalizer_test>
+)
+add_test(NAME XmlCanonicalizer_test COMMAND XmlCanonicalizer_test)
+
+add_executable(ImageMetaStripper_test
+  unit/ImageMetaStripper_test.cpp
+)
+target_link_libraries(ImageMetaStripper_test PRIVATE libmosqueeze)
+add_custom_command(TARGET ImageMetaStripper_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:ImageMetaStripper_test>
+)
+add_test(NAME ImageMetaStripper_test COMMAND ImageMetaStripper_test)
+
+add_executable(DictionaryPreprocessor_test
+  unit/DictionaryPreprocessor_test.cpp
+)
+target_link_libraries(DictionaryPreprocessor_test PRIVATE libmosqueeze)
+add_custom_command(TARGET DictionaryPreprocessor_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:DictionaryPreprocessor_test>
+)
+add_test(NAME DictionaryPreprocessor_test COMMAND DictionaryPreprocessor_test)
+
+add_executable(Pipeline_test
+  unit/Pipeline_test.cpp
+)
+target_link_libraries(Pipeline_test PRIVATE libmosqueeze)
+add_custom_command(TARGET Pipeline_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:Pipeline_test>
+)
+add_test(NAME Pipeline_test COMMAND Pipeline_test)

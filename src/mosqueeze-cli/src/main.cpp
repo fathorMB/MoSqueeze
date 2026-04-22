@@ -3,6 +3,7 @@
 #include <fmt/ranges.h>
 #include <mosqueeze/AlgorithmSelector.hpp>
 #include <mosqueeze/FileTypeDetector.hpp>
+#include <mosqueeze/PreprocessorSelector.hpp>
 #include <mosqueeze/Version.hpp>
 #include <mosqueeze/engines/BrotliEngine.hpp>
 #include <mosqueeze/engines/LzmaEngine.hpp>
@@ -23,12 +24,15 @@ void addAnalyzeCommand(CLI::App& app) {
     auto inputFile = std::make_shared<std::string>();
     auto verbose = std::make_shared<bool>(false);
     auto benchmark = std::make_shared<bool>(false);
+    auto preprocess = std::make_shared<std::string>("none");
 
     analyze->add_option("file", *inputFile, "File to analyze")->required();
     analyze->add_flag("-v,--verbose", *verbose, "Show detailed analysis");
     analyze->add_flag("-b,--benchmark", *benchmark, "Run quick benchmark");
+    analyze->add_option("--preprocess", *preprocess, "Preprocessor: auto, none, json-canonical, xml-canonical, image-meta-strip, zstd-dict")
+        ->check(CLI::IsMember({"auto", "none", "json-canonical", "xml-canonical", "image-meta-strip", "zstd-dict"}));
 
-    analyze->callback([inputFile, verbose, benchmark]() {
+    analyze->callback([inputFile, verbose, benchmark, preprocess]() {
         std::filesystem::path path(*inputFile);
         if (!std::filesystem::exists(path)) {
             throw std::runtime_error("Input file does not exist: " + path.string());
@@ -73,6 +77,7 @@ void addAnalyzeCommand(CLI::App& app) {
             fmt::print("  Fallback: {} level {}\n", selection.fallbackAlgorithm, selection.fallbackLevel);
         }
         fmt::print("  Reason: {}\n", selection.rationale);
+        fmt::print("  Preprocess: {}\n", *preprocess);
 
         if (*benchmark) {
             fmt::print("\nQuick benchmark not implemented yet; use mosqueeze-bench for full runs.\n");
@@ -84,15 +89,22 @@ void addAnalyzeCommand(CLI::App& app) {
 
 int main(int argc, char** argv) {
     CLI::App app{"MoSqueeze - Cold Storage Compression Library"};
+    bool listPreprocessors = false;
 
     app.add_flag("-V,--version", [](std::int64_t) {
         fmt::print("mosqueeze v{}\n", mosqueeze::versionString());
         throw CLI::Success();
     }, "Print version and exit");
+    app.add_flag("--list-preprocessors", listPreprocessors, "List available preprocessors");
 
     addAnalyzeCommand(app);
 
     CLI11_PARSE(app, argc, argv);
+
+    if (listPreprocessors) {
+        mosqueeze::PreprocessorSelector selector;
+        fmt::print("Available preprocessors: {}\n", fmt::join(selector.listNames(), ", "));
+    }
 
     return 0;
 }
