@@ -6,6 +6,7 @@
 #include <mosqueeze/preprocessors/BayerPreprocessor.hpp>
 #include <mosqueeze/preprocessors/ImageMetaStripper.hpp>
 #include <mosqueeze/preprocessors/JsonCanonicalizer.hpp>
+#include <mosqueeze/preprocessors/PngOptimizer.hpp>
 #include <mosqueeze/preprocessors/XmlCanonicalizer.hpp>
 
 #include <algorithm>
@@ -94,6 +95,9 @@ std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name) {
     }
     if (name == "xml-canonical") {
         return std::make_unique<XmlCanonicalizer>();
+    }
+    if (name == "png-optimizer") {
+        return std::make_unique<PngOptimizer>();
     }
     return nullptr;
 }

@@ -334,8 +334,9 @@ int main(int argc, char* argv[]) {
     app.add_option(
            "--preprocess",
            preprocessMode,
-           "Preprocessor mode: auto, none, bayer-raw, image-meta-strip, json-canonical, xml-canonical")
-        ->check(CLI::IsMember({"auto", "none", "bayer-raw", "image-meta-strip", "json-canonical", "xml-canonical"}))
+           "Preprocessor mode: auto, none, bayer-raw, image-meta-strip, png-optimizer, json-canonical, xml-canonical")
+        ->check(CLI::IsMember(
+            {"auto", "none", "bayer-raw", "image-meta-strip", "png-optimizer", "json-canonical", "xml-canonical"}))
         ->default_val("none");
 
     app.add_option("-o,--output", outputDir, "Output directory");

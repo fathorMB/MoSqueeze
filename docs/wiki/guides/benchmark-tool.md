@@ -14,7 +14,7 @@
 - engine/level selection (`--algorithms`, `--levels`, `--all-engines`, `--default-only`)
 - repeated runs with warmup (`--iterations`, `--warmup`)
 - optional decode and memory tracking (`--no-decode`, `--no-memory`)
-- optional preprocessing (`--preprocess none|auto|bayer-raw|image-meta-strip|json-canonical|xml-canonical`)
+- optional preprocessing (`--preprocess none|auto|bayer-raw|image-meta-strip|png-optimizer|json-canonical|xml-canonical`)
 - live in-place progress feedback (enabled by default, suppressed by `--quiet`)
 - result exports (`json`, `csv`, `markdown`, `html`)
 - previous run comparison (`--compare`, `--diff-only`)
@@ -77,7 +77,7 @@ Benchmark:
       --max-time SECONDS
       --decode
       --no-decode
-      --preprocess MODE   (none|auto|bayer-raw|image-meta-strip|json-canonical|xml-canonical)
+      --preprocess MODE   (none|auto|bayer-raw|image-meta-strip|png-optimizer|json-canonical|xml-canonical)
 
 Output:
   -o, --output DIR
