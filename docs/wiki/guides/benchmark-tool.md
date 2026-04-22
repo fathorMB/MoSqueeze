@@ -14,6 +14,7 @@
 - engine/level selection (`--algorithms`, `--levels`, `--all-engines`, `--default-only`)
 - repeated runs with warmup (`--iterations`, `--warmup`)
 - optional decode and memory tracking (`--no-decode`, `--no-memory`)
+- optional preprocessing (`--preprocess none|auto|bayer-raw|image-meta-strip|json-canonical|xml-canonical`)
 - progress callback in verbose mode (`--verbose`)
 - result exports (`json`, `csv`, `markdown`, `html`)
 - previous run comparison (`--compare`, `--diff-only`)
@@ -76,6 +77,7 @@ Benchmark:
       --max-time SECONDS
       --decode
       --no-decode
+      --preprocess MODE   (none|auto|bayer-raw|image-meta-strip|json-canonical|xml-canonical)
 
 Output:
   -o, --output DIR
@@ -112,6 +114,29 @@ Misc:
 - Optional manual export:
   - `--format markdown` for report-friendly tables
   - `--format html` for browser report + chart
+- Exported rows include preprocessing fields:
+  - `preprocess.type`
+  - `preprocess.originalBytes`
+  - `preprocess.processedBytes`
+  - `preprocess.timeMs`
+  - `preprocess.improvement`
+  - `preprocess.applied`
+  - `totalRatio`
+
+---
+
+## Preprocessing Benchmarking
+
+```bash
+# Auto-select best preprocessor by detected file type
+./mosqueeze-bench --directory ./datasets --preprocess auto --default-only --summary
+
+# Force Bayer preprocessing for RAW-heavy datasets
+./mosqueeze-bench --directory ./raw --preprocess bayer-raw --algorithms zstd --default-only -v
+
+# Baseline run without preprocessing for A/B comparison
+./mosqueeze-bench --directory ./raw --preprocess none --output ./benchmarks/results/no-pre
+```
 
 ---
 

@@ -26,6 +26,9 @@ Current implementation status:
 ```bash
 # List currently registered preprocessors
 mosqueeze --list-preprocessors
+
+# Benchmark with preprocessing enabled
+mosqueeze-bench --directory ./datasets --preprocess auto --default-only
 ```
 
 ## Pipeline Format

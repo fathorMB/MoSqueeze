@@ -81,3 +81,8 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Added `guides/benchmark-visualization.md` for `mosqueeze-viz` usage and comparison workflow
 - Updated wiki `index.md` guide list to include benchmark visualization
 - Updated top-level `README.md` quick links with visualization guide
+
+### Feature Docs: Benchmark Preprocessing (Issue #43)
+- Updated `guides/benchmark-tool.md` with `--preprocess` usage and output fields
+- Updated `benchmarks/methodology.md` JSON schema example with preprocess metrics
+- Updated `preprocessing.md` with direct `mosqueeze-bench --preprocess` usage example

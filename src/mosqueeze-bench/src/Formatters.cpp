@@ -51,6 +51,11 @@ std::string formatVerbose(const BenchmarkResult& result, const BenchmarkStats* s
         << formatDuration(result.encodeTime) << " | decode " << formatDuration(result.decodeTime)
         << " | memory " << formatBytes(result.peakMemoryBytes);
 
+    if (result.preprocess.applied) {
+        out << " | preprocess " << result.preprocess.type
+            << " (" << std::fixed << std::setprecision(2) << result.preprocess.preprocessingTimeMs << "ms)";
+    }
+
     if (stats != nullptr) {
         out << " | mean ratio " << std::fixed << std::setprecision(3) << stats->meanRatio
             << " +/- " << stats->stdDevRatio;
@@ -73,15 +78,16 @@ std::string formatSummaryTable(
     });
 
     std::ostringstream out;
-    out << "Algorithm      Level  Ratio    Encode   Decode   Memory\n";
-    out << "--------------------------------------------------------\n";
+    out << "Algorithm      Level  Ratio    Encode   Decode   Memory     Preprocess\n";
+    out << "-----------------------------------------------------------------------\n";
     for (const auto& result : sorted) {
         out << std::left << std::setw(14) << result.algorithm
             << std::setw(7) << result.level
             << std::setw(9) << formatRatio(result.ratio())
             << std::setw(9) << formatDuration(result.encodeTime)
             << std::setw(9) << formatDuration(result.decodeTime)
-            << formatBytes(result.peakMemoryBytes);
+            << std::setw(11) << formatBytes(result.peakMemoryBytes)
+            << (result.preprocess.applied ? result.preprocess.type : "none");
 
         if (stats != nullptr) {
             auto it = stats->find(statsKey(result));
@@ -107,8 +113,8 @@ std::string exportMarkdown(
     out << "# Benchmark Results\n\n";
     for (const auto& [file, rows] : byFile) {
         out << "## " << file.filename().string() << "\n\n";
-        out << "| Algorithm | Level | Ratio | Encode | Decode | Memory | Stats |\n";
-        out << "|---|---:|---:|---:|---:|---:|---|\n";
+        out << "| Algorithm | Level | Ratio | Encode | Decode | Memory | Preprocess | Preprocess Time | Stats |\n";
+        out << "|---|---:|---:|---:|---:|---:|---|---:|---|\n";
 
         std::vector<BenchmarkResult> sorted = rows;
         std::sort(sorted.begin(), sorted.end(), [](const auto& lhs, const auto& rhs) {
@@ -122,6 +128,8 @@ std::string exportMarkdown(
                 << " | " << result.encodeTime.count() << "ms"
                 << " | " << result.decodeTime.count() << "ms"
                 << " | " << formatBytes(result.peakMemoryBytes)
+                << " | " << (result.preprocess.applied ? result.preprocess.type : "none")
+                << " | " << std::fixed << std::setprecision(2) << result.preprocess.preprocessingTimeMs << "ms"
                 << " | ";
             if (stats != nullptr) {
                 auto it = stats->find(statsKey(result));
@@ -160,7 +168,9 @@ std::string exportHtml(
              << "<td>" << std::fixed << std::setprecision(3) << result.ratio() << "x</td>"
              << "<td>" << result.encodeTime.count() << " ms</td>"
              << "<td>" << result.decodeTime.count() << " ms</td>"
-             << "<td>" << formatBytes(result.peakMemoryBytes) << "</td>";
+             << "<td>" << formatBytes(result.peakMemoryBytes) << "</td>"
+             << "<td>" << (result.preprocess.applied ? result.preprocess.type : "none") << "</td>"
+             << "<td>" << std::fixed << std::setprecision(2) << result.preprocess.preprocessingTimeMs << " ms</td>";
 
         std::string statsCell;
         if (stats != nullptr) {
@@ -198,7 +208,7 @@ std::string exportHtml(
         << "<h1>MoSqueeze Benchmark Results</h1>\n"
         << "<div class=\"card\"><canvas id=\"ratioChart\"></canvas></div>\n"
         << "<table>\n"
-        << "<thead><tr><th>File</th><th>Algorithm</th><th>Level</th><th>Ratio</th><th>Encode</th><th>Decode</th><th>Memory</th><th>Stats</th></tr></thead>\n"
+        << "<thead><tr><th>File</th><th>Algorithm</th><th>Level</th><th>Ratio</th><th>Encode</th><th>Decode</th><th>Memory</th><th>Preprocess</th><th>Preprocess Time</th><th>Stats</th></tr></thead>\n"
         << "<tbody>\n"
         << rows.str()
         << "</tbody></table>\n"

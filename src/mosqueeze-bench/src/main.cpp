@@ -290,6 +290,7 @@ int main(int argc, char* argv[]) {
     bool noDecode = false;
     int threadCount = 0;
     bool sequential = false;
+    std::string preprocessMode = "none";
 
     std::filesystem::path outputDir{"benchmarks/results"};
     std::filesystem::path exportFile;
@@ -329,6 +330,12 @@ int main(int argc, char* argv[]) {
     app.add_option("--threads", threadCount, "Number of worker threads (0 = auto-detect)")
         ->check(CLI::NonNegativeNumber);
     app.add_flag("--sequential", sequential, "Force sequential execution (disable parallelism)");
+    app.add_option(
+           "--preprocess",
+           preprocessMode,
+           "Preprocessor mode: auto, none, bayer-raw, image-meta-strip, json-canonical, xml-canonical")
+        ->check(CLI::IsMember({"auto", "none", "bayer-raw", "image-meta-strip", "json-canonical", "xml-canonical"}))
+        ->default_val("none");
 
     app.add_option("-o,--output", outputDir, "Output directory");
     app.add_option("--export", exportFile, "Export results to file");
@@ -413,6 +420,7 @@ int main(int argc, char* argv[]) {
     config.maxTimePerFile = std::chrono::seconds(maxTime);
     config.threadCount = threadCount;
     config.sequential = sequential;
+    config.preprocessMode = preprocessMode;
 
     if (dryRun) {
         std::cout << "Configuration\n";
@@ -428,6 +436,7 @@ int main(int argc, char* argv[]) {
         std::cout << "  maxTimePerFile: " << config.maxTimePerFile.count() << "s\n";
         std::cout << "  threadCount: " << config.threadCount << '\n';
         std::cout << "  sequential: " << (config.sequential ? "true" : "false") << '\n';
+        std::cout << "  preprocess: " << config.preprocessMode << '\n';
         std::cout << "  effectiveThreads: " << config.getEffectiveThreadCount() << '\n';
         return 0;
     }
