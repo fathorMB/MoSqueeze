@@ -434,7 +434,7 @@ int main(int argc, char* argv[]) {
 
     if (verbose) {
         auto progressMutex = std::make_shared<std::mutex>();
-        config.onProgress = [&](const mosqueeze::bench::ProgressInfo& info) {
+        config.onProgress = [progressMutex](const mosqueeze::bench::ProgressInfo& info) {
             std::lock_guard<std::mutex> lock(*progressMutex);
             const int pct = static_cast<int>(info.progress * 100.0);
             std::cout << "\r[" << std::setw(3) << pct << "%] "
