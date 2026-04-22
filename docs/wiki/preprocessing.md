@@ -11,6 +11,7 @@ MoSqueeze supports a reversible preprocessing stage before compression.
 | `json-canonical` | Structured text (JSON-like) | 10-25% |
 | `xml-canonical` | Structured text (XML-like) | 5-15% |
 | `image-meta-strip` | JPEG, PNG, TIFF-based RAW (NEF/CR2/CR3/RAF/ARW/DNG/ORF/RW2) | 2-10% |
+| `bayer-raw` | RAW Bayer streams (Image_Raw) | 5-20% (dataset-dependent) |
 | `zstd-dict` | Similar datasets after training | 15-35% |
 
 ## CLI

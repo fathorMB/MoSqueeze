@@ -16,7 +16,8 @@ enum class PreprocessorType : uint8_t {
     JsonCanonicalizer = 1,
     XmlCanonicalizer = 2,
     ImageMetaStripper = 3,
-    DictionaryPreprocessor = 4
+    DictionaryPreprocessor = 4,
+    BayerPreprocessor = 5
 };
 
 struct PreprocessResult {

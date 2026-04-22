@@ -1,6 +1,7 @@
 #include <mosqueeze/CompressionPipeline.hpp>
 
 #include <mosqueeze/preprocessors/DictionaryPreprocessor.hpp>
+#include <mosqueeze/preprocessors/BayerPreprocessor.hpp>
 #include <mosqueeze/preprocessors/ImageMetaStripper.hpp>
 #include <mosqueeze/preprocessors/JsonCanonicalizer.hpp>
 #include <mosqueeze/preprocessors/XmlCanonicalizer.hpp>
@@ -46,6 +47,8 @@ std::unique_ptr<IPreprocessor> createPreprocessor(PreprocessorType type) {
             return std::make_unique<ImageMetaStripper>();
         case PreprocessorType::DictionaryPreprocessor:
             return std::make_unique<DictionaryPreprocessor>();
+        case PreprocessorType::BayerPreprocessor:
+            return std::make_unique<BayerPreprocessor>();
         case PreprocessorType::None:
         default:
             return nullptr;
