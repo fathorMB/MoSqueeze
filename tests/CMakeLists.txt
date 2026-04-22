@@ -182,6 +182,19 @@ add_custom_command(TARGET BenchmarkPreprocess_test POST_BUILD
 
 add_test(NAME BenchmarkPreprocess_test COMMAND BenchmarkPreprocess_test)
 
+add_executable(ProgressReporter_test
+  unit/ProgressReporter_test.cpp
+  ../src/mosqueeze-bench/src/ProgressReporter.cpp
+)
+
+target_include_directories(ProgressReporter_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/mosqueeze-bench/include
+    ${CMAKE_SOURCE_DIR}/src/libmosqueeze/include
+)
+
+add_test(NAME ProgressReporter_test COMMAND ProgressReporter_test)
+
 add_executable(ThreadPool_test
   unit/ThreadPool_test.cpp
   ../src/mosqueeze-bench/src/ThreadPool.cpp

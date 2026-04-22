@@ -1,0 +1,23 @@
+[
+  {
+    "algorithm": "zstd",
+    "compressedBytes": 1091,
+    "decodeMs": 0,
+    "encodeMs": 333,
+    "file": "E:\\Agents\\codex\\MoSqueeze\\README.md",
+    "fileType": 1,
+    "level": 22,
+    "originalBytes": 2409,
+    "peakMemoryBytes": 743907328,
+    "preprocess": {
+      "applied": false,
+      "improvement": 0.0,
+      "originalBytes": 0,
+      "processedBytes": 0,
+      "timeMs": 0.0,
+      "type": "none"
+    },
+    "ratio": 2.2080659945004584,
+    "totalRatio": 2.2080659945004584
+  }
+]

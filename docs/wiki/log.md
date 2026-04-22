@@ -86,3 +86,6 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `guides/benchmark-tool.md` with `--preprocess` usage and output fields
 - Updated `benchmarks/methodology.md` JSON schema example with preprocess metrics
 - Updated `preprocessing.md` with direct `mosqueeze-bench --preprocess` usage example
+
+### Feature Docs: Benchmark Progress Feedback (Issue #45)
+- Updated `guides/benchmark-tool.md` with live progress/ETA behavior and mode interaction (`default`, `--verbose`, `--quiet`)

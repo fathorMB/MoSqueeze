@@ -13,6 +13,7 @@ add_executable(mosqueeze-bench
   src/BenchmarkRunner.cpp
   src/CorpusManager.cpp
   src/Formatters.cpp
+  src/ProgressReporter.cpp
   src/ResultsStore.cpp
   src/ThreadPool.cpp
 )

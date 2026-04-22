@@ -15,7 +15,7 @@
 - repeated runs with warmup (`--iterations`, `--warmup`)
 - optional decode and memory tracking (`--no-decode`, `--no-memory`)
 - optional preprocessing (`--preprocess none|auto|bayer-raw|image-meta-strip|json-canonical|xml-canonical`)
-- progress callback in verbose mode (`--verbose`)
+- live in-place progress feedback (enabled by default, suppressed by `--quiet`)
 - result exports (`json`, `csv`, `markdown`, `html`)
 - previous run comparison (`--compare`, `--diff-only`)
 
@@ -176,6 +176,24 @@ Notes:
 - `--verbose` progress updates are mutex-protected and rate-limited
 - memory tracking is automatically disabled in parallel runs (`--threads > 1`)
   because peak memory sampling is process-wide and cannot be attributed per file
+
+---
+
+## Progress Feedback
+
+`mosqueeze-bench` now renders an in-place progress line during execution:
+
+- progress bar and percentage
+- completed files / total files
+- current file name
+- current algorithm/level when available
+- ETA after at least one file completes
+
+Behavior by mode:
+
+- default: progress line enabled
+- `--verbose`: adds iteration details to the progress line
+- `--quiet`: disables progress output
 
 ---
 

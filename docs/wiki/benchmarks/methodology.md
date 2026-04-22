@@ -53,6 +53,7 @@ Runtime controls:
 - `--no-memory` to disable memory field capture
 - `--preprocess` to enable file preprocessing (`none`, `auto`, or explicit preprocessor name)
 - `--verbose` for progress callback output
+- default in-place progress line shows completion, current file, and ETA (`--quiet` disables it)
 - parallel mode (`--threads > 1`) automatically disables memory capture to avoid process-wide misattribution
 
 ---
