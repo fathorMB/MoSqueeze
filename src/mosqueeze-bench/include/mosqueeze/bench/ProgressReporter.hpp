@@ -4,8 +4,10 @@
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <mutex>
 #include <string>
+#include <thread>
 
 namespace mosqueeze::bench {
 
@@ -36,10 +38,17 @@ private:
     bool quiet_ = false;
     bool printedLine_ = false;
     size_t lastLineLength_ = 0;
+    mutable size_t spinnerIndex_ = 0;
+    std::chrono::steady_clock::time_point lastActivity_{};
+    std::chrono::milliseconds refreshInterval_{500};
 
     std::chrono::steady_clock::time_point startTime_{};
     std::chrono::steady_clock::time_point lastRender_{};
-    mutable std::mutex mutex_;
+    std::atomic<bool> stopRequested_{false};
+    std::thread renderThread_{};
+    std::mutex mutex_;
+    std::condition_variable wakeCv_;
+    static constexpr const char* kSpinner = "|/-\\";
 };
 
 } // namespace mosqueeze::bench

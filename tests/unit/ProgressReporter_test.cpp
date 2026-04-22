@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <thread>
+#include <vector>
 
 int main() {
     using mosqueeze::bench::ProgressInfo;
@@ -68,6 +69,29 @@ int main() {
         assert(text.find("zstd L22") != std::string::npos);
         assert(text.find("iter 2/2") != std::string::npos);
         assert(text.find("ETA ") != std::string::npos);
+    }
+
+    {
+        ProgressReporter reporter(100, false, true);
+        std::vector<std::thread> workers;
+        workers.reserve(8);
+        for (int t = 0; t < 8; ++t) {
+            workers.emplace_back([&reporter, t]() {
+                for (int i = 0; i < 20; ++i) {
+                    ProgressInfo info{};
+                    info.totalFiles = 100;
+                    info.completedFiles = t * 10 + i;
+                    info.progress = static_cast<double>(info.completedFiles) / 100.0;
+                    info.currentFile = "threaded.bin";
+                    info.currentAlgorithm = "zstd";
+                    info.currentLevel = 3;
+                    reporter.onProgress(info);
+                }
+            });
+        }
+        for (auto& worker : workers) {
+            worker.join();
+        }
     }
 
     std::cout << "[PASS] ProgressReporter_test\n";
