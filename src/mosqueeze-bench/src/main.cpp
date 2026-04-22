@@ -1,6 +1,7 @@
 #include <mosqueeze/bench/BenchmarkRunner.hpp>
 #include <mosqueeze/bench/CorpusManager.hpp>
 #include <mosqueeze/bench/Formatters.hpp>
+#include <mosqueeze/bench/ProgressReporter.hpp>
 #include <mosqueeze/bench/ResultsStore.hpp>
 #include <mosqueeze/engines/BrotliEngine.hpp>
 #include <mosqueeze/engines/LzmaEngine.hpp>
@@ -441,15 +442,16 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    if (verbose) {
-        auto progressMutex = std::make_shared<std::mutex>();
-        config.onProgress = [progressMutex](const mosqueeze::bench::ProgressInfo& info) {
-            std::lock_guard<std::mutex> lock(*progressMutex);
-            const int pct = static_cast<int>(info.progress * 100.0);
-            std::cout << "\r[" << std::setw(3) << pct << "%] "
-                      << info.currentAlgorithm << "/" << info.currentLevel << " "
-                      << info.currentFile.filename().string()
-                      << " iter " << info.currentIteration << "/" << info.totalIterations << std::flush;
+    std::unique_ptr<mosqueeze::bench::ProgressReporter> progressReporter;
+    if (!quiet && !config.files.empty()) {
+        progressReporter = std::make_unique<mosqueeze::bench::ProgressReporter>(
+            config.files.size(),
+            verbose,
+            quiet);
+        config.onProgress = [&progressReporter](const mosqueeze::bench::ProgressInfo& info) {
+            if (progressReporter) {
+                progressReporter->onProgress(info);
+            }
         };
     }
 
@@ -466,10 +468,7 @@ int main(int argc, char* argv[]) {
     }
     const auto stats = runner.computeStats(results);
     const auto finishedAt = std::chrono::steady_clock::now();
-    if (verbose) {
-        std::cout << '\n';
-    }
-
+    progressReporter.reset();
     std::filesystem::create_directories(outputDir);
     mosqueeze::bench::ResultsStore store(outputDir / "results.sqlite3");
     store.clear();

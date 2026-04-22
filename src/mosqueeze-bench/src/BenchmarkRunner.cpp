@@ -322,6 +322,7 @@ std::vector<BenchmarkResult> BenchmarkRunner::runWithConfig(const BenchmarkConfi
         for (auto* engine : selectedEngines) {
             const auto& levelSet = levelsByAlgorithm.at(engine->name());
             for (int level : levelSet) {
+                emitProgress(file, engine->name(), level, 0, true);
                 for (int i = 0; i < warmups; ++i) {
                     (void)runIteration(engine, file, level, config, classification.type);
                     ++completedWork;
@@ -463,6 +464,7 @@ std::vector<BenchmarkResult> BenchmarkRunner::runParallel(const BenchmarkConfig&
                 return;
             }
 
+            maybeReportProgress(file, true);
             processFile(
                 file,
                 selectedEngines,

@@ -1,0 +1,2 @@
+algorithm,level,file,file_type,original_bytes,compressed_bytes,encode_ms,decode_ms,peak_memory_bytes,ratio,total_ratio,preprocess_type,preprocess_original_bytes,preprocess_processed_bytes,preprocess_time_ms,preprocess_improvement,preprocess_applied
+zstd,22,"E:\Agents\codex\MoSqueeze\README.md",1,2409,1091,333,0,743907328,2.20807,2.20807,none,0,0,0,0,0
