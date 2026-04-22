@@ -33,6 +33,7 @@ ThreadPool::ThreadPool(size_t threads) {
                 {
                     std::lock_guard<std::mutex> lock(queueMutex_);
                     --activeTasks_;
+                    --pendingTasks_;
                 }
                 completed_.notify_all();
             }
@@ -56,7 +57,7 @@ ThreadPool::~ThreadPool() {
 void ThreadPool::waitAll() {
     std::unique_lock<std::mutex> lock(queueMutex_);
     completed_.wait(lock, [this] {
-        return tasks_.empty() && activeTasks_ == 0;
+        return pendingTasks_.load() == 0;
     });
 }
 

@@ -442,7 +442,8 @@ int main(int argc, char* argv[]) {
 
     const auto startedAt = std::chrono::steady_clock::now();
     std::vector<mosqueeze::bench::BenchmarkResult> results;
-    if (config.getEffectiveThreadCount() > 1) {
+    const bool useParallel = config.getEffectiveThreadCount() > 1 && config.files.size() > 1;
+    if (useParallel) {
         if (verbose) {
             std::cout << "Running with " << config.getEffectiveThreadCount() << " threads...\n";
         }
