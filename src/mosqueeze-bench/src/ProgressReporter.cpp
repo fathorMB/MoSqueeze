@@ -15,9 +15,30 @@ constexpr size_t kBarWidth = 30;
 ProgressReporter::ProgressReporter(size_t totalFiles, bool verbose, bool quiet)
     : totalFiles_(totalFiles), verbose_(verbose), quiet_(quiet) {
     startTime_ = std::chrono::steady_clock::now();
+    lastActivity_ = startTime_;
+    if (!quiet_ && totalFiles_ > 0) {
+        renderThread_ = std::thread([this]() {
+            std::unique_lock<std::mutex> lock(mutex_);
+            while (!stopRequested_.load(std::memory_order_relaxed)) {
+                wakeCv_.wait_for(lock, refreshInterval_);
+                if (stopRequested_.load(std::memory_order_relaxed)) {
+                    break;
+                }
+                lock.unlock();
+                updateDisplay(true);
+                lock.lock();
+            }
+        });
+    }
 }
 
 ProgressReporter::~ProgressReporter() {
+    stopRequested_.store(true, std::memory_order_relaxed);
+    wakeCv_.notify_all();
+    if (renderThread_.joinable()) {
+        renderThread_.join();
+    }
+    updateDisplay(true);
     if (!quiet_ && printedLine_) {
         std::cout << '\n';
     }
@@ -30,6 +51,7 @@ void ProgressReporter::onProgress(const ProgressInfo& info) {
 
     {
         std::lock_guard<std::mutex> lock(mutex_);
+        lastActivity_ = std::chrono::steady_clock::now();
         if (!info.currentFile.empty()) {
             currentFile_ = info.currentFile.filename().string();
         }
@@ -58,6 +80,7 @@ void ProgressReporter::onProgress(const ProgressInfo& info) {
     }
 
     updateDisplay(false);
+    wakeCv_.notify_all();
 }
 
 void ProgressReporter::reportError(const std::string& error) {
@@ -72,11 +95,10 @@ void ProgressReporter::reportError(const std::string& error) {
 }
 
 void ProgressReporter::updateDisplay(bool force) {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (quiet_ || totalFiles_ == 0) {
         return;
     }
-
-    std::lock_guard<std::mutex> lock(mutex_);
     const auto now = std::chrono::steady_clock::now();
     if (!force && lastRender_ != std::chrono::steady_clock::time_point{} &&
         (now - lastRender_) < std::chrono::milliseconds(100)) {
@@ -97,9 +119,10 @@ std::string ProgressReporter::buildLine() const {
     const size_t completed = completedFiles_.load(std::memory_order_relaxed);
     const double pct = progress_ * 100.0;
     const size_t filled = static_cast<size_t>(progress_ * static_cast<double>(kBarWidth));
+    const char spinner = kSpinner[spinnerIndex_ % 4];
 
     std::ostringstream out;
-    out << "Progress [";
+    out << spinner << " Progress [";
     for (size_t i = 0; i < kBarWidth; ++i) {
         out << (i < filled ? '#' : '-');
     }
@@ -120,13 +143,17 @@ std::string ProgressReporter::buildLine() const {
     }
 
     const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - startTime_);
+    out << " | elapsed " << formatEta(elapsed);
     if (completed > 0 && completed < totalFiles_) {
         const double avgPerFile = static_cast<double>(elapsed.count()) / static_cast<double>(completed);
         const auto remainingFiles = static_cast<double>(totalFiles_ - completed);
         const auto etaSec = std::chrono::seconds(static_cast<long long>(avgPerFile * remainingFiles));
         out << " | ETA " << formatEta(etaSec);
+    } else if (completed >= totalFiles_ && totalFiles_ > 0) {
+        out << " | ETA done";
     }
 
+    ++spinnerIndex_;
     return out.str();
 }
 
