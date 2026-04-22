@@ -18,4 +18,8 @@ if(WIN32)
   target_link_libraries(libzpaq PUBLIC advapi32)
 else()
   target_compile_definitions(libzpaq PRIVATE unix=1)
+  # Disable JIT on ARM Linux - can cause BUS error due to W^X and alignment issues
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
+    target_compile_definitions(libzpaq PRIVATE NOJIT=1)
+  endif()
 endif()
