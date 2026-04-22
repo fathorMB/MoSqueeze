@@ -99,3 +99,8 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `preprocessing.md` to document `png-optimizer` and `libpng`/`oxipng` engine behavior
 - Updated `guides/benchmark-tool.md` with `--png-engine`, `--png-level`, metadata-strip, and filter-speed options
 - Updated `guides/analyze-command.md` preprocess list to include `png-optimizer`
+
+### Feature Docs: PNG Optimization (Issue #13)
+- Updated `preprocessing.md` with `png-optimizer` behavior and availability
+- Updated `guides/benchmark-tool.md` preprocess mode list to include `png-optimizer`
+- Updated `guides/analyze-command.md` `--preprocess` values to include `png-optimizer`

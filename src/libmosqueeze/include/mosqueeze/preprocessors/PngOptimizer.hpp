@@ -18,7 +18,6 @@ enum class PngEngine : uint8_t {
 class PngOptimizer : public IPreprocessor {
 public:
     explicit PngOptimizer(PngEngine engine = PngEngine::LibPng);
-
     PreprocessorType type() const override { return PreprocessorType::PngOptimizer; }
     std::string name() const override { return "png-optimizer"; }
     bool canProcess(FileType fileType) const override { return fileType == FileType::Image_PNG; }
@@ -52,7 +51,6 @@ public:
     bool allFilters() const { return allFilters_; }
 
     static bool isOxipngAvailable();
-
 private:
     struct Chunk {
         std::string type;
