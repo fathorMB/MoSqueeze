@@ -15,6 +15,10 @@ PreprocessResult ImageMetaStripper::preprocess(
     }
 
     const std::string raw((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+    // RAW/TIFF support is intentionally pass-through for now. Detection and
+    // pipeline routing are enabled, while byte-level metadata stripping will
+    // be added with a dedicated TIFF parser to preserve reversibility.
+    (void)fileType;
     output.write(raw.data(), static_cast<std::streamsize>(raw.size()));
 
     PreprocessResult result{};

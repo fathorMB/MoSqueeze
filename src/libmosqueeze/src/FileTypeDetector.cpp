@@ -243,6 +243,19 @@ FileClassification FileTypeDetector::detectFromExtension(const std::string& ext)
         {".avi", makeClassification(FileType::Video_AVI, "video/x-msvideo", false, true, ".avi")},
         {".mov", makeClassification(FileType::Video_MP4, "video/quicktime", true, false, ".mov")},
 
+        {".tif", makeClassification(FileType::Image_Raw, "image/tiff", false, true, ".tif")},
+        {".tiff", makeClassification(FileType::Image_Raw, "image/tiff", false, true, ".tiff")},
+        {".nef", makeClassification(FileType::Image_Raw, "image/x-nikon-nef", false, true, ".nef")},
+        {".nrw", makeClassification(FileType::Image_Raw, "image/x-nikon-nrw", false, true, ".nrw")},
+        {".cr2", makeClassification(FileType::Image_Raw, "image/x-canon-cr2", false, true, ".cr2")},
+        {".cr3", makeClassification(FileType::Image_Raw, "image/x-canon-cr3", false, true, ".cr3")},
+        {".raf", makeClassification(FileType::Image_Raw, "image/x-fuji-raf", false, true, ".raf")},
+        {".arw", makeClassification(FileType::Image_Raw, "image/x-sony-arw", false, true, ".arw")},
+        {".sr2", makeClassification(FileType::Image_Raw, "image/x-sony-sr2", false, true, ".sr2")},
+        {".dng", makeClassification(FileType::Image_Raw, "image/x-adobe-dng", false, true, ".dng")},
+        {".orf", makeClassification(FileType::Image_Raw, "image/x-olympus-orf", false, true, ".orf")},
+        {".rw2", makeClassification(FileType::Image_Raw, "image/x-panasonic-rw2", false, true, ".rw2")},
+
         {".zip", makeClassification(FileType::Archive_ZIP, "application/zip", true, false, ".zip")},
         {".tar", makeClassification(FileType::Archive_TAR, "application/x-tar", true, false, ".tar")},
         {".7z", makeClassification(FileType::Archive_7Z, "application/x-7z-compressed", true, false, ".7z")},
@@ -322,6 +335,8 @@ void FileTypeDetector::registerCommonTypes() {
     magicEntries_ = {
         {{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, 0, FileType::Image_PNG, "image/png", true, true},
         {{0xFF, 0xD8, 0xFF}, 0, FileType::Image_JPEG, "image/jpeg", true, false},
+        {{0x49, 0x49, 0x2A, 0x00}, 0, FileType::Image_Raw, "image/tiff", false, true},
+        {{0x4D, 0x4D, 0x00, 0x2A}, 0, FileType::Image_Raw, "image/tiff", false, true},
         {{0x47, 0x49, 0x46, 0x38}, 0, FileType::Image_Raw, "image/gif", true, true},
         {{0x42, 0x4D}, 0, FileType::Image_Raw, "image/bmp", false, true},
         {{0x25, 0x50, 0x44, 0x46}, 0, FileType::Binary_Chunked, "application/pdf", true, true},

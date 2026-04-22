@@ -70,6 +70,17 @@ FileType detectFileType(const std::string& raw) {
         return FileType::Image_PNG;
     }
 
+    if (raw.size() >= 4) {
+        const uint8_t b0 = static_cast<uint8_t>(raw[0]);
+        const uint8_t b1 = static_cast<uint8_t>(raw[1]);
+        const uint8_t b2 = static_cast<uint8_t>(raw[2]);
+        const uint8_t b3 = static_cast<uint8_t>(raw[3]);
+        if ((b0 == 0x49U && b1 == 0x49U && b2 == 0x2AU && b3 == 0x00U) ||
+            (b0 == 0x4DU && b1 == 0x4DU && b2 == 0x00U && b3 == 0x2AU)) {
+            return FileType::Image_Raw;
+        }
+    }
+
     size_t i = 0;
     while (i < raw.size() && std::isspace(static_cast<unsigned char>(raw[i])) != 0) {
         ++i;
