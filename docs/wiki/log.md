@@ -94,3 +94,8 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `preprocessing.md` with `bayer-raw` RAF region-only transform behavior
 - Documented safe fallback mode for unparseable/non-RAF raw payloads
 - Documented metadata compatibility (`version 2` region mode + legacy `version 1`)
+
+### Feature Docs: oxipng Integration (Issue #51)
+- Updated `preprocessing.md` to document `png-optimizer` and `libpng`/`oxipng` engine behavior
+- Updated `guides/benchmark-tool.md` with `--png-engine`, `--png-level`, metadata-strip, and filter-speed options
+- Updated `guides/analyze-command.md` preprocess list to include `png-optimizer`

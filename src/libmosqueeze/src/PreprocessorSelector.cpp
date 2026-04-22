@@ -4,6 +4,7 @@
 #include <mosqueeze/preprocessors/DictionaryPreprocessor.hpp>
 #include <mosqueeze/preprocessors/ImageMetaStripper.hpp>
 #include <mosqueeze/preprocessors/JsonCanonicalizer.hpp>
+#include <mosqueeze/preprocessors/PngOptimizer.hpp>
 #include <mosqueeze/preprocessors/XmlCanonicalizer.hpp>
 
 namespace mosqueeze {
@@ -12,6 +13,7 @@ PreprocessorSelector::PreprocessorSelector() {
     registerPreprocessor(std::make_unique<JsonCanonicalizer>());
     registerPreprocessor(std::make_unique<XmlCanonicalizer>());
     registerPreprocessor(std::make_unique<ImageMetaStripper>());
+    registerPreprocessor(std::make_unique<PngOptimizer>());
     registerPreprocessor(std::make_unique<BayerPreprocessor>());
     registerPreprocessor(std::make_unique<DictionaryPreprocessor>());
 }
