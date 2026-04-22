@@ -211,7 +211,7 @@ std::vector<BenchmarkResult> BenchmarkRunner::runWithConfig(const BenchmarkConfi
     const int warmups = std::max(0, config.warmupIterations);
     int unitsPerFile = 0;
     for (auto* engine : selectedEngines) {
-        unitsPerFile += static_cast<int>(levelsByAlgorithm[engine->name()].size()) * (iterations + warmups);
+        unitsPerFile += static_cast<int>(levelsByAlgorithm.at(engine->name()).size()) * (iterations + warmups);
     }
     const int totalWork = std::max(1, unitsPerFile * static_cast<int>(config.files.size()));
     int completedWork = 0;
