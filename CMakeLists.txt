@@ -17,6 +17,7 @@ add_subdirectory(third_party/zpaq)
 add_subdirectory(src/libmosqueeze)
 add_subdirectory(src/mosqueeze-cli)
 add_subdirectory(src/mosqueeze-bench)
+add_subdirectory(src/mosqueeze-viz)
 
 if(MOSQUEEZE_BUILD_TESTS)
   enable_testing()

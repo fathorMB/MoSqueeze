@@ -77,6 +77,7 @@ ctest --output-on-failure
 - [FileType → Algorithm Mapping](docs/wiki/decisions/file-type-to-algorithm.md) — Decision guide
 - [Benchmark Results](docs/wiki/benchmarks/graphs/ratio-by-algorithm.md) — Performance data
 - [Benchmark Tool Guide](docs/wiki/guides/benchmark-tool.md) — Full `mosqueeze-bench` CLI and exports
+- [Benchmark Visualization Guide](docs/wiki/guides/benchmark-visualization.md) — `mosqueeze-viz` dashboards and comparisons
 - [Preprocessing Guide](docs/wiki/preprocessing.md) — Current preprocessors and trailing header format
 - [Getting Started Guide](docs/wiki/guides/getting-started.md) — Full setup instructions
 
