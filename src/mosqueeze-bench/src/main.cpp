@@ -18,10 +18,12 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -286,6 +288,8 @@ int main(int argc, char* argv[]) {
     int maxTime = 3600;
     bool runDecode = true;
     bool noDecode = false;
+    int threadCount = 0;
+    bool sequential = false;
 
     std::filesystem::path outputDir{"benchmarks/results"};
     std::filesystem::path exportFile;
@@ -320,6 +324,9 @@ int main(int argc, char* argv[]) {
     app.add_option("--max-time", maxTime, "Max time per compression in seconds")->check(CLI::PositiveNumber);
     app.add_flag("--decode", runDecode, "Include decompression benchmark");
     app.add_flag("--no-decode", noDecode, "Skip decompression benchmark");
+    app.add_option("--threads", threadCount, "Number of worker threads (0 = auto-detect)")
+        ->check(CLI::NonNegativeNumber);
+    app.add_flag("--sequential", sequential, "Force sequential execution (disable parallelism)");
 
     app.add_option("-o,--output", outputDir, "Output directory");
     app.add_option("--export", exportFile, "Export results to file");
@@ -400,6 +407,8 @@ int main(int argc, char* argv[]) {
     config.trackMemory = trackMemory;
     config.runDecode = runDecode;
     config.maxTimePerFile = std::chrono::seconds(maxTime);
+    config.threadCount = threadCount;
+    config.sequential = sequential;
 
     if (dryRun) {
         std::cout << "Configuration\n";
@@ -413,11 +422,16 @@ int main(int argc, char* argv[]) {
         std::cout << "  trackMemory: " << (config.trackMemory ? "true" : "false") << '\n';
         std::cout << "  runDecode: " << (config.runDecode ? "true" : "false") << '\n';
         std::cout << "  maxTimePerFile: " << config.maxTimePerFile.count() << "s\n";
+        std::cout << "  threadCount: " << config.threadCount << '\n';
+        std::cout << "  sequential: " << (config.sequential ? "true" : "false") << '\n';
+        std::cout << "  effectiveThreads: " << config.getEffectiveThreadCount() << '\n';
         return 0;
     }
 
     if (verbose) {
+        auto progressMutex = std::make_shared<std::mutex>();
         config.onProgress = [&](const mosqueeze::bench::ProgressInfo& info) {
+            std::lock_guard<std::mutex> lock(*progressMutex);
             const int pct = static_cast<int>(info.progress * 100.0);
             std::cout << "\r[" << std::setw(3) << pct << "%] "
                       << info.currentAlgorithm << "/" << info.currentLevel << " "
@@ -427,7 +441,15 @@ int main(int argc, char* argv[]) {
     }
 
     const auto startedAt = std::chrono::steady_clock::now();
-    auto results = runner.runWithConfig(config);
+    std::vector<mosqueeze::bench::BenchmarkResult> results;
+    if (config.getEffectiveThreadCount() > 1) {
+        if (verbose) {
+            std::cout << "Running with " << config.getEffectiveThreadCount() << " threads...\n";
+        }
+        results = runner.runParallel(config);
+    } else {
+        results = runner.runWithConfig(config);
+    }
     const auto stats = runner.computeStats(results);
     const auto finishedAt = std::chrono::steady_clock::now();
     if (verbose) {

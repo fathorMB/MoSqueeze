@@ -150,3 +150,15 @@ add_custom_command(TARGET BenchmarkConfig_test POST_BUILD
 )
 
 add_test(NAME BenchmarkConfig_test COMMAND BenchmarkConfig_test)
+
+add_executable(ThreadPool_test
+  unit/ThreadPool_test.cpp
+  ../src/mosqueeze-bench/src/ThreadPool.cpp
+)
+
+target_include_directories(ThreadPool_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/mosqueeze-bench/include
+)
+
+add_test(NAME ThreadPool_test COMMAND ThreadPool_test)

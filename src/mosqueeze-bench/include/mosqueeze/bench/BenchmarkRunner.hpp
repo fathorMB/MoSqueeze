@@ -4,7 +4,9 @@
 #include <mosqueeze/bench/BenchmarkConfig.hpp>
 #include <mosqueeze/bench/BenchmarkResult.hpp>
 
+#include <atomic>
 #include <filesystem>
+#include <mutex>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -30,6 +32,7 @@ public:
         const std::vector<std::filesystem::path>& files);
 
     std::vector<BenchmarkResult> runWithConfig(const BenchmarkConfig& config);
+    std::vector<BenchmarkResult> runParallel(const BenchmarkConfig& config);
 
     std::unordered_map<std::string, BenchmarkStats> computeStats(
         const std::vector<BenchmarkResult>& results) const;
@@ -43,6 +46,14 @@ private:
         int level,
         const BenchmarkConfig& config,
         FileType fileType) const;
+    void processFile(
+        const std::filesystem::path& file,
+        const std::vector<ICompressionEngine*>& engines,
+        const BenchmarkConfig& config,
+        std::vector<BenchmarkResult>& results,
+        std::mutex& resultsMutex,
+        std::atomic<int>& completedCount,
+        std::atomic<size_t>& completedBytes) const;
 };
 
 } // namespace mosqueeze::bench

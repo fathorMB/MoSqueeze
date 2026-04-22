@@ -11,8 +11,16 @@ int main() {
     assert(config.trackMemory);
     assert(config.runDecode);
     assert(config.maxTimePerFile.count() == 3600);
+    assert(config.threadCount == 0);
+    assert(!config.sequential);
+    assert(config.getEffectiveThreadCount() >= 1);
     assert(config.files.empty());
     assert(!config.useStdin);
+
+    config.threadCount = 3;
+    assert(config.getEffectiveThreadCount() == 3);
+    config.sequential = true;
+    assert(config.getEffectiveThreadCount() == 1);
 
     bool called = false;
     config.onProgress = [&](const mosqueeze::bench::ProgressInfo& info) {
