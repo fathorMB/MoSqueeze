@@ -1,0 +1,912 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Example News Feed</title>
+    <link>https://example.com</link>
+    <description>Latest news and updates</description>
+    <language>en-us</language>
+    <lastBuildDate>2024-01-15T10:00:00Z</lastBuildDate>
+    <atom:link href="https://example.com/rss.xml" rel="self" type="application/rss+xml"/>
+
+    <item>
+      <title>Article 0: Business News</title>
+      <link>https://example.com/article/0</link>
+      <description>This is a description of article 0. . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-06-17</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/0</guid>
+    </item>
+    <item>
+      <title>Article 1: Sports News</title>
+      <link>https://example.com/article/1</link>
+      <description>This is a description of article 1. . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-04-23</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/1</guid>
+    </item>
+    <item>
+      <title>Article 2: Business News</title>
+      <link>https://example.com/article/2</link>
+      <description>This is a description of article 2. . . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-03-27</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/2</guid>
+    </item>
+    <item>
+      <title>Article 3: Science News</title>
+      <link>https://example.com/article/3</link>
+      <description>This is a description of article 3. . . . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-10-05</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/3</guid>
+    </item>
+    <item>
+      <title>Article 4: Technology News</title>
+      <link>https://example.com/article/4</link>
+      <description>This is a description of article 4. . . . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-10-03</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/4</guid>
+    </item>
+    <item>
+      <title>Article 5: Business News</title>
+      <link>https://example.com/article/5</link>
+      <description>This is a description of article 5. . . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-04-08</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/5</guid>
+    </item>
+    <item>
+      <title>Article 6: Sports News</title>
+      <link>https://example.com/article/6</link>
+      <description>This is a description of article 6. . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-03-19</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/6</guid>
+    </item>
+    <item>
+      <title>Article 7: Business News</title>
+      <link>https://example.com/article/7</link>
+      <description>This is a description of article 7. . . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-10-15</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/7</guid>
+    </item>
+    <item>
+      <title>Article 8: Technology News</title>
+      <link>https://example.com/article/8</link>
+      <description>This is a description of article 8. . . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-01-01</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/8</guid>
+    </item>
+    <item>
+      <title>Article 9: Technology News</title>
+      <link>https://example.com/article/9</link>
+      <description>This is a description of article 9. . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-04-25</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/9</guid>
+    </item>
+    <item>
+      <title>Article 10: Business News</title>
+      <link>https://example.com/article/10</link>
+      <description>This is a description of article 10. . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-09-19</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/10</guid>
+    </item>
+    <item>
+      <title>Article 11: Science News</title>
+      <link>https://example.com/article/11</link>
+      <description>This is a description of article 11. . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-06-08</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/11</guid>
+    </item>
+    <item>
+      <title>Article 12: Business News</title>
+      <link>https://example.com/article/12</link>
+      <description>This is a description of article 12. . . </description>
+      <author>Diana</author>
+      <pubDate>2024-02-13</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/12</guid>
+    </item>
+    <item>
+      <title>Article 13: Science News</title>
+      <link>https://example.com/article/13</link>
+      <description>This is a description of article 13. . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-06-03</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/13</guid>
+    </item>
+    <item>
+      <title>Article 14: Science News</title>
+      <link>https://example.com/article/14</link>
+      <description>This is a description of article 14. . . </description>
+      <author>Alice</author>
+      <pubDate>2024-02-06</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/14</guid>
+    </item>
+    <item>
+      <title>Article 15: Sports News</title>
+      <link>https://example.com/article/15</link>
+      <description>This is a description of article 15. . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-09-09</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/15</guid>
+    </item>
+    <item>
+      <title>Article 16: Sports News</title>
+      <link>https://example.com/article/16</link>
+      <description>This is a description of article 16. . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-01-09</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/16</guid>
+    </item>
+    <item>
+      <title>Article 17: Science News</title>
+      <link>https://example.com/article/17</link>
+      <description>This is a description of article 17. . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-09-10</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/17</guid>
+    </item>
+    <item>
+      <title>Article 18: Sports News</title>
+      <link>https://example.com/article/18</link>
+      <description>This is a description of article 18. . . . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-12-21</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/18</guid>
+    </item>
+    <item>
+      <title>Article 19: Business News</title>
+      <link>https://example.com/article/19</link>
+      <description>This is a description of article 19. . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-01-26</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/19</guid>
+    </item>
+    <item>
+      <title>Article 20: Business News</title>
+      <link>https://example.com/article/20</link>
+      <description>This is a description of article 20. . . </description>
+      <author>Bob</author>
+      <pubDate>2024-06-06</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/20</guid>
+    </item>
+    <item>
+      <title>Article 21: Business News</title>
+      <link>https://example.com/article/21</link>
+      <description>This is a description of article 21. . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-01-03</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/21</guid>
+    </item>
+    <item>
+      <title>Article 22: Sports News</title>
+      <link>https://example.com/article/22</link>
+      <description>This is a description of article 22. . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-10-09</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/22</guid>
+    </item>
+    <item>
+      <title>Article 23: Technology News</title>
+      <link>https://example.com/article/23</link>
+      <description>This is a description of article 23. . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-12-22</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/23</guid>
+    </item>
+    <item>
+      <title>Article 24: Technology News</title>
+      <link>https://example.com/article/24</link>
+      <description>This is a description of article 24. . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-11-18</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/24</guid>
+    </item>
+    <item>
+      <title>Article 25: Sports News</title>
+      <link>https://example.com/article/25</link>
+      <description>This is a description of article 25. . . </description>
+      <author>Alice</author>
+      <pubDate>2024-01-19</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/25</guid>
+    </item>
+    <item>
+      <title>Article 26: Sports News</title>
+      <link>https://example.com/article/26</link>
+      <description>This is a description of article 26. . . . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-09-07</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/26</guid>
+    </item>
+    <item>
+      <title>Article 27: Business News</title>
+      <link>https://example.com/article/27</link>
+      <description>This is a description of article 27. . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-06-19</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/27</guid>
+    </item>
+    <item>
+      <title>Article 28: Science News</title>
+      <link>https://example.com/article/28</link>
+      <description>This is a description of article 28. . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-07-01</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/28</guid>
+    </item>
+    <item>
+      <title>Article 29: Sports News</title>
+      <link>https://example.com/article/29</link>
+      <description>This is a description of article 29. . . </description>
+      <author>Bob</author>
+      <pubDate>2024-10-22</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/29</guid>
+    </item>
+    <item>
+      <title>Article 30: Science News</title>
+      <link>https://example.com/article/30</link>
+      <description>This is a description of article 30. . . . . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-03-07</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/30</guid>
+    </item>
+    <item>
+      <title>Article 31: Science News</title>
+      <link>https://example.com/article/31</link>
+      <description>This is a description of article 31. . . </description>
+      <author>Alice</author>
+      <pubDate>2024-06-19</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/31</guid>
+    </item>
+    <item>
+      <title>Article 32: Business News</title>
+      <link>https://example.com/article/32</link>
+      <description>This is a description of article 32. . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-09-05</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/32</guid>
+    </item>
+    <item>
+      <title>Article 33: Science News</title>
+      <link>https://example.com/article/33</link>
+      <description>This is a description of article 33. . . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-08-23</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/33</guid>
+    </item>
+    <item>
+      <title>Article 34: Technology News</title>
+      <link>https://example.com/article/34</link>
+      <description>This is a description of article 34. . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-12-14</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/34</guid>
+    </item>
+    <item>
+      <title>Article 35: Sports News</title>
+      <link>https://example.com/article/35</link>
+      <description>This is a description of article 35. . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-08-09</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/35</guid>
+    </item>
+    <item>
+      <title>Article 36: Sports News</title>
+      <link>https://example.com/article/36</link>
+      <description>This is a description of article 36. . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-10-21</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/36</guid>
+    </item>
+    <item>
+      <title>Article 37: Business News</title>
+      <link>https://example.com/article/37</link>
+      <description>This is a description of article 37. . . . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-05-26</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/37</guid>
+    </item>
+    <item>
+      <title>Article 38: Technology News</title>
+      <link>https://example.com/article/38</link>
+      <description>This is a description of article 38. . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-09-20</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/38</guid>
+    </item>
+    <item>
+      <title>Article 39: Sports News</title>
+      <link>https://example.com/article/39</link>
+      <description>This is a description of article 39. . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-04-15</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/39</guid>
+    </item>
+    <item>
+      <title>Article 40: Business News</title>
+      <link>https://example.com/article/40</link>
+      <description>This is a description of article 40. . . . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-10-12</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/40</guid>
+    </item>
+    <item>
+      <title>Article 41: Science News</title>
+      <link>https://example.com/article/41</link>
+      <description>This is a description of article 41. . . . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-06-28</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/41</guid>
+    </item>
+    <item>
+      <title>Article 42: Technology News</title>
+      <link>https://example.com/article/42</link>
+      <description>This is a description of article 42. . . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-09-21</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/42</guid>
+    </item>
+    <item>
+      <title>Article 43: Science News</title>
+      <link>https://example.com/article/43</link>
+      <description>This is a description of article 43. . . . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-11-09</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/43</guid>
+    </item>
+    <item>
+      <title>Article 44: Science News</title>
+      <link>https://example.com/article/44</link>
+      <description>This is a description of article 44. . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-03-12</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/44</guid>
+    </item>
+    <item>
+      <title>Article 45: Sports News</title>
+      <link>https://example.com/article/45</link>
+      <description>This is a description of article 45. . . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-12-21</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/45</guid>
+    </item>
+    <item>
+      <title>Article 46: Sports News</title>
+      <link>https://example.com/article/46</link>
+      <description>This is a description of article 46. . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-08-03</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/46</guid>
+    </item>
+    <item>
+      <title>Article 47: Sports News</title>
+      <link>https://example.com/article/47</link>
+      <description>This is a description of article 47. . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-10-20</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/47</guid>
+    </item>
+    <item>
+      <title>Article 48: Technology News</title>
+      <link>https://example.com/article/48</link>
+      <description>This is a description of article 48. . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-07-20</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/48</guid>
+    </item>
+    <item>
+      <title>Article 49: Technology News</title>
+      <link>https://example.com/article/49</link>
+      <description>This is a description of article 49. . . . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-05-17</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/49</guid>
+    </item>
+    <item>
+      <title>Article 50: Science News</title>
+      <link>https://example.com/article/50</link>
+      <description>This is a description of article 50. . . . . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-06-25</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/50</guid>
+    </item>
+    <item>
+      <title>Article 51: Science News</title>
+      <link>https://example.com/article/51</link>
+      <description>This is a description of article 51. . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-03-19</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/51</guid>
+    </item>
+    <item>
+      <title>Article 52: Business News</title>
+      <link>https://example.com/article/52</link>
+      <description>This is a description of article 52. . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-06-18</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/52</guid>
+    </item>
+    <item>
+      <title>Article 53: Science News</title>
+      <link>https://example.com/article/53</link>
+      <description>This is a description of article 53. . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-09-10</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/53</guid>
+    </item>
+    <item>
+      <title>Article 54: Sports News</title>
+      <link>https://example.com/article/54</link>
+      <description>This is a description of article 54. . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-01-16</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/54</guid>
+    </item>
+    <item>
+      <title>Article 55: Sports News</title>
+      <link>https://example.com/article/55</link>
+      <description>This is a description of article 55. . . </description>
+      <author>Diana</author>
+      <pubDate>2024-04-11</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/55</guid>
+    </item>
+    <item>
+      <title>Article 56: Sports News</title>
+      <link>https://example.com/article/56</link>
+      <description>This is a description of article 56. . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-01-11</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/56</guid>
+    </item>
+    <item>
+      <title>Article 57: Business News</title>
+      <link>https://example.com/article/57</link>
+      <description>This is a description of article 57. . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-09-10</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/57</guid>
+    </item>
+    <item>
+      <title>Article 58: Technology News</title>
+      <link>https://example.com/article/58</link>
+      <description>This is a description of article 58. . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-03-16</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/58</guid>
+    </item>
+    <item>
+      <title>Article 59: Science News</title>
+      <link>https://example.com/article/59</link>
+      <description>This is a description of article 59. . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-02-18</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/59</guid>
+    </item>
+    <item>
+      <title>Article 60: Business News</title>
+      <link>https://example.com/article/60</link>
+      <description>This is a description of article 60. . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-10-20</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/60</guid>
+    </item>
+    <item>
+      <title>Article 61: Sports News</title>
+      <link>https://example.com/article/61</link>
+      <description>This is a description of article 61. . . . . . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-09-07</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/61</guid>
+    </item>
+    <item>
+      <title>Article 62: Business News</title>
+      <link>https://example.com/article/62</link>
+      <description>This is a description of article 62. . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-02-15</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/62</guid>
+    </item>
+    <item>
+      <title>Article 63: Sports News</title>
+      <link>https://example.com/article/63</link>
+      <description>This is a description of article 63. . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-09-20</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/63</guid>
+    </item>
+    <item>
+      <title>Article 64: Business News</title>
+      <link>https://example.com/article/64</link>
+      <description>This is a description of article 64. . . </description>
+      <author>Bob</author>
+      <pubDate>2024-11-11</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/64</guid>
+    </item>
+    <item>
+      <title>Article 65: Business News</title>
+      <link>https://example.com/article/65</link>
+      <description>This is a description of article 65. . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-08-08</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/65</guid>
+    </item>
+    <item>
+      <title>Article 66: Science News</title>
+      <link>https://example.com/article/66</link>
+      <description>This is a description of article 66. . . . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-04-10</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/66</guid>
+    </item>
+    <item>
+      <title>Article 67: Science News</title>
+      <link>https://example.com/article/67</link>
+      <description>This is a description of article 67. . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-04-10</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/67</guid>
+    </item>
+    <item>
+      <title>Article 68: Science News</title>
+      <link>https://example.com/article/68</link>
+      <description>This is a description of article 68. . . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-04-15</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/68</guid>
+    </item>
+    <item>
+      <title>Article 69: Science News</title>
+      <link>https://example.com/article/69</link>
+      <description>This is a description of article 69. . . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-04-20</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/69</guid>
+    </item>
+    <item>
+      <title>Article 70: Technology News</title>
+      <link>https://example.com/article/70</link>
+      <description>This is a description of article 70. . . </description>
+      <author>Alice</author>
+      <pubDate>2024-05-28</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/70</guid>
+    </item>
+    <item>
+      <title>Article 71: Sports News</title>
+      <link>https://example.com/article/71</link>
+      <description>This is a description of article 71. . . </description>
+      <author>Alice</author>
+      <pubDate>2024-09-17</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/71</guid>
+    </item>
+    <item>
+      <title>Article 72: Business News</title>
+      <link>https://example.com/article/72</link>
+      <description>This is a description of article 72. . . </description>
+      <author>Bob</author>
+      <pubDate>2024-03-21</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/72</guid>
+    </item>
+    <item>
+      <title>Article 73: Science News</title>
+      <link>https://example.com/article/73</link>
+      <description>This is a description of article 73. . . . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-03-01</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/73</guid>
+    </item>
+    <item>
+      <title>Article 74: Technology News</title>
+      <link>https://example.com/article/74</link>
+      <description>This is a description of article 74. . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-07-18</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/74</guid>
+    </item>
+    <item>
+      <title>Article 75: Science News</title>
+      <link>https://example.com/article/75</link>
+      <description>This is a description of article 75. . . . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-09-04</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/75</guid>
+    </item>
+    <item>
+      <title>Article 76: Sports News</title>
+      <link>https://example.com/article/76</link>
+      <description>This is a description of article 76. . . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-10-15</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/76</guid>
+    </item>
+    <item>
+      <title>Article 77: Business News</title>
+      <link>https://example.com/article/77</link>
+      <description>This is a description of article 77. . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-07-25</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/77</guid>
+    </item>
+    <item>
+      <title>Article 78: Business News</title>
+      <link>https://example.com/article/78</link>
+      <description>This is a description of article 78. . . . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-05-25</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/78</guid>
+    </item>
+    <item>
+      <title>Article 79: Technology News</title>
+      <link>https://example.com/article/79</link>
+      <description>This is a description of article 79. . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-02-16</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/79</guid>
+    </item>
+    <item>
+      <title>Article 80: Technology News</title>
+      <link>https://example.com/article/80</link>
+      <description>This is a description of article 80. . . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-05-28</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/80</guid>
+    </item>
+    <item>
+      <title>Article 81: Science News</title>
+      <link>https://example.com/article/81</link>
+      <description>This is a description of article 81. . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-12-10</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/81</guid>
+    </item>
+    <item>
+      <title>Article 82: Sports News</title>
+      <link>https://example.com/article/82</link>
+      <description>This is a description of article 82. . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-07-14</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/82</guid>
+    </item>
+    <item>
+      <title>Article 83: Technology News</title>
+      <link>https://example.com/article/83</link>
+      <description>This is a description of article 83. . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-11-19</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/83</guid>
+    </item>
+    <item>
+      <title>Article 84: Business News</title>
+      <link>https://example.com/article/84</link>
+      <description>This is a description of article 84. . . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-09-01</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/84</guid>
+    </item>
+    <item>
+      <title>Article 85: Science News</title>
+      <link>https://example.com/article/85</link>
+      <description>This is a description of article 85. . . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-02-01</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/85</guid>
+    </item>
+    <item>
+      <title>Article 86: Business News</title>
+      <link>https://example.com/article/86</link>
+      <description>This is a description of article 86. . . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-06-10</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/86</guid>
+    </item>
+    <item>
+      <title>Article 87: Technology News</title>
+      <link>https://example.com/article/87</link>
+      <description>This is a description of article 87. . . </description>
+      <author>Bob</author>
+      <pubDate>2024-10-05</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/87</guid>
+    </item>
+    <item>
+      <title>Article 88: Science News</title>
+      <link>https://example.com/article/88</link>
+      <description>This is a description of article 88. . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-08-01</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/88</guid>
+    </item>
+    <item>
+      <title>Article 89: Science News</title>
+      <link>https://example.com/article/89</link>
+      <description>This is a description of article 89. . . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-04-25</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/89</guid>
+    </item>
+    <item>
+      <title>Article 90: Technology News</title>
+      <link>https://example.com/article/90</link>
+      <description>This is a description of article 90. . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-12-03</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/90</guid>
+    </item>
+    <item>
+      <title>Article 91: Business News</title>
+      <link>https://example.com/article/91</link>
+      <description>This is a description of article 91. . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-08-08</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/91</guid>
+    </item>
+    <item>
+      <title>Article 92: Business News</title>
+      <link>https://example.com/article/92</link>
+      <description>This is a description of article 92. . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-02-15</pubDate>
+      <category>business</category>
+      <guid isPermaLink="true">https://example.com/article/92</guid>
+    </item>
+    <item>
+      <title>Article 93: Science News</title>
+      <link>https://example.com/article/93</link>
+      <description>This is a description of article 93. . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-04-23</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/93</guid>
+    </item>
+    <item>
+      <title>Article 94: Technology News</title>
+      <link>https://example.com/article/94</link>
+      <description>This is a description of article 94. . . . . . </description>
+      <author>Diana</author>
+      <pubDate>2024-12-27</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/94</guid>
+    </item>
+    <item>
+      <title>Article 95: Sports News</title>
+      <link>https://example.com/article/95</link>
+      <description>This is a description of article 95. . . . . . . . . </description>
+      <author>Alice</author>
+      <pubDate>2024-09-11</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/95</guid>
+    </item>
+    <item>
+      <title>Article 96: Sports News</title>
+      <link>https://example.com/article/96</link>
+      <description>This is a description of article 96. . . </description>
+      <author>Diana</author>
+      <pubDate>2024-10-19</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/96</guid>
+    </item>
+    <item>
+      <title>Article 97: Science News</title>
+      <link>https://example.com/article/97</link>
+      <description>This is a description of article 97. . . . . . . . </description>
+      <author>Charlie</author>
+      <pubDate>2024-07-02</pubDate>
+      <category>tech</category>
+      <guid isPermaLink="true">https://example.com/article/97</guid>
+    </item>
+    <item>
+      <title>Article 98: Technology News</title>
+      <link>https://example.com/article/98</link>
+      <description>This is a description of article 98. . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-05-02</pubDate>
+      <category>science</category>
+      <guid isPermaLink="true">https://example.com/article/98</guid>
+    </item>
+    <item>
+      <title>Article 99: Technology News</title>
+      <link>https://example.com/article/99</link>
+      <description>This is a description of article 99. . . . . . . . . . </description>
+      <author>Bob</author>
+      <pubDate>2024-01-27</pubDate>
+      <category>sports</category>
+      <guid isPermaLink="true">https://example.com/article/99</guid>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,2070 @@
+{
+  "version": "1.0.0",
+  "app_name": "MyApplication",
+  "environment": "development",
+  "settings": {
+    "setting_0": {
+      "value": "value_0_3574",
+      "type": "object",
+      "description": "Description for setting 0. Description for setting 0. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_1": {
+      "value": "value_1_1910",
+      "type": "number",
+      "description": "Description for setting 1. Description for setting 1. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_2": {
+      "value": "value_2_5336",
+      "type": "number",
+      "description": "Description for setting 2. Description for setting 2. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_3": {
+      "value": "value_3_7506",
+      "type": "string",
+      "description": "Description for setting 3. Description for setting 3. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_4": {
+      "value": "value_4_7088",
+      "type": "boolean",
+      "description": "Description for setting 4. Description for setting 4. Description for setting 4. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_5": {
+      "value": "value_5_6485",
+      "type": "string",
+      "description": "Description for setting 5. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_6": {
+      "value": "value_6_8567",
+      "type": "object",
+      "description": "Description for setting 6. Description for setting 6. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_7": {
+      "value": "value_7_2816",
+      "type": "string",
+      "description": "Description for setting 7. Description for setting 7. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_8": {
+      "value": "value_8_2354",
+      "type": "boolean",
+      "description": "Description for setting 8. Description for setting 8. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_9": {
+      "value": "value_9_5976",
+      "type": "number",
+      "description": "Description for setting 9. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8"
+      ]
+    },
+    "setting_10": {
+      "value": "value_10_3954",
+      "type": "string",
+      "description": "Description for setting 10. Description for setting 10. Description for setting 10. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_11": {
+      "value": "value_11_9722",
+      "type": "boolean",
+      "description": "Description for setting 11. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_12": {
+      "value": "value_12_2272",
+      "type": "object",
+      "description": "Description for setting 12. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_13": {
+      "value": "value_13_3081",
+      "type": "number",
+      "description": "Description for setting 13. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_14": {
+      "value": "value_14_1172",
+      "type": "object",
+      "description": "Description for setting 14. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_15": {
+      "value": "value_15_7351",
+      "type": "object",
+      "description": "Description for setting 15. Description for setting 15. Description for setting 15. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_16": {
+      "value": "value_16_8670",
+      "type": "number",
+      "description": "Description for setting 16. Description for setting 16. Description for setting 16. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_17": {
+      "value": "value_17_6117",
+      "type": "number",
+      "description": "Description for setting 17. Description for setting 17. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_18": {
+      "value": "value_18_4168",
+      "type": "boolean",
+      "description": "Description for setting 18. Description for setting 18. Description for setting 18. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_19": {
+      "value": "value_19_9103",
+      "type": "string",
+      "description": "Description for setting 19. Description for setting 19. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_20": {
+      "value": "value_20_2070",
+      "type": "boolean",
+      "description": "Description for setting 20. Description for setting 20. Description for setting 20. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_21": {
+      "value": "value_21_3704",
+      "type": "number",
+      "description": "Description for setting 21. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_22": {
+      "value": "value_22_7187",
+      "type": "number",
+      "description": "Description for setting 22. Description for setting 22. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_23": {
+      "value": "value_23_8498",
+      "type": "object",
+      "description": "Description for setting 23. Description for setting 23. Description for setting 23. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_24": {
+      "value": "value_24_9807",
+      "type": "boolean",
+      "description": "Description for setting 24. Description for setting 24. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_25": {
+      "value": "value_25_5110",
+      "type": "object",
+      "description": "Description for setting 25. Description for setting 25. Description for setting 25. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_26": {
+      "value": "value_26_4815",
+      "type": "object",
+      "description": "Description for setting 26. Description for setting 26. Description for setting 26. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_27": {
+      "value": "value_27_5730",
+      "type": "number",
+      "description": "Description for setting 27. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8"
+      ]
+    },
+    "setting_28": {
+      "value": "value_28_2107",
+      "type": "string",
+      "description": "Description for setting 28. Description for setting 28. Description for setting 28. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_29": {
+      "value": "value_29_5219",
+      "type": "object",
+      "description": "Description for setting 29. Description for setting 29. Description for setting 29. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_30": {
+      "value": "value_30_7962",
+      "type": "object",
+      "description": "Description for setting 30. Description for setting 30. Description for setting 30. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_31": {
+      "value": "value_31_3113",
+      "type": "boolean",
+      "description": "Description for setting 31. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_32": {
+      "value": "value_32_7968",
+      "type": "number",
+      "description": "Description for setting 32. Description for setting 32. Description for setting 32. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_33": {
+      "value": "value_33_6185",
+      "type": "boolean",
+      "description": "Description for setting 33. Description for setting 33. Description for setting 33. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_34": {
+      "value": "value_34_7488",
+      "type": "string",
+      "description": "Description for setting 34. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_35": {
+      "value": "value_35_3233",
+      "type": "number",
+      "description": "Description for setting 35. Description for setting 35. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_36": {
+      "value": "value_36_5647",
+      "type": "string",
+      "description": "Description for setting 36. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_37": {
+      "value": "value_37_8791",
+      "type": "boolean",
+      "description": "Description for setting 37. Description for setting 37. Description for setting 37. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_38": {
+      "value": "value_38_3538",
+      "type": "string",
+      "description": "Description for setting 38. Description for setting 38. Description for setting 38. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_39": {
+      "value": "value_39_1606",
+      "type": "string",
+      "description": "Description for setting 39. Description for setting 39. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_40": {
+      "value": "value_40_1984",
+      "type": "object",
+      "description": "Description for setting 40. Description for setting 40. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_41": {
+      "value": "value_41_2289",
+      "type": "object",
+      "description": "Description for setting 41. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_42": {
+      "value": "value_42_7385",
+      "type": "number",
+      "description": "Description for setting 42. Description for setting 42. Description for setting 42. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_43": {
+      "value": "value_43_5338",
+      "type": "object",
+      "description": "Description for setting 43. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_44": {
+      "value": "value_44_4443",
+      "type": "boolean",
+      "description": "Description for setting 44. Description for setting 44. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_45": {
+      "value": "value_45_4652",
+      "type": "object",
+      "description": "Description for setting 45. Description for setting 45. Description for setting 45. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_46": {
+      "value": "value_46_2299",
+      "type": "object",
+      "description": "Description for setting 46. Description for setting 46. Description for setting 46. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_47": {
+      "value": "value_47_2133",
+      "type": "boolean",
+      "description": "Description for setting 47. Description for setting 47. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_48": {
+      "value": "value_48_8206",
+      "type": "string",
+      "description": "Description for setting 48. Description for setting 48. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_49": {
+      "value": "value_49_5384",
+      "type": "string",
+      "description": "Description for setting 49. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_50": {
+      "value": "value_50_8609",
+      "type": "number",
+      "description": "Description for setting 50. Description for setting 50. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_51": {
+      "value": "value_51_1322",
+      "type": "boolean",
+      "description": "Description for setting 51. Description for setting 51. Description for setting 51. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_52": {
+      "value": "value_52_3996",
+      "type": "boolean",
+      "description": "Description for setting 52. Description for setting 52. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_53": {
+      "value": "value_53_5059",
+      "type": "object",
+      "description": "Description for setting 53. Description for setting 53. Description for setting 53. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_54": {
+      "value": "value_54_1427",
+      "type": "object",
+      "description": "Description for setting 54. Description for setting 54. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_55": {
+      "value": "value_55_6915",
+      "type": "object",
+      "description": "Description for setting 55. Description for setting 55. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_56": {
+      "value": "value_56_5419",
+      "type": "number",
+      "description": "Description for setting 56. Description for setting 56. Description for setting 56. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_57": {
+      "value": "value_57_7505",
+      "type": "string",
+      "description": "Description for setting 57. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_58": {
+      "value": "value_58_1591",
+      "type": "number",
+      "description": "Description for setting 58. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_59": {
+      "value": "value_59_4874",
+      "type": "string",
+      "description": "Description for setting 59. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_60": {
+      "value": "value_60_7634",
+      "type": "number",
+      "description": "Description for setting 60. Description for setting 60. Description for setting 60. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_61": {
+      "value": "value_61_3591",
+      "type": "boolean",
+      "description": "Description for setting 61. Description for setting 61. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_62": {
+      "value": "value_62_8212",
+      "type": "object",
+      "description": "Description for setting 62. Description for setting 62. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_63": {
+      "value": "value_63_6765",
+      "type": "string",
+      "description": "Description for setting 63. Description for setting 63. Description for setting 63. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_64": {
+      "value": "value_64_9401",
+      "type": "string",
+      "description": "Description for setting 64. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_65": {
+      "value": "value_65_1355",
+      "type": "object",
+      "description": "Description for setting 65. Description for setting 65. Description for setting 65. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_66": {
+      "value": "value_66_9738",
+      "type": "boolean",
+      "description": "Description for setting 66. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_67": {
+      "value": "value_67_1840",
+      "type": "number",
+      "description": "Description for setting 67. Description for setting 67. Description for setting 67. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_68": {
+      "value": "value_68_2395",
+      "type": "object",
+      "description": "Description for setting 68. Description for setting 68. Description for setting 68. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_69": {
+      "value": "value_69_7362",
+      "type": "number",
+      "description": "Description for setting 69. Description for setting 69. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_70": {
+      "value": "value_70_7892",
+      "type": "object",
+      "description": "Description for setting 70. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_71": {
+      "value": "value_71_2485",
+      "type": "object",
+      "description": "Description for setting 71. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_72": {
+      "value": "value_72_9305",
+      "type": "string",
+      "description": "Description for setting 72. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_73": {
+      "value": "value_73_6955",
+      "type": "object",
+      "description": "Description for setting 73. Description for setting 73. Description for setting 73. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_74": {
+      "value": "value_74_9108",
+      "type": "boolean",
+      "description": "Description for setting 74. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_75": {
+      "value": "value_75_7515",
+      "type": "object",
+      "description": "Description for setting 75. Description for setting 75. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_76": {
+      "value": "value_76_4202",
+      "type": "object",
+      "description": "Description for setting 76. Description for setting 76. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_77": {
+      "value": "value_77_1127",
+      "type": "string",
+      "description": "Description for setting 77. Description for setting 77. Description for setting 77. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_78": {
+      "value": "value_78_2404",
+      "type": "number",
+      "description": "Description for setting 78. Description for setting 78. Description for setting 78. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_79": {
+      "value": "value_79_9310",
+      "type": "boolean",
+      "description": "Description for setting 79. Description for setting 79. Description for setting 79. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_80": {
+      "value": "value_80_4186",
+      "type": "boolean",
+      "description": "Description for setting 80. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_81": {
+      "value": "value_81_9983",
+      "type": "object",
+      "description": "Description for setting 81. Description for setting 81. Description for setting 81. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_82": {
+      "value": "value_82_9356",
+      "type": "string",
+      "description": "Description for setting 82. Description for setting 82. Description for setting 82. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_83": {
+      "value": "value_83_1708",
+      "type": "boolean",
+      "description": "Description for setting 83. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_84": {
+      "value": "value_84_3847",
+      "type": "number",
+      "description": "Description for setting 84. Description for setting 84. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_85": {
+      "value": "value_85_3353",
+      "type": "object",
+      "description": "Description for setting 85. Description for setting 85. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_86": {
+      "value": "value_86_9646",
+      "type": "object",
+      "description": "Description for setting 86. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_87": {
+      "value": "value_87_6866",
+      "type": "boolean",
+      "description": "Description for setting 87. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_88": {
+      "value": "value_88_2948",
+      "type": "string",
+      "description": "Description for setting 88. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_89": {
+      "value": "value_89_7114",
+      "type": "object",
+      "description": "Description for setting 89. Description for setting 89. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_90": {
+      "value": "value_90_8846",
+      "type": "boolean",
+      "description": "Description for setting 90. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_91": {
+      "value": "value_91_6928",
+      "type": "object",
+      "description": "Description for setting 91. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_92": {
+      "value": "value_92_8929",
+      "type": "boolean",
+      "description": "Description for setting 92. Description for setting 92. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    },
+    "setting_93": {
+      "value": "value_93_7166",
+      "type": "object",
+      "description": "Description for setting 93. Description for setting 93. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_94": {
+      "value": "value_94_2818",
+      "type": "number",
+      "description": "Description for setting 94. Description for setting 94. Description for setting 94. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4"
+      ]
+    },
+    "setting_95": {
+      "value": "value_95_4024",
+      "type": "string",
+      "description": "Description for setting 95. Description for setting 95. Description for setting 95. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_96": {
+      "value": "value_96_2506",
+      "type": "object",
+      "description": "Description for setting 96. Description for setting 96. Description for setting 96. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7"
+      ]
+    },
+    "setting_97": {
+      "value": "value_97_3848",
+      "type": "boolean",
+      "description": "Description for setting 97. Description for setting 97. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_98": {
+      "value": "value_98_8079",
+      "type": "boolean",
+      "description": "Description for setting 98. Description for setting 98. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_99": {
+      "value": "value_99_1840",
+      "type": "string",
+      "description": "Description for setting 99. Description for setting 99. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    }
+  },
+  "features": {
+    "feature_0": {
+      "enabled": true,
+      "percentage": 25,
+      "config": {
+        "param_a": 92,
+        "param_b": "a",
+        "param_c": [
+          876,
+          195,
+          668,
+          123,
+          107
+        ]
+      }
+    },
+    "feature_1": {
+      "enabled": false,
+      "percentage": 79,
+      "config": {
+        "param_a": 15,
+        "param_b": "a",
+        "param_c": [
+          123,
+          491,
+          171,
+          28,
+          596,
+          120,
+          508,
+          305,
+          631,
+          927
+        ]
+      }
+    },
+    "feature_2": {
+      "enabled": true,
+      "percentage": 86,
+      "config": {
+        "param_a": 51,
+        "param_b": "b",
+        "param_c": [
+          6,
+          38,
+          196,
+          911,
+          555,
+          233,
+          623,
+          171,
+          477,
+          983
+        ]
+      }
+    },
+    "feature_3": {
+      "enabled": false,
+      "percentage": 34,
+      "config": {
+        "param_a": 23,
+        "param_b": "a",
+        "param_c": [
+          983,
+          747,
+          270
+        ]
+      }
+    },
+    "feature_4": {
+      "enabled": false,
+      "percentage": 13,
+      "config": {
+        "param_a": 40,
+        "param_b": "c",
+        "param_c": [
+          126,
+          914,
+          710,
+          258,
+          606,
+          783,
+          760,
+          409,
+          677
+        ]
+      }
+    },
+    "feature_5": {
+      "enabled": true,
+      "percentage": 41,
+      "config": {
+        "param_a": 39,
+        "param_b": "a",
+        "param_c": [
+          867,
+          928,
+          984,
+          190,
+          774,
+          34,
+          909,
+          647,
+          513
+        ]
+      }
+    },
+    "feature_6": {
+      "enabled": true,
+      "percentage": 74,
+      "config": {
+        "param_a": 55,
+        "param_b": "c",
+        "param_c": [
+          500,
+          281,
+          648,
+          209,
+          505,
+          294,
+          916,
+          840
+        ]
+      }
+    },
+    "feature_7": {
+      "enabled": true,
+      "percentage": 22,
+      "config": {
+        "param_a": 99,
+        "param_b": "b",
+        "param_c": [
+          425,
+          564,
+          189,
+          934,
+          722,
+          524,
+          112,
+          291,
+          735,
+          840
+        ]
+      }
+    },
+    "feature_8": {
+      "enabled": false,
+      "percentage": 46,
+      "config": {
+        "param_a": 93,
+        "param_b": "b",
+        "param_c": [
+          352,
+          72,
+          559,
+          30,
+          640
+        ]
+      }
+    },
+    "feature_9": {
+      "enabled": false,
+      "percentage": 21,
+      "config": {
+        "param_a": 53,
+        "param_b": "c",
+        "param_c": [
+          142,
+          673,
+          680
+        ]
+      }
+    },
+    "feature_10": {
+      "enabled": true,
+      "percentage": 54,
+      "config": {
+        "param_a": 44,
+        "param_b": "b",
+        "param_c": [
+          73,
+          589,
+          165,
+          172
+        ]
+      }
+    },
+    "feature_11": {
+      "enabled": true,
+      "percentage": 40,
+      "config": {
+        "param_a": 2,
+        "param_b": "c",
+        "param_c": [
+          524,
+          282,
+          707,
+          680,
+          747,
+          191,
+          94,
+          868,
+          137
+        ]
+      }
+    },
+    "feature_12": {
+      "enabled": false,
+      "percentage": 74,
+      "config": {
+        "param_a": 11,
+        "param_b": "c",
+        "param_c": [
+          83,
+          153,
+          799,
+          267,
+          940,
+          769
+        ]
+      }
+    },
+    "feature_13": {
+      "enabled": false,
+      "percentage": 45,
+      "config": {
+        "param_a": 42,
+        "param_b": "a",
+        "param_c": [
+          53,
+          592,
+          587,
+          64,
+          791
+        ]
+      }
+    },
+    "feature_14": {
+      "enabled": false,
+      "percentage": 69,
+      "config": {
+        "param_a": 54,
+        "param_b": "b",
+        "param_c": [
+          528,
+          510,
+          618,
+          74
+        ]
+      }
+    },
+    "feature_15": {
+      "enabled": false,
+      "percentage": 100,
+      "config": {
+        "param_a": 84,
+        "param_b": "b",
+        "param_c": [
+          574,
+          143,
+          498,
+          620,
+          879,
+          764
+        ]
+      }
+    },
+    "feature_16": {
+      "enabled": false,
+      "percentage": 72,
+      "config": {
+        "param_a": 6,
+        "param_b": "c",
+        "param_c": [
+          695,
+          457,
+          470,
+          689,
+          237
+        ]
+      }
+    },
+    "feature_17": {
+      "enabled": true,
+      "percentage": 55,
+      "config": {
+        "param_a": 62,
+        "param_b": "b",
+        "param_c": [
+          515,
+          358,
+          273,
+          229,
+          325,
+          101
+        ]
+      }
+    },
+    "feature_18": {
+      "enabled": true,
+      "percentage": 29,
+      "config": {
+        "param_a": 8,
+        "param_b": "c",
+        "param_c": [
+          167,
+          927,
+          843,
+          63,
+          709,
+          183,
+          308,
+          574
+        ]
+      }
+    },
+    "feature_19": {
+      "enabled": true,
+      "percentage": 17,
+      "config": {
+        "param_a": 37,
+        "param_b": "c",
+        "param_c": [
+          923,
+          403,
+          623,
+          837
+        ]
+      }
+    }
+  },
+  "endpoints": [
+    {
+      "path": "/api/v1/resource_0",
+      "method": "DELETE",
+      "auth": false,
+      "rate_limit": 754,
+      "cache_ttl": 2481,
+      "middlewares": [
+        "cors",
+        "ratelimit",
+        "logging",
+        "metrics"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_1",
+      "method": "PATCH",
+      "auth": true,
+      "rate_limit": 745,
+      "cache_ttl": 2082,
+      "middlewares": [
+        "logging",
+        "auth",
+        "cors",
+        "metrics"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_2",
+      "method": "POST",
+      "auth": true,
+      "rate_limit": 335,
+      "cache_ttl": 672,
+      "middlewares": [
+        "auth",
+        "metrics"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_3",
+      "method": "PUT",
+      "auth": true,
+      "rate_limit": 520,
+      "cache_ttl": 2220,
+      "middlewares": [
+        "cors"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_4",
+      "method": "DELETE",
+      "auth": true,
+      "rate_limit": 445,
+      "cache_ttl": 44,
+      "middlewares": [
+        "auth",
+        "cors",
+        "metrics"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_5",
+      "method": "DELETE",
+      "auth": true,
+      "rate_limit": 392,
+      "cache_ttl": 3531,
+      "middlewares": [
+        "ratelimit"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_6",
+      "method": "PATCH",
+      "auth": true,
+      "rate_limit": 353,
+      "cache_ttl": 3040,
+      "middlewares": [
+        "ratelimit",
+        "cors"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_7",
+      "method": "GET",
+      "auth": false,
+      "rate_limit": 333,
+      "cache_ttl": 561,
+      "middlewares": [
+        "ratelimit",
+        "cors",
+        "logging",
+        "auth",
+        "metrics"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_8",
+      "method": "GET",
+      "auth": true,
+      "rate_limit": 47,
+      "cache_ttl": 116,
+      "middlewares": [
+        "cors",
+        "auth",
+        "ratelimit",
+        "metrics"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_9",
+      "method": "POST",
+      "auth": true,
+      "rate_limit": 63,
+      "cache_ttl": 1169,
+      "middlewares": [
+        "ratelimit",
+        "auth"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_10",
+      "method": "PUT",
+      "auth": false,
+      "rate_limit": 559,
+      "cache_ttl": 3073,
+      "middlewares": [
+        "logging",
+        "auth",
+        "cors",
+        "ratelimit",
+        "metrics"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_11",
+      "method": "DELETE",
+      "auth": false,
+      "rate_limit": 224,
+      "cache_ttl": 1477,
+      "middlewares": [
+        "ratelimit",
+        "cors",
+        "auth"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_12",
+      "method": "GET",
+      "auth": true,
+      "rate_limit": 607,
+      "cache_ttl": 2717,
+      "middlewares": [
+        "cors",
+        "metrics",
+        "logging",
+        "auth",
+        "ratelimit"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_13",
+      "method": "PUT",
+      "auth": true,
+      "rate_limit": 553,
+      "cache_ttl": 602,
+      "middlewares": [
+        "logging",
+        "ratelimit",
+        "metrics",
+        "auth",
+        "cors"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_14",
+      "method": "PUT",
+      "auth": true,
+      "rate_limit": 736,
+      "cache_ttl": 1073,
+      "middlewares": [
+        "metrics",
+        "cors",
+        "auth"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_15",
+      "method": "GET",
+      "auth": false,
+      "rate_limit": 146,
+      "cache_ttl": 2551,
+      "middlewares": [
+        "ratelimit"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_16",
+      "method": "GET",
+      "auth": false,
+      "rate_limit": 452,
+      "cache_ttl": 2272,
+      "middlewares": [
+        "ratelimit",
+        "logging",
+        "metrics",
+        "cors",
+        "auth"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_17",
+      "method": "GET",
+      "auth": true,
+      "rate_limit": 879,
+      "cache_ttl": 47,
+      "middlewares": [
+        "logging",
+        "auth",
+        "cors"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_18",
+      "method": "PATCH",
+      "auth": true,
+      "rate_limit": 595,
+      "cache_ttl": 2562,
+      "middlewares": [
+        "auth"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_19",
+      "method": "GET",
+      "auth": true,
+      "rate_limit": 587,
+      "cache_ttl": 2959,
+      "middlewares": [
+        "cors",
+        "metrics",
+        "ratelimit",
+        "logging",
+        "auth"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_20",
+      "method": "PATCH",
+      "auth": false,
+      "rate_limit": 24,
+      "cache_ttl": 626,
+      "middlewares": [
+        "cors",
+        "logging",
+        "metrics",
+        "ratelimit",
+        "auth"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_21",
+      "method": "GET",
+      "auth": true,
+      "rate_limit": 952,
+      "cache_ttl": 299,
+      "middlewares": [
+        "logging"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_22",
+      "method": "DELETE",
+      "auth": true,
+      "rate_limit": 76,
+      "cache_ttl": 970,
+      "middlewares": [
+        "ratelimit",
+        "metrics",
+        "logging",
+        "auth",
+        "cors"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_23",
+      "method": "DELETE",
+      "auth": true,
+      "rate_limit": 940,
+      "cache_ttl": 367,
+      "middlewares": [
+        "logging",
+        "ratelimit",
+        "auth",
+        "metrics",
+        "cors"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_24",
+      "method": "PATCH",
+      "auth": true,
+      "rate_limit": 301,
+      "cache_ttl": 276,
+      "middlewares": [
+        "ratelimit",
+        "auth",
+        "metrics",
+        "cors",
+        "logging"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_25",
+      "method": "GET",
+      "auth": true,
+      "rate_limit": 690,
+      "cache_ttl": 34,
+      "middlewares": [
+        "logging",
+        "auth",
+        "cors",
+        "ratelimit",
+        "metrics"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_26",
+      "method": "GET",
+      "auth": false,
+      "rate_limit": 904,
+      "cache_ttl": 289,
+      "middlewares": [
+        "metrics",
+        "ratelimit",
+        "auth"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_27",
+      "method": "GET",
+      "auth": false,
+      "rate_limit": 955,
+      "cache_ttl": 2280,
+      "middlewares": [
+        "auth",
+        "metrics"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_28",
+      "method": "PUT",
+      "auth": true,
+      "rate_limit": 82,
+      "cache_ttl": 3304,
+      "middlewares": [
+        "cors",
+        "auth",
+        "logging",
+        "ratelimit"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_29",
+      "method": "GET",
+      "auth": false,
+      "rate_limit": 394,
+      "cache_ttl": 2018,
+      "middlewares": [
+        "cors",
+        "metrics",
+        "logging",
+        "auth"
+      ]
+    }
+  ],
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "name": "mydb",
+    "ssl": true,
+    "pool_size": 20
+  }
+}

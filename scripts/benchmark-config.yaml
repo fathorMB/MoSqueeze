@@ -1,0 +1,143 @@
+# Extended Benchmark Configuration
+# This file defines all combinations to test for the Intelligent Algorithm Selection
+
+corpus:
+  path: "./benchmark-corpus"
+  recursive: true
+  file_patterns:
+    - "*"  # All files
+  
+output:
+  database: "./benchmark-results.db"
+  format: sqlite
+  log_file: "./benchmark-log.csv"
+  
+combinations:
+  # All preprocessors to test
+  preprocessors:
+    - id: none
+      name: "No Preprocessor"
+      file_patterns:
+        - "*"  # Applies to all files
+      enabled: true
+      
+    - id: json-canon
+      name: "JSON Canonicalizer"
+      file_patterns:
+        - "*.json"
+      enabled: true
+      
+    - id: xml-canon
+      name: "XML Canonicalizer"
+      file_patterns:
+        - "*.xml"
+        - "*.html"
+        - "*.svg"
+      enabled: true
+      
+    - id: png-optimizer
+      name: "PNG Optimizer"
+      file_patterns:
+        - "*.png"
+      enabled: true
+      
+    - id: image-meta-stripper
+      name: "Image Metadata Stripper"
+      file_patterns:
+        - "*.png"
+        - "*.jpg"
+        - "*.jpeg"
+        - "*.webp"
+        - "*.raf"
+        - "*.arw"
+        - "*.nef"
+        - "*.cr2"
+        - "*.cr3"
+        - "*.iiq"
+        - "*.3fr"
+      enabled: true
+      
+    - id: bayer-raw
+      name: "Bayer Preprocessor"
+      file_patterns:
+        - "*.raf"
+        - "*.arw"
+        - "*.nef"
+        - "*.cr2"
+        - "*.cr3"
+        - "*.iiq"
+        - "*.3fr"
+        - "*.dng"
+      # Condition: only for uncompressed RAW
+      # This will be checked at runtime
+      condition: "is_uncompressed_raw"
+      enabled: true
+  
+  # All algorithms to test
+  algorithms:
+    - name: zstd
+      levels: [1, 3, 6, 9, 15, 19]
+      description: "Zstandard compression"
+      
+    - name: xz
+      levels: [1, 3, 6, 9]
+      description: "XZ/LZMA2 compression"
+      
+    - name: brotli
+      levels: [1, 4, 7, 9, 11]
+      description: "Brotli compression"
+      
+    - name: zpaq
+      levels: [1, 2, 3, 4, 5]
+      description: "ZPAQ archiver"
+  
+  # Execution settings
+  execution:
+    parallel: 8                    # Number of parallel workers
+    memory_limit_mb: 4096          # Max memory per worker
+    verify_roundtrip: true         # Decompress and verify
+    save_intermediate: false       # Save preprocessor output
+    timeout_seconds: 300          # Max time per combination
+    
+  # Skip rules
+  skip_rules:
+    # Skip already heavily compressed files
+    - pattern: "*.mp4"
+      reason: "Already compressed video"
+    - pattern: "*.mp3"
+      reason: "Already compressed audio"
+    - pattern: "*.zip"
+      reason: "Already compressed archive"
+    - pattern: "*.gz"
+      reason: "Already compressed archive"
+    - pattern: "*.7z"
+      reason: "Already compressed archive"
+    - pattern: "*.jpg"
+      preprocessor: ["image-meta-stripper"]
+      note: "Only test with metadata stripper, not full compression"
+
+# Precomputed results for seeding the database
+# These will be loaded before benchmark runs
+seed_data:
+  enabled: false
+  path: "./precomputed-results.json"
+
+# Learning settings (for online learning)
+learning:
+  enabled: false
+  user_database: "./user-benchmark-results.db"
+  
+# Reporting
+reporting:
+  progress_interval_seconds: 10
+  save_checkpoint_every: 100
+  checkpoint_file: "./benchmark-checkpoint.json"
+  
+# Validation
+validation:
+  # Minimum samples per file type for statistical significance
+  min_samples: 3
+  # Acceptable variance in results
+  max_ratio_variance: 0.05
+  # Time variance threshold
+  max_time_variance_percent: 20

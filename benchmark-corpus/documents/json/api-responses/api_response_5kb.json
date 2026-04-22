@@ -1,0 +1,1065 @@
+{
+  "success": true,
+  "timestamp": "2024-01-15T10:30:00Z",
+  "pagination": {
+    "page": 1,
+    "per_page": 25,
+    "total": 250,
+    "total_pages": 10
+  },
+  "data": [
+    {
+      "id": "item_000000",
+      "name": "Product 0",
+      "description": "This is a detailed description for product 0. This is a detailed description for product 0. ",
+      "price": 762.24,
+      "quantity": 787,
+      "category": "electronics",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2"
+      ],
+      "metadata": {
+        "created": "2024-08-11T05:49:00Z",
+        "updated": "2024-03-05T07:28:00Z",
+        "version": "v1.25.50",
+        "author": "Diana",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-0-0",
+          "color": "blue",
+          "size": "L",
+          "stock": 127
+        },
+        {
+          "sku": "SKU-0-1",
+          "color": "red",
+          "size": "L",
+          "stock": 340
+        },
+        {
+          "sku": "SKU-0-2",
+          "color": "black",
+          "size": "S",
+          "stock": 447
+        },
+        {
+          "sku": "SKU-0-3",
+          "color": "white",
+          "size": "XL",
+          "stock": 407
+        }
+      ]
+    },
+    {
+      "id": "item_000001",
+      "name": "Product 1",
+      "description": "This is a detailed description for product 1. This is a detailed description for product 1. ",
+      "price": 217.35,
+      "quantity": 683,
+      "category": "home",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5"
+      ],
+      "metadata": {
+        "created": "2024-09-02T18:56:00Z",
+        "updated": "2024-05-16T21:46:00Z",
+        "version": "v4.84.42",
+        "author": "Alice",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-1-0",
+          "color": "green",
+          "size": "XL",
+          "stock": 468
+        },
+        {
+          "sku": "SKU-1-1",
+          "color": "white",
+          "size": "S",
+          "stock": 307
+        },
+        {
+          "sku": "SKU-1-2",
+          "color": "white",
+          "size": "M",
+          "stock": 307
+        }
+      ]
+    },
+    {
+      "id": "item_000002",
+      "name": "Product 2",
+      "description": "This is a detailed description for product 2. ",
+      "price": 291.2,
+      "quantity": 872,
+      "category": "sports",
+      "tags": [
+        "tag_0"
+      ],
+      "metadata": {
+        "created": "2024-06-02T10:23:00Z",
+        "updated": "2024-02-14T20:59:00Z",
+        "version": "v1.31.22",
+        "author": "Charlie",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-2-0",
+          "color": "white",
+          "size": "L",
+          "stock": 260
+        },
+        {
+          "sku": "SKU-2-1",
+          "color": "green",
+          "size": "S",
+          "stock": 3
+        },
+        {
+          "sku": "SKU-2-2",
+          "color": "red",
+          "size": "M",
+          "stock": 10
+        },
+        {
+          "sku": "SKU-2-3",
+          "color": "green",
+          "size": "XS",
+          "stock": 451
+        }
+      ]
+    },
+    {
+      "id": "item_000003",
+      "name": "Product 3",
+      "description": "This is a detailed description for product 3. This is a detailed description for product 3. This is a detailed description for product 3. This is a detailed description for product 3. This is a detailed description for product 3. ",
+      "price": 945.23,
+      "quantity": 27,
+      "category": "garden",
+      "tags": [
+        "tag_0"
+      ],
+      "metadata": {
+        "created": "2024-03-11T02:07:00Z",
+        "updated": "2024-04-28T01:38:00Z",
+        "version": "v5.31.40",
+        "author": "Alice",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-3-0",
+          "color": "green",
+          "size": "M",
+          "stock": 406
+        },
+        {
+          "sku": "SKU-3-1",
+          "color": "black",
+          "size": "XS",
+          "stock": 63
+        }
+      ]
+    },
+    {
+      "id": "item_000004",
+      "name": "Product 4",
+      "description": "This is a detailed description for product 4. ",
+      "price": 801.23,
+      "quantity": 790,
+      "category": "garden",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7"
+      ],
+      "metadata": {
+        "created": "2024-04-09T23:59:00Z",
+        "updated": "2024-04-26T17:05:00Z",
+        "version": "v4.52.23",
+        "author": "Alice",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-4-0",
+          "color": "red",
+          "size": "M",
+          "stock": 267
+        },
+        {
+          "sku": "SKU-4-1",
+          "color": "black",
+          "size": "XL",
+          "stock": 45
+        },
+        {
+          "sku": "SKU-4-2",
+          "color": "blue",
+          "size": "S",
+          "stock": 162
+        },
+        {
+          "sku": "SKU-4-3",
+          "color": "white",
+          "size": "XS",
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": "item_000005",
+      "name": "Product 5",
+      "description": "This is a detailed description for product 5. This is a detailed description for product 5. This is a detailed description for product 5. This is a detailed description for product 5. ",
+      "price": 739.79,
+      "quantity": 945,
+      "category": "garden",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7"
+      ],
+      "metadata": {
+        "created": "2024-07-02T22:43:00Z",
+        "updated": "2024-08-13T22:57:00Z",
+        "version": "v4.0.17",
+        "author": "Eve",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-5-0",
+          "color": "white",
+          "size": "XS",
+          "stock": 463
+        },
+        {
+          "sku": "SKU-5-1",
+          "color": "black",
+          "size": "M",
+          "stock": 294
+        }
+      ]
+    },
+    {
+      "id": "item_000006",
+      "name": "Product 6",
+      "description": "This is a detailed description for product 6. This is a detailed description for product 6. This is a detailed description for product 6. This is a detailed description for product 6. This is a detailed description for product 6. ",
+      "price": 566.05,
+      "quantity": 955,
+      "category": "garden",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5"
+      ],
+      "metadata": {
+        "created": "2024-01-04T10:23:00Z",
+        "updated": "2024-03-04T16:05:00Z",
+        "version": "v2.36.89",
+        "author": "Bob",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-6-0",
+          "color": "green",
+          "size": "M",
+          "stock": 448
+        }
+      ]
+    },
+    {
+      "id": "item_000007",
+      "name": "Product 7",
+      "description": "This is a detailed description for product 7. This is a detailed description for product 7. This is a detailed description for product 7. This is a detailed description for product 7. ",
+      "price": 380.55,
+      "quantity": 317,
+      "category": "electronics",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4"
+      ],
+      "metadata": {
+        "created": "2024-02-21T20:26:00Z",
+        "updated": "2024-05-26T14:22:00Z",
+        "version": "v1.83.67",
+        "author": "Eve",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-7-0",
+          "color": "blue",
+          "size": "XS",
+          "stock": 276
+        }
+      ]
+    },
+    {
+      "id": "item_000008",
+      "name": "Product 8",
+      "description": "This is a detailed description for product 8. This is a detailed description for product 8. This is a detailed description for product 8. This is a detailed description for product 8. ",
+      "price": 305.33,
+      "quantity": 101,
+      "category": "sports",
+      "tags": [
+        "tag_0"
+      ],
+      "metadata": {
+        "created": "2024-11-28T18:48:00Z",
+        "updated": "2024-08-25T04:58:00Z",
+        "version": "v3.30.17",
+        "author": "Bob",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-8-0",
+          "color": "red",
+          "size": "XS",
+          "stock": 91
+        }
+      ]
+    },
+    {
+      "id": "item_000009",
+      "name": "Product 9",
+      "description": "This is a detailed description for product 9. This is a detailed description for product 9. This is a detailed description for product 9. This is a detailed description for product 9. ",
+      "price": 605.23,
+      "quantity": 859,
+      "category": "garden",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6"
+      ],
+      "metadata": {
+        "created": "2024-03-05T19:58:00Z",
+        "updated": "2024-02-02T06:45:00Z",
+        "version": "v2.58.81",
+        "author": "Eve",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-9-0",
+          "color": "red",
+          "size": "XL",
+          "stock": 416
+        },
+        {
+          "sku": "SKU-9-1",
+          "color": "green",
+          "size": "S",
+          "stock": 0
+        },
+        {
+          "sku": "SKU-9-2",
+          "color": "blue",
+          "size": "M",
+          "stock": 192
+        }
+      ]
+    },
+    {
+      "id": "item_000010",
+      "name": "Product 10",
+      "description": "This is a detailed description for product 10. ",
+      "price": 729.25,
+      "quantity": 773,
+      "category": "sports",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3"
+      ],
+      "metadata": {
+        "created": "2024-12-07T05:01:00Z",
+        "updated": "2024-10-15T14:51:00Z",
+        "version": "v5.30.24",
+        "author": "Charlie",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-10-0",
+          "color": "blue",
+          "size": "XS",
+          "stock": 260
+        },
+        {
+          "sku": "SKU-10-1",
+          "color": "black",
+          "size": "L",
+          "stock": 37
+        },
+        {
+          "sku": "SKU-10-2",
+          "color": "green",
+          "size": "L",
+          "stock": 23
+        }
+      ]
+    },
+    {
+      "id": "item_000011",
+      "name": "Product 11",
+      "description": "This is a detailed description for product 11. This is a detailed description for product 11. ",
+      "price": 24.05,
+      "quantity": 246,
+      "category": "electronics",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2"
+      ],
+      "metadata": {
+        "created": "2024-06-03T04:53:00Z",
+        "updated": "2024-12-27T01:09:00Z",
+        "version": "v4.53.2",
+        "author": "Eve",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-11-0",
+          "color": "red",
+          "size": "XS",
+          "stock": 498
+        },
+        {
+          "sku": "SKU-11-1",
+          "color": "white",
+          "size": "XL",
+          "stock": 279
+        },
+        {
+          "sku": "SKU-11-2",
+          "color": "green",
+          "size": "S",
+          "stock": 438
+        },
+        {
+          "sku": "SKU-11-3",
+          "color": "blue",
+          "size": "S",
+          "stock": 293
+        }
+      ]
+    },
+    {
+      "id": "item_000012",
+      "name": "Product 12",
+      "description": "This is a detailed description for product 12. This is a detailed description for product 12. This is a detailed description for product 12. ",
+      "price": 486.41,
+      "quantity": 915,
+      "category": "home",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7",
+        "tag_8"
+      ],
+      "metadata": {
+        "created": "2024-12-06T00:04:00Z",
+        "updated": "2024-03-16T02:43:00Z",
+        "version": "v5.5.34",
+        "author": "Diana",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-12-0",
+          "color": "red",
+          "size": "XL",
+          "stock": 340
+        },
+        {
+          "sku": "SKU-12-1",
+          "color": "red",
+          "size": "XL",
+          "stock": 347
+        }
+      ]
+    },
+    {
+      "id": "item_000013",
+      "name": "Product 13",
+      "description": "This is a detailed description for product 13. This is a detailed description for product 13. This is a detailed description for product 13. This is a detailed description for product 13. This is a detailed description for product 13. ",
+      "price": 742.36,
+      "quantity": 57,
+      "category": "home",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7"
+      ],
+      "metadata": {
+        "created": "2024-01-08T21:54:00Z",
+        "updated": "2024-03-02T01:05:00Z",
+        "version": "v5.47.69",
+        "author": "Alice",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-13-0",
+          "color": "white",
+          "size": "L",
+          "stock": 257
+        },
+        {
+          "sku": "SKU-13-1",
+          "color": "black",
+          "size": "XL",
+          "stock": 110
+        },
+        {
+          "sku": "SKU-13-2",
+          "color": "red",
+          "size": "M",
+          "stock": 165
+        },
+        {
+          "sku": "SKU-13-3",
+          "color": "red",
+          "size": "S",
+          "stock": 399
+        },
+        {
+          "sku": "SKU-13-4",
+          "color": "white",
+          "size": "XS",
+          "stock": 56
+        }
+      ]
+    },
+    {
+      "id": "item_000014",
+      "name": "Product 14",
+      "description": "This is a detailed description for product 14. This is a detailed description for product 14. This is a detailed description for product 14. ",
+      "price": 48.42,
+      "quantity": 969,
+      "category": "clothing",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7",
+        "tag_8"
+      ],
+      "metadata": {
+        "created": "2024-10-13T08:25:00Z",
+        "updated": "2024-06-14T02:49:00Z",
+        "version": "v3.33.59",
+        "author": "Charlie",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-14-0",
+          "color": "red",
+          "size": "XL",
+          "stock": 80
+        },
+        {
+          "sku": "SKU-14-1",
+          "color": "white",
+          "size": "S",
+          "stock": 184
+        },
+        {
+          "sku": "SKU-14-2",
+          "color": "white",
+          "size": "XL",
+          "stock": 233
+        },
+        {
+          "sku": "SKU-14-3",
+          "color": "blue",
+          "size": "S",
+          "stock": 57
+        },
+        {
+          "sku": "SKU-14-4",
+          "color": "green",
+          "size": "M",
+          "stock": 468
+        }
+      ]
+    },
+    {
+      "id": "item_000015",
+      "name": "Product 15",
+      "description": "This is a detailed description for product 15. This is a detailed description for product 15. ",
+      "price": 168.05,
+      "quantity": 498,
+      "category": "clothing",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7",
+        "tag_8",
+        "tag_9"
+      ],
+      "metadata": {
+        "created": "2024-11-25T02:14:00Z",
+        "updated": "2024-03-15T07:08:00Z",
+        "version": "v3.9.83",
+        "author": "Bob",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-15-0",
+          "color": "white",
+          "size": "L",
+          "stock": 10
+        },
+        {
+          "sku": "SKU-15-1",
+          "color": "green",
+          "size": "S",
+          "stock": 419
+        },
+        {
+          "sku": "SKU-15-2",
+          "color": "red",
+          "size": "XS",
+          "stock": 204
+        },
+        {
+          "sku": "SKU-15-3",
+          "color": "green",
+          "size": "M",
+          "stock": 232
+        },
+        {
+          "sku": "SKU-15-4",
+          "color": "green",
+          "size": "XL",
+          "stock": 133
+        }
+      ]
+    },
+    {
+      "id": "item_000016",
+      "name": "Product 16",
+      "description": "This is a detailed description for product 16. This is a detailed description for product 16. ",
+      "price": 973.21,
+      "quantity": 106,
+      "category": "sports",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7",
+        "tag_8",
+        "tag_9"
+      ],
+      "metadata": {
+        "created": "2024-11-06T07:05:00Z",
+        "updated": "2024-04-26T19:33:00Z",
+        "version": "v1.70.80",
+        "author": "Eve",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-16-0",
+          "color": "green",
+          "size": "XL",
+          "stock": 458
+        },
+        {
+          "sku": "SKU-16-1",
+          "color": "black",
+          "size": "L",
+          "stock": 457
+        },
+        {
+          "sku": "SKU-16-2",
+          "color": "green",
+          "size": "L",
+          "stock": 52
+        },
+        {
+          "sku": "SKU-16-3",
+          "color": "red",
+          "size": "L",
+          "stock": 358
+        }
+      ]
+    },
+    {
+      "id": "item_000017",
+      "name": "Product 17",
+      "description": "This is a detailed description for product 17. This is a detailed description for product 17. This is a detailed description for product 17. This is a detailed description for product 17. This is a detailed description for product 17. ",
+      "price": 459.3,
+      "quantity": 447,
+      "category": "home",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2"
+      ],
+      "metadata": {
+        "created": "2024-03-27T19:03:00Z",
+        "updated": "2024-06-21T02:05:00Z",
+        "version": "v2.2.36",
+        "author": "Bob",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-17-0",
+          "color": "white",
+          "size": "XL",
+          "stock": 382
+        },
+        {
+          "sku": "SKU-17-1",
+          "color": "white",
+          "size": "S",
+          "stock": 127
+        }
+      ]
+    },
+    {
+      "id": "item_000018",
+      "name": "Product 18",
+      "description": "This is a detailed description for product 18. This is a detailed description for product 18. This is a detailed description for product 18. This is a detailed description for product 18. ",
+      "price": 379.14,
+      "quantity": 85,
+      "category": "sports",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7",
+        "tag_8"
+      ],
+      "metadata": {
+        "created": "2024-09-24T07:45:00Z",
+        "updated": "2024-02-15T23:08:00Z",
+        "version": "v5.46.38",
+        "author": "Eve",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-18-0",
+          "color": "red",
+          "size": "L",
+          "stock": 231
+        },
+        {
+          "sku": "SKU-18-1",
+          "color": "black",
+          "size": "S",
+          "stock": 460
+        }
+      ]
+    },
+    {
+      "id": "item_000019",
+      "name": "Product 19",
+      "description": "This is a detailed description for product 19. This is a detailed description for product 19. ",
+      "price": 481.42,
+      "quantity": 974,
+      "category": "clothing",
+      "tags": [
+        "tag_0"
+      ],
+      "metadata": {
+        "created": "2024-02-01T01:12:00Z",
+        "updated": "2024-06-04T09:03:00Z",
+        "version": "v4.42.58",
+        "author": "Bob",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-19-0",
+          "color": "green",
+          "size": "L",
+          "stock": 152
+        },
+        {
+          "sku": "SKU-19-1",
+          "color": "blue",
+          "size": "S",
+          "stock": 127
+        },
+        {
+          "sku": "SKU-19-2",
+          "color": "blue",
+          "size": "L",
+          "stock": 437
+        },
+        {
+          "sku": "SKU-19-3",
+          "color": "black",
+          "size": "S",
+          "stock": 33
+        }
+      ]
+    },
+    {
+      "id": "item_000020",
+      "name": "Product 20",
+      "description": "This is a detailed description for product 20. This is a detailed description for product 20. This is a detailed description for product 20. ",
+      "price": 129.07,
+      "quantity": 559,
+      "category": "home",
+      "tags": [
+        "tag_0",
+        "tag_1"
+      ],
+      "metadata": {
+        "created": "2024-10-21T06:43:00Z",
+        "updated": "2024-01-02T06:34:00Z",
+        "version": "v2.63.64",
+        "author": "Bob",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-20-0",
+          "color": "black",
+          "size": "XL",
+          "stock": 402
+        },
+        {
+          "sku": "SKU-20-1",
+          "color": "black",
+          "size": "XL",
+          "stock": 294
+        },
+        {
+          "sku": "SKU-20-2",
+          "color": "black",
+          "size": "S",
+          "stock": 406
+        }
+      ]
+    },
+    {
+      "id": "item_000021",
+      "name": "Product 21",
+      "description": "This is a detailed description for product 21. This is a detailed description for product 21. This is a detailed description for product 21. This is a detailed description for product 21. ",
+      "price": 229.46,
+      "quantity": 2,
+      "category": "home",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7",
+        "tag_8"
+      ],
+      "metadata": {
+        "created": "2024-08-22T11:34:00Z",
+        "updated": "2024-09-06T14:21:00Z",
+        "version": "v1.59.92",
+        "author": "Charlie",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-21-0",
+          "color": "red",
+          "size": "XS",
+          "stock": 367
+        },
+        {
+          "sku": "SKU-21-1",
+          "color": "red",
+          "size": "L",
+          "stock": 353
+        }
+      ]
+    },
+    {
+      "id": "item_000022",
+      "name": "Product 22",
+      "description": "This is a detailed description for product 22. This is a detailed description for product 22. This is a detailed description for product 22. This is a detailed description for product 22. This is a detailed description for product 22. ",
+      "price": 667.46,
+      "quantity": 365,
+      "category": "sports",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5"
+      ],
+      "metadata": {
+        "created": "2024-08-14T12:35:00Z",
+        "updated": "2024-12-24T15:25:00Z",
+        "version": "v5.64.67",
+        "author": "Eve",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-22-0",
+          "color": "black",
+          "size": "M",
+          "stock": 279
+        },
+        {
+          "sku": "SKU-22-1",
+          "color": "green",
+          "size": "XL",
+          "stock": 346
+        }
+      ]
+    },
+    {
+      "id": "item_000023",
+      "name": "Product 23",
+      "description": "This is a detailed description for product 23. This is a detailed description for product 23. ",
+      "price": 607.38,
+      "quantity": 509,
+      "category": "home",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4"
+      ],
+      "metadata": {
+        "created": "2024-05-11T17:06:00Z",
+        "updated": "2024-11-28T07:40:00Z",
+        "version": "v4.23.49",
+        "author": "Eve",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-23-0",
+          "color": "black",
+          "size": "L",
+          "stock": 27
+        },
+        {
+          "sku": "SKU-23-1",
+          "color": "green",
+          "size": "M",
+          "stock": 31
+        }
+      ]
+    },
+    {
+      "id": "item_000024",
+      "name": "Product 24",
+      "description": "This is a detailed description for product 24. This is a detailed description for product 24. This is a detailed description for product 24. This is a detailed description for product 24. ",
+      "price": 76.32,
+      "quantity": 886,
+      "category": "electronics",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6"
+      ],
+      "metadata": {
+        "created": "2024-10-12T14:11:00Z",
+        "updated": "2024-04-23T11:59:00Z",
+        "version": "v1.28.15",
+        "author": "Eve",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-24-0",
+          "color": "black",
+          "size": "XL",
+          "stock": 174
+        },
+        {
+          "sku": "SKU-24-1",
+          "color": "blue",
+          "size": "XS",
+          "stock": 399
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "api_version": "3.2.1",
+    "server": "api-east.example.com",
+    "response_time_ms": 80
+  }
+}
