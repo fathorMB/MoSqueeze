@@ -89,3 +89,8 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 
 ### Feature Docs: Benchmark Progress Feedback (Issue #45)
 - Updated `guides/benchmark-tool.md` with live progress/ETA behavior and mode interaction (`default`, `--verbose`, `--quiet`)
+
+### Bug Fix Docs: Bayer RAF Parsing (Issue #46)
+- Updated `preprocessing.md` with `bayer-raw` RAF region-only transform behavior
+- Documented safe fallback mode for unparseable/non-RAF raw payloads
+- Documented metadata compatibility (`version 2` region mode + legacy `version 1`)
