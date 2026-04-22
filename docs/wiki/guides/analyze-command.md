@@ -6,7 +6,7 @@ Use `mosqueeze analyze` to inspect a file and get a recommended algorithm/level 
 ## Command
 
 ```bash
-mosqueeze analyze <file> [-v|--verbose] [-b|--benchmark]
+mosqueeze analyze <file> [-v|--verbose] [-b|--benchmark] [--preprocess <mode>]
 ```
 
 ## Current Behavior
@@ -18,6 +18,8 @@ mosqueeze analyze <file> [-v|--verbose] [-b|--benchmark]
   - MIME type
   - compressed yes/no
   - recommended action
+- Accepts `--preprocess` hint values:
+  - `auto`, `none`, `json-canonical`, `xml-canonical`, `image-meta-strip`, `bayer-raw`, `zstd-dict`
 
 If file should be skipped, output includes explicit reason (for example already-compressed media).
 
@@ -27,6 +29,7 @@ If file should be skipped, output includes explicit reason (for example already-
 mosqueeze analyze README.md
 mosqueeze analyze dataset.json --verbose
 mosqueeze analyze archive.zip --verbose
+mosqueeze analyze image.nef --preprocess bayer-raw
 ```
 
 ## Output Interpretation

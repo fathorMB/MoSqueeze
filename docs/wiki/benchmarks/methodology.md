@@ -50,6 +50,7 @@ Runtime controls:
 - `--no-decode` to skip decode benchmark
 - `--no-memory` to disable memory field capture
 - `--verbose` for progress callback output
+- parallel mode (`--threads > 1`) automatically disables memory capture to avoid process-wide misattribution
 
 ---
 
@@ -74,6 +75,8 @@ Default output directory: `benchmarks/results`
   - `results.json`
   - `results.csv`
 - Explicit exports:
+  - `--json` (writes `<output>/results.json`)
+  - `--csv` (writes `<output>/results.csv`)
   - `--format json`
   - `--format csv`
   - `--format markdown`
