@@ -228,3 +228,14 @@ add_custom_command(TARGET Pipeline_test POST_BUILD
           $<TARGET_FILE_DIR:Pipeline_test>
 )
 add_test(NAME Pipeline_test COMMAND Pipeline_test)
+
+add_executable(Viz_test
+  unit/Viz_test.cpp
+)
+target_link_libraries(Viz_test PRIVATE mosqueeze-viz-lib)
+add_custom_command(TARGET Viz_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:mosqueeze-viz-lib>
+          $<TARGET_FILE_DIR:Viz_test>
+)
+add_test(NAME Viz_test COMMAND Viz_test)

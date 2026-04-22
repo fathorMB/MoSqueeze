@@ -76,3 +76,8 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `preprocessing.md` to include RAW/TIFF routing and `bayer-raw`
 - Added implementation-status notes so documentation matches current staged behavior
 - Updated `guides/analyze-command.md` with current `--preprocess` modes including `bayer-raw`
+
+### Feature Docs: Benchmark Visualization (Issue #40)
+- Added `guides/benchmark-visualization.md` for `mosqueeze-viz` usage and comparison workflow
+- Updated wiki `index.md` guide list to include benchmark visualization
+- Updated top-level `README.md` quick links with visualization guide
