@@ -29,8 +29,8 @@ void addAnalyzeCommand(CLI::App& app) {
     analyze->add_option("file", *inputFile, "File to analyze")->required();
     analyze->add_flag("-v,--verbose", *verbose, "Show detailed analysis");
     analyze->add_flag("-b,--benchmark", *benchmark, "Run quick benchmark");
-    analyze->add_option("--preprocess", *preprocess, "Preprocessor: auto, none, json-canonical, xml-canonical, image-meta-strip, zstd-dict")
-        ->check(CLI::IsMember({"auto", "none", "json-canonical", "xml-canonical", "image-meta-strip", "zstd-dict"}));
+    analyze->add_option("--preprocess", *preprocess, "Preprocessor: auto, none, json-canonical, xml-canonical, image-meta-strip, bayer-raw, zstd-dict")
+        ->check(CLI::IsMember({"auto", "none", "json-canonical", "xml-canonical", "image-meta-strip", "bayer-raw", "zstd-dict"}));
 
     analyze->callback([inputFile, verbose, benchmark, preprocess]() {
         std::filesystem::path path(*inputFile);

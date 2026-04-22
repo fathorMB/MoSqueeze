@@ -196,6 +196,17 @@ add_custom_command(TARGET ImageMetaStripper_test POST_BUILD
 )
 add_test(NAME ImageMetaStripper_test COMMAND ImageMetaStripper_test)
 
+add_executable(BayerPreprocessor_test
+  unit/BayerPreprocessor_test.cpp
+)
+target_link_libraries(BayerPreprocessor_test PRIVATE libmosqueeze)
+add_custom_command(TARGET BayerPreprocessor_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:BayerPreprocessor_test>
+)
+add_test(NAME BayerPreprocessor_test COMMAND BayerPreprocessor_test)
+
 add_executable(DictionaryPreprocessor_test
   unit/DictionaryPreprocessor_test.cpp
 )

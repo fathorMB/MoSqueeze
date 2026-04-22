@@ -64,3 +64,15 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 ### Feature Docs: Preprocessing Engine (Issue #31)
 - Added `preprocessing.md` with preprocessing overview and trailing-header format
 - Updated `index.md` to include preprocessing section
+
+### Feature Docs: Parallel Benchmark Hardening + UX
+- Updated `guides/benchmark-tool.md` with:
+  - `--json` / `--csv` export switches
+  - parallel memory tracking note (auto-disabled when `--threads > 1`)
+  - Windows runtime DLL troubleshooting note (`pugixml.dll` and transitive dependencies)
+- Updated `benchmarks/methodology.md` to reflect parallel memory behavior and export switches
+
+### Feature Docs: RAW + Bayer Preprocessing (Issues #35 and #36)
+- Updated `preprocessing.md` to include RAW/TIFF routing and `bayer-raw`
+- Added implementation-status notes so documentation matches current staged behavior
+- Updated `guides/analyze-command.md` with current `--preprocess` modes including `bayer-raw`

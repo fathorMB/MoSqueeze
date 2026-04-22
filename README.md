@@ -22,6 +22,8 @@ Dependencies are declared in `vcpkg.json`:
 - fmt
 - spdlog
 - nlohmann-json
+- sqlite3
+- pugixml
 
 ## Build
 
@@ -51,6 +53,9 @@ mosqueeze v0.1.0
 # Benchmark a directory with multiple iterations
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --iterations 5 --warmup 2 --summary
 
+# Parallel run with explicit thread count + JSON/CSV exports
+./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --threads 8 --output ./benchmarks/results --json --csv
+
 # Export HTML report
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --export ./benchmarks/results/report.html --format html
 ```
@@ -72,6 +77,7 @@ ctest --output-on-failure
 - [FileType → Algorithm Mapping](docs/wiki/decisions/file-type-to-algorithm.md) — Decision guide
 - [Benchmark Results](docs/wiki/benchmarks/graphs/ratio-by-algorithm.md) — Performance data
 - [Benchmark Tool Guide](docs/wiki/guides/benchmark-tool.md) — Full `mosqueeze-bench` CLI and exports
+- [Preprocessing Guide](docs/wiki/preprocessing.md) — Current preprocessors and trailing header format
 - [Getting Started Guide](docs/wiki/guides/getting-started.md) — Full setup instructions
 
 ## License

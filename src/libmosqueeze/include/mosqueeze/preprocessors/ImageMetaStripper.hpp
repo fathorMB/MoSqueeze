@@ -9,7 +9,9 @@ public:
     PreprocessorType type() const override { return PreprocessorType::ImageMetaStripper; }
     std::string name() const override { return "image-meta-strip"; }
     bool canProcess(FileType fileType) const override {
-        return fileType == FileType::Image_JPEG || fileType == FileType::Image_PNG;
+        return fileType == FileType::Image_JPEG ||
+            fileType == FileType::Image_PNG ||
+            fileType == FileType::Image_Raw;
     }
 
     PreprocessResult preprocess(
@@ -28,6 +30,9 @@ public:
         }
         if (fileType == FileType::Image_PNG) {
             return 0.02;
+        }
+        if (fileType == FileType::Image_Raw) {
+            return 0.03;
         }
         return 0.0;
     }

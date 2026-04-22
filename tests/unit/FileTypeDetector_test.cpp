@@ -41,6 +41,27 @@ int main() {
     assert(!classification.canRecompress);
     std::cout << "[PASS] JPEG detection OK\n";
 
+    // TIFF-based RAW by magic bytes
+    std::vector<uint8_t> nefData = {0x49, 0x49, 0x2A, 0x00, 0x08, 0x00, 0x00, 0x00};
+    nefData.resize(128, 0);
+    writeFile(testDir / "test.nef", nefData);
+    classification = detector.detect(testDir / "test.nef");
+    assert(classification.type == mosqueeze::FileType::Image_Raw);
+    assert(classification.canRecompress);
+    std::cout << "[PASS] NEF raw detection OK\n";
+
+    // RAW extension fallback without TIFF magic payload.
+    std::vector<uint8_t> marker(128, 0xAB);
+    writeFile(testDir / "test.cr3", marker);
+    classification = detector.detect(testDir / "test.cr3");
+    assert(classification.type == mosqueeze::FileType::Image_Raw);
+    std::cout << "[PASS] CR3 extension fallback OK\n";
+
+    writeFile(testDir / "test.dng", marker);
+    classification = detector.detect(testDir / "test.dng");
+    assert(classification.type == mosqueeze::FileType::Image_Raw);
+    std::cout << "[PASS] DNG extension fallback OK\n";
+
     // JSON extension fallback
     writeFile(testDir / "data.json", {0x7B, 0x0A});
     classification = detector.detect(testDir / "data.json");

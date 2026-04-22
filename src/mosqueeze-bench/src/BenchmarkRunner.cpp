@@ -347,6 +347,12 @@ std::vector<BenchmarkResult> BenchmarkRunner::runParallel(const BenchmarkConfig&
         throw std::runtime_error("No matching engines found for requested algorithms");
     }
 
+    // Peak memory reporting is process-wide on supported platforms, so it
+    // cannot be attributed per file/operation under concurrent execution.
+    // Disable memory tracking for parallel runs to avoid misleading values.
+    BenchmarkConfig parallelConfig = config;
+    parallelConfig.trackMemory = false;
+
     const int threadCount = std::max(1, config.getEffectiveThreadCount());
     ThreadPool pool(static_cast<size_t>(threadCount));
 
@@ -395,7 +401,7 @@ std::vector<BenchmarkResult> BenchmarkRunner::runParallel(const BenchmarkConfig&
             processFile(
                 file,
                 selectedEngines,
-                config,
+                parallelConfig,
                 allResults,
                 resultsMutex,
                 completedCount,

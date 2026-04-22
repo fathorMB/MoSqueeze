@@ -18,6 +18,7 @@ add_library(libmosqueeze SHARED
   src/preprocessors/JsonCanonicalizer.cpp
   src/preprocessors/XmlCanonicalizer.cpp
   src/preprocessors/ImageMetaStripper.cpp
+  src/preprocessors/BayerPreprocessor.cpp
   src/preprocessors/DictionaryPreprocessor.cpp
 )
 

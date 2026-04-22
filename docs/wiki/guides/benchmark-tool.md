@@ -149,6 +149,8 @@ Notes:
 - parallel mode processes different files concurrently
 - each file still runs engines/levels sequentially within the worker
 - `--verbose` progress updates are mutex-protected and rate-limited
+- memory tracking is automatically disabled in parallel runs (`--threads > 1`)
+  because peak memory sampling is process-wide and cannot be attributed per file
 
 ---
 
