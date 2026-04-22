@@ -39,6 +39,7 @@ public:
                 throw std::runtime_error("submit on stopped ThreadPool");
             }
             tasks_.emplace([task]() { (*task)(); });
+            ++pendingTasks_;
         }
         condition_.notify_one();
         return res;
@@ -55,6 +56,7 @@ private:
     std::condition_variable completed_;
     std::atomic<bool> stop_{false};
     std::atomic<size_t> activeTasks_{0};
+    std::atomic<size_t> pendingTasks_{0};
 };
 
 } // namespace mosqueeze::bench
