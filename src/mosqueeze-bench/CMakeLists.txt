@@ -32,8 +32,19 @@ target_include_directories(mosqueeze-bench
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_custom_command(TARGET mosqueeze-bench POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_FILE:libmosqueeze>
-          $<TARGET_FILE_DIR:mosqueeze-bench>
-)
+if(WIN32)
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.21")
+    add_custom_command(TARGET mosqueeze-bench POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              $<TARGET_RUNTIME_DLLS:mosqueeze-bench>
+              $<TARGET_FILE_DIR:mosqueeze-bench>
+      COMMAND_EXPAND_LISTS
+    )
+  else()
+    add_custom_command(TARGET mosqueeze-bench POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              $<TARGET_FILE:libmosqueeze>
+              $<TARGET_FILE_DIR:mosqueeze-bench>
+    )
+  endif()
+endif()

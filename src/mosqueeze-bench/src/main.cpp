@@ -294,6 +294,8 @@ int main(int argc, char* argv[]) {
     std::filesystem::path outputDir{"benchmarks/results"};
     std::filesystem::path exportFile;
     std::string format = "json";
+    bool exportJsonFlag = false;
+    bool exportCsvFlag = false;
     bool verbose = false;
     bool quiet = false;
     bool summary = false;
@@ -332,6 +334,8 @@ int main(int argc, char* argv[]) {
     app.add_option("--export", exportFile, "Export results to file");
     app.add_option("--format", format, "Export format: json,csv,markdown,html")
         ->check(CLI::IsMember({"json", "csv", "markdown", "html"}));
+    app.add_flag("--json", exportJsonFlag, "Export JSON to <output>/results.json");
+    app.add_flag("--csv", exportCsvFlag, "Export CSV to <output>/results.csv");
     app.add_flag("-v,--verbose", verbose, "Verbose console output with progress");
     app.add_flag("-q,--quiet", quiet, "Quiet mode (errors only)");
     app.add_flag("--summary", summary, "Print summary table only");
@@ -475,9 +479,27 @@ int main(int argc, char* argv[]) {
             std::ofstream out(exportFile, std::ios::binary);
             out << mosqueeze::bench::Formatters::exportHtml(results, &stats);
         }
-    } else {
-        store.exportJson(outputDir / "results.json");
-        store.exportCsv(outputDir / "results.csv");
+    }
+
+    if (exportFile.empty()) {
+        if (exportJsonFlag || exportCsvFlag) {
+            if (exportJsonFlag) {
+                store.exportJson(outputDir / "results.json");
+            }
+            if (exportCsvFlag) {
+                store.exportCsv(outputDir / "results.csv");
+            }
+        } else {
+            store.exportJson(outputDir / "results.json");
+            store.exportCsv(outputDir / "results.csv");
+        }
+    } else if (exportJsonFlag || exportCsvFlag) {
+        if (exportJsonFlag) {
+            store.exportJson(outputDir / "results.json");
+        }
+        if (exportCsvFlag) {
+            store.exportCsv(outputDir / "results.csv");
+        }
     }
 
     if (!quiet) {

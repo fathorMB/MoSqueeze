@@ -81,6 +81,8 @@ Output:
   -o, --output DIR
       --export FILE
       --format FORMAT      (json|csv|markdown|html)
+      --json                Export JSON to <output>/results.json
+      --csv                 Export CSV to <output>/results.csv
   -v, --verbose
   -q, --quiet
       --summary
@@ -104,6 +106,9 @@ Misc:
 - Auto-export defaults (when `--export` is not provided):
   - `results.json`
   - `results.csv`
+- Explicit legacy-style export switches are also accepted:
+  - `--json`
+  - `--csv`
 - Optional manual export:
   - `--format markdown` for report-friendly tables
   - `--format html` for browser report + chart
@@ -154,6 +159,16 @@ Notes:
 - Legacy `run()` and `runGrid()` remain supported.
 - Progress callbacks are rate-limited to avoid console flooding.
 - `computeStats(...)` returns aggregated means and standard deviations grouped by `algorithm/level`.
+
+---
+
+## Troubleshooting
+
+On Windows, if `mosqueeze-bench.exe` reports missing DLLs (for example `pugixml.dll`), rebuild the benchmark target so runtime dependencies are copied next to the executable:
+
+```bash
+cmake --build build --config Release --target mosqueeze-bench
+```
 
 ---
 
