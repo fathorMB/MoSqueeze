@@ -5,6 +5,7 @@
 #include <functional>
 #include <string>
 #include <thread>
+#include <unordered_set>
 #include <vector>
 
 namespace mosqueeze::bench {
@@ -58,6 +59,19 @@ struct BenchmarkConfig {
     int pngLevel = 9;
     bool pngStripMetadata = true;
     bool pngAllFilters = true;
+
+    // Extended benchmark matrix mode:
+    // benchmark each file across all applicable preprocessors.
+    bool extendedMatrix = false;
+    bool preprocessAll = false;
+    std::vector<std::string> preprocessModes;
+
+    // Resume mode can skip already processed combinations by key:
+    // file|algorithm|level|preprocess.
+    std::unordered_set<std::string> skipExistingKeys;
+
+    // Verify decode output matches original (or preprocessed) input bytes.
+    bool verifyRoundTrip = false;
 
     std::function<void(const ProgressInfo&)> onProgress;
     std::function<bool()> shouldCancel;

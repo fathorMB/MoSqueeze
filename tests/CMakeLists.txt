@@ -243,6 +243,28 @@ add_custom_command(TARGET BenchmarkPreprocess_test POST_BUILD
 
 add_test(NAME BenchmarkPreprocess_test COMMAND BenchmarkPreprocess_test)
 
+add_executable(BenchmarkExtendedMatrix_test
+  unit/BenchmarkExtendedMatrix_test.cpp
+  ../src/mosqueeze-bench/src/BenchmarkRunner.cpp
+  ../src/mosqueeze-bench/src/ResultsStore.cpp
+  ../src/mosqueeze-bench/src/ThreadPool.cpp
+)
+target_include_directories(BenchmarkExtendedMatrix_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/mosqueeze-bench/include
+)
+target_link_libraries(BenchmarkExtendedMatrix_test
+  PRIVATE
+    libmosqueeze
+    SQLite::SQLite3
+)
+add_custom_command(TARGET BenchmarkExtendedMatrix_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:BenchmarkExtendedMatrix_test>
+)
+add_test(NAME BenchmarkExtendedMatrix_test COMMAND BenchmarkExtendedMatrix_test)
+
 add_executable(ProgressReporter_test
   unit/ProgressReporter_test.cpp
   ../src/mosqueeze-bench/src/ProgressReporter.cpp

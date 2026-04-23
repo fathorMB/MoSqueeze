@@ -15,6 +15,7 @@
 - repeated runs with warmup (`--iterations`, `--warmup`)
 - optional decode and memory tracking (`--no-decode`, `--no-memory`)
 - optional preprocessing (`--preprocess none|auto|bayer-raw|image-meta-strip|png-optimizer|json-canonical|xml-canonical`)
+- extended preprocessor matrix mode (`--extended --preprocessors all|LIST`)
 - RAW safety controls for Bayer preprocessing (`--force-bayer` + RAW classification in `--dry-run`)
 - live in-place progress feedback (enabled by default, suppressed by `--quiet`)
 - result exports (`json`, `csv`, `markdown`, `html`)
@@ -79,6 +80,10 @@ Benchmark:
       --decode
       --no-decode
       --preprocess MODE   (none|auto|bayer-raw|image-meta-strip|png-optimizer|json-canonical|xml-canonical)
+      --extended
+      --preprocessors LIST|all
+      --resume
+      --verify-roundtrip
       --force-bayer
       --png-engine NAME   (libpng|oxipng)
       --png-level N       (libpng: 1-9, oxipng: 0-6)
@@ -159,6 +164,30 @@ Misc:
 - `uncompressed`: preprocessing applied
 - `lossless-compressed`: skipped by default (can be overridden with `--force-bayer`)
 - `lossy-compressed`: rejected for safety
+
+### Extended Matrix Mode
+
+Use `--extended` to benchmark each file across all applicable preprocessors (instead of one global preprocessor mode).
+
+```bash
+# Full applicable matrix with resume support
+./mosqueeze-bench --directory ./benchmark-corpus --extended --preprocessors all --resume --output ./benchmarks/extended
+
+# Limit matrix to selected preprocessors only
+./mosqueeze-bench --directory ./benchmark-corpus --extended --preprocessors none,json-canon,png-optimizer
+
+# Enforce decode byte-for-byte verification
+./mosqueeze-bench --directory ./benchmark-corpus --extended --verify-roundtrip
+```
+
+`--resume` skips combinations already present in `<output>/results.sqlite3` using key:
+
+- `file + algorithm + level + preprocessor`
+
+Extended JSON/CSV exports now include:
+
+- file feature fields: `fileHash`, `detectedType`, `extension`, `entropy`, `repeatPatterns`, `chunkRatio`, `isStructured`
+- verification fields: `roundTripVerified`, `error`
 
 ---
 

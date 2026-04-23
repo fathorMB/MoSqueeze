@@ -7,6 +7,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 
 namespace mosqueeze::bench {
 namespace {
@@ -118,14 +119,24 @@ void ResultsStore::initDatabase() {
     addColumnIfMissing(db_, "benchmark_results", "preprocess_time_ms", "REAL NOT NULL DEFAULT 0");
     addColumnIfMissing(db_, "benchmark_results", "preprocess_improvement", "REAL NOT NULL DEFAULT 0");
     addColumnIfMissing(db_, "benchmark_results", "preprocess_applied", "INTEGER NOT NULL DEFAULT 0");
+    addColumnIfMissing(db_, "benchmark_results", "file_hash", "TEXT NOT NULL DEFAULT ''");
+    addColumnIfMissing(db_, "benchmark_results", "detected_type", "TEXT NOT NULL DEFAULT ''");
+    addColumnIfMissing(db_, "benchmark_results", "extension", "TEXT NOT NULL DEFAULT ''");
+    addColumnIfMissing(db_, "benchmark_results", "entropy", "REAL NOT NULL DEFAULT 0");
+    addColumnIfMissing(db_, "benchmark_results", "repeat_patterns", "INTEGER NOT NULL DEFAULT 0");
+    addColumnIfMissing(db_, "benchmark_results", "chunk_ratio", "REAL NOT NULL DEFAULT 0");
+    addColumnIfMissing(db_, "benchmark_results", "is_structured", "INTEGER NOT NULL DEFAULT 0");
+    addColumnIfMissing(db_, "benchmark_results", "roundtrip_verified", "INTEGER NOT NULL DEFAULT 0");
+    addColumnIfMissing(db_, "benchmark_results", "error", "TEXT NOT NULL DEFAULT ''");
 }
 
 void ResultsStore::save(const BenchmarkResult& result) {
     const char* insertSql =
         "INSERT INTO benchmark_results "
-        "(algorithm, level, file, file_type, original_bytes, compressed_bytes, encode_ms, decode_ms, peak_memory_bytes, "
+        "(algorithm, level, file, file_type, file_hash, detected_type, extension, entropy, repeat_patterns, chunk_ratio, is_structured, "
+        "original_bytes, compressed_bytes, encode_ms, decode_ms, peak_memory_bytes, roundtrip_verified, error, "
         "preprocess_type, preprocess_original_bytes, preprocess_processed_bytes, preprocess_time_ms, preprocess_improvement, preprocess_applied) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
     sqlite3_stmt* stmt = nullptr;
     ensureSqlOk(sqlite3_prepare_v2(db_, insertSql, -1, &stmt, nullptr), db_, "sqlite3_prepare_v2(insert)");
@@ -139,17 +150,26 @@ void ResultsStore::save(const BenchmarkResult& result) {
     ensureSqlOk(sqlite3_bind_int(stmt, 2, result.level), db_, "bind level");
     ensureSqlOk(sqlite3_bind_text(stmt, 3, result.file.string().c_str(), -1, SQLITE_TRANSIENT), db_, "bind file");
     ensureSqlOk(sqlite3_bind_int(stmt, 4, static_cast<int>(result.fileType)), db_, "bind file_type");
-    ensureSqlOk(sqlite3_bind_int64(stmt, 5, static_cast<sqlite3_int64>(result.originalBytes)), db_, "bind original_bytes");
-    ensureSqlOk(sqlite3_bind_int64(stmt, 6, static_cast<sqlite3_int64>(result.compressedBytes)), db_, "bind compressed_bytes");
-    ensureSqlOk(sqlite3_bind_int64(stmt, 7, static_cast<sqlite3_int64>(result.encodeTime.count())), db_, "bind encode_ms");
-    ensureSqlOk(sqlite3_bind_int64(stmt, 8, static_cast<sqlite3_int64>(result.decodeTime.count())), db_, "bind decode_ms");
-    ensureSqlOk(sqlite3_bind_int64(stmt, 9, static_cast<sqlite3_int64>(result.peakMemoryBytes)), db_, "bind peak_memory_bytes");
-    ensureSqlOk(sqlite3_bind_text(stmt, 10, result.preprocess.type.c_str(), -1, SQLITE_TRANSIENT), db_, "bind preprocess_type");
-    ensureSqlOk(sqlite3_bind_int64(stmt, 11, static_cast<sqlite3_int64>(result.preprocess.originalBytes)), db_, "bind preprocess_original_bytes");
-    ensureSqlOk(sqlite3_bind_int64(stmt, 12, static_cast<sqlite3_int64>(result.preprocess.processedBytes)), db_, "bind preprocess_processed_bytes");
-    ensureSqlOk(sqlite3_bind_double(stmt, 13, result.preprocess.preprocessingTimeMs), db_, "bind preprocess_time_ms");
-    ensureSqlOk(sqlite3_bind_double(stmt, 14, result.preprocess.improvement), db_, "bind preprocess_improvement");
-    ensureSqlOk(sqlite3_bind_int(stmt, 15, result.preprocess.applied ? 1 : 0), db_, "bind preprocess_applied");
+    ensureSqlOk(sqlite3_bind_text(stmt, 5, result.fileHash.c_str(), -1, SQLITE_TRANSIENT), db_, "bind file_hash");
+    ensureSqlOk(sqlite3_bind_text(stmt, 6, result.detectedType.c_str(), -1, SQLITE_TRANSIENT), db_, "bind detected_type");
+    ensureSqlOk(sqlite3_bind_text(stmt, 7, result.extension.c_str(), -1, SQLITE_TRANSIENT), db_, "bind extension");
+    ensureSqlOk(sqlite3_bind_double(stmt, 8, result.entropy), db_, "bind entropy");
+    ensureSqlOk(sqlite3_bind_int64(stmt, 9, static_cast<sqlite3_int64>(result.repeatPatterns)), db_, "bind repeat_patterns");
+    ensureSqlOk(sqlite3_bind_double(stmt, 10, result.chunkRatio), db_, "bind chunk_ratio");
+    ensureSqlOk(sqlite3_bind_int(stmt, 11, result.isStructured ? 1 : 0), db_, "bind is_structured");
+    ensureSqlOk(sqlite3_bind_int64(stmt, 12, static_cast<sqlite3_int64>(result.originalBytes)), db_, "bind original_bytes");
+    ensureSqlOk(sqlite3_bind_int64(stmt, 13, static_cast<sqlite3_int64>(result.compressedBytes)), db_, "bind compressed_bytes");
+    ensureSqlOk(sqlite3_bind_int64(stmt, 14, static_cast<sqlite3_int64>(result.encodeTime.count())), db_, "bind encode_ms");
+    ensureSqlOk(sqlite3_bind_int64(stmt, 15, static_cast<sqlite3_int64>(result.decodeTime.count())), db_, "bind decode_ms");
+    ensureSqlOk(sqlite3_bind_int64(stmt, 16, static_cast<sqlite3_int64>(result.peakMemoryBytes)), db_, "bind peak_memory_bytes");
+    ensureSqlOk(sqlite3_bind_int(stmt, 17, result.roundTripVerified ? 1 : 0), db_, "bind roundtrip_verified");
+    ensureSqlOk(sqlite3_bind_text(stmt, 18, result.error.c_str(), -1, SQLITE_TRANSIENT), db_, "bind error");
+    ensureSqlOk(sqlite3_bind_text(stmt, 19, result.preprocess.type.c_str(), -1, SQLITE_TRANSIENT), db_, "bind preprocess_type");
+    ensureSqlOk(sqlite3_bind_int64(stmt, 20, static_cast<sqlite3_int64>(result.preprocess.originalBytes)), db_, "bind preprocess_original_bytes");
+    ensureSqlOk(sqlite3_bind_int64(stmt, 21, static_cast<sqlite3_int64>(result.preprocess.processedBytes)), db_, "bind preprocess_processed_bytes");
+    ensureSqlOk(sqlite3_bind_double(stmt, 22, result.preprocess.preprocessingTimeMs), db_, "bind preprocess_time_ms");
+    ensureSqlOk(sqlite3_bind_double(stmt, 23, result.preprocess.improvement), db_, "bind preprocess_improvement");
+    ensureSqlOk(sqlite3_bind_int(stmt, 24, result.preprocess.applied ? 1 : 0), db_, "bind preprocess_applied");
 
     ensureSqlOk(sqlite3_step(stmt), db_, "sqlite3_step(insert)");
 }
@@ -177,7 +197,8 @@ void ResultsStore::saveAll(const std::vector<BenchmarkResult>& results) {
 
 std::vector<BenchmarkResult> ResultsStore::query(const std::string& whereClause) {
     std::string sql =
-        "SELECT algorithm, level, file, file_type, original_bytes, compressed_bytes, encode_ms, decode_ms, peak_memory_bytes, "
+        "SELECT algorithm, level, file, file_type, file_hash, detected_type, extension, entropy, repeat_patterns, chunk_ratio, is_structured, "
+        "original_bytes, compressed_bytes, encode_ms, decode_ms, peak_memory_bytes, roundtrip_verified, error, "
         "preprocess_type, preprocess_original_bytes, preprocess_processed_bytes, preprocess_time_ms, preprocess_improvement, preprocess_applied "
         "FROM benchmark_results";
 
@@ -210,17 +231,26 @@ std::vector<BenchmarkResult> ResultsStore::query(const std::string& whereClause)
         row.level = sqlite3_column_int(stmt, 1);
         row.file = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
         row.fileType = static_cast<FileType>(sqlite3_column_int(stmt, 3));
-        row.originalBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 4));
-        row.compressedBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 5));
-        row.encodeTime = std::chrono::milliseconds(sqlite3_column_int64(stmt, 6));
-        row.decodeTime = std::chrono::milliseconds(sqlite3_column_int64(stmt, 7));
-        row.peakMemoryBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 8));
-        row.preprocess.type = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 9));
-        row.preprocess.originalBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 10));
-        row.preprocess.processedBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 11));
-        row.preprocess.preprocessingTimeMs = sqlite3_column_double(stmt, 12);
-        row.preprocess.improvement = sqlite3_column_double(stmt, 13);
-        row.preprocess.applied = sqlite3_column_int(stmt, 14) != 0;
+        row.fileHash = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+        row.detectedType = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+        row.extension = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6));
+        row.entropy = sqlite3_column_double(stmt, 7);
+        row.repeatPatterns = static_cast<size_t>(sqlite3_column_int64(stmt, 8));
+        row.chunkRatio = sqlite3_column_double(stmt, 9);
+        row.isStructured = sqlite3_column_int(stmt, 10) != 0;
+        row.originalBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 11));
+        row.compressedBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 12));
+        row.encodeTime = std::chrono::milliseconds(sqlite3_column_int64(stmt, 13));
+        row.decodeTime = std::chrono::milliseconds(sqlite3_column_int64(stmt, 14));
+        row.peakMemoryBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 15));
+        row.roundTripVerified = sqlite3_column_int(stmt, 16) != 0;
+        row.error = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 17));
+        row.preprocess.type = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 18));
+        row.preprocess.originalBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 19));
+        row.preprocess.processedBytes = static_cast<size_t>(sqlite3_column_int64(stmt, 20));
+        row.preprocess.preprocessingTimeMs = sqlite3_column_double(stmt, 21);
+        row.preprocess.improvement = sqlite3_column_double(stmt, 22);
+        row.preprocess.applied = sqlite3_column_int(stmt, 23) != 0;
 
         rows.push_back(std::move(row));
     }
@@ -236,18 +266,28 @@ void ResultsStore::exportCsv(const std::filesystem::path& output) {
         throw std::runtime_error("Failed to open CSV output path: " + output.string());
     }
 
-    out << "algorithm,level,file,file_type,original_bytes,compressed_bytes,encode_ms,decode_ms,peak_memory_bytes,ratio,total_ratio,"
+    out << "algorithm,level,file,file_hash,detected_type,extension,file_type,entropy,repeat_patterns,chunk_ratio,is_structured,"
+           "original_bytes,compressed_bytes,encode_ms,decode_ms,peak_memory_bytes,roundtrip_verified,error,ratio,total_ratio,"
            "preprocess_type,preprocess_original_bytes,preprocess_processed_bytes,preprocess_time_ms,preprocess_improvement,preprocess_applied\n";
     for (const auto& row : query()) {
         out << row.algorithm << ','
             << row.level << ','
             << '"' << row.file.string() << '"' << ','
+            << row.fileHash << ','
+            << row.detectedType << ','
+            << row.extension << ','
             << static_cast<int>(row.fileType) << ','
+            << row.entropy << ','
+            << row.repeatPatterns << ','
+            << row.chunkRatio << ','
+            << (row.isStructured ? 1 : 0) << ','
             << row.originalBytes << ','
             << row.compressedBytes << ','
             << row.encodeTime.count() << ','
             << row.decodeTime.count() << ','
             << row.peakMemoryBytes << ','
+            << (row.roundTripVerified ? 1 : 0) << ','
+            << '"' << row.error << '"' << ','
             << row.ratio() << ','
             << row.totalRatio() << ','
             << row.preprocess.type << ','
@@ -268,12 +308,21 @@ void ResultsStore::exportJson(const std::filesystem::path& output) {
             {"algorithm", row.algorithm},
             {"level", row.level},
             {"file", row.file.string()},
+            {"fileHash", row.fileHash},
+            {"detectedType", row.detectedType},
+            {"extension", row.extension},
             {"fileType", static_cast<int>(row.fileType)},
+            {"entropy", row.entropy},
+            {"repeatPatterns", row.repeatPatterns},
+            {"chunkRatio", row.chunkRatio},
+            {"isStructured", row.isStructured},
             {"originalBytes", row.originalBytes},
             {"compressedBytes", row.compressedBytes},
             {"encodeMs", row.encodeTime.count()},
             {"decodeMs", row.decodeTime.count()},
             {"peakMemoryBytes", row.peakMemoryBytes},
+            {"roundTripVerified", row.roundTripVerified},
+            {"error", row.error},
             {"ratio", row.ratio()},
             {"totalRatio", row.totalRatio()},
             {"preprocess", {
@@ -293,6 +342,33 @@ void ResultsStore::exportJson(const std::filesystem::path& output) {
     }
 
     out << payload.dump(2);
+}
+
+std::unordered_set<std::string> ResultsStore::loadExistingKeys() {
+    const char* sql = "SELECT file, algorithm, level, preprocess_type FROM benchmark_results;";
+    sqlite3_stmt* stmt = nullptr;
+    ensureSqlOk(sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr), db_, "sqlite3_prepare_v2(existing-keys)");
+
+    struct StatementGuard {
+        sqlite3_stmt* stmt;
+        ~StatementGuard() { sqlite3_finalize(stmt); }
+    } guard{stmt};
+
+    std::unordered_set<std::string> keys;
+    while (true) {
+        const int rc = sqlite3_step(stmt);
+        if (rc == SQLITE_DONE) {
+            break;
+        }
+        ensureSqlOk(rc, db_, "sqlite3_step(existing-keys)");
+
+        const std::string file = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        const std::string algorithm = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        const int level = sqlite3_column_int(stmt, 2);
+        const std::string preprocess = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        keys.insert(file + "|" + algorithm + "|" + std::to_string(level) + "|" + preprocess);
+    }
+    return keys;
 }
 
 void ResultsStore::clear() {

@@ -21,12 +21,21 @@ struct BenchmarkResult {
     std::string algorithm;
     int level = 0;
     std::filesystem::path file;
+    std::string fileHash;
+    std::string detectedType;
+    std::string extension;
     FileType fileType = FileType::Unknown;
+    double entropy = 0.0;
+    size_t repeatPatterns = 0;
+    double chunkRatio = 0.0;
+    bool isStructured = false;
     size_t originalBytes = 0;
     size_t compressedBytes = 0;
     std::chrono::milliseconds encodeTime{0};
     std::chrono::milliseconds decodeTime{0};
     size_t peakMemoryBytes = 0;
+    bool roundTripVerified = false;
+    std::string error;
     PreprocessMetrics preprocess;
 
     double ratio() const {

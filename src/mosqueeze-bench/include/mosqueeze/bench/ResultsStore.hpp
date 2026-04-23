@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 struct sqlite3;
@@ -28,6 +29,7 @@ public:
 
     void exportCsv(const std::filesystem::path& output);
     void exportJson(const std::filesystem::path& output);
+    std::unordered_set<std::string> loadExistingKeys();
 
     void clear();
 

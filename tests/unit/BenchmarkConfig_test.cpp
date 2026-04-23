@@ -16,6 +16,11 @@ int main() {
     assert(config.preprocessMode == "none");
     assert(!config.usePreprocessing());
     assert(!config.autoPreprocess());
+    assert(!config.extendedMatrix);
+    assert(!config.preprocessAll);
+    assert(config.preprocessModes.empty());
+    assert(config.skipExistingKeys.empty());
+    assert(!config.verifyRoundTrip);
     assert(config.getEffectiveThreadCount() >= 1);
     assert(config.files.empty());
     assert(!config.useStdin);

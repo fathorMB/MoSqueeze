@@ -13,6 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <cmath>
 #include <filesystem>
@@ -50,6 +51,46 @@ std::vector<int> splitCsvIntegers(const std::string& csv) {
         values.push_back(std::stoi(token));
     }
     return values;
+}
+
+std::string toLower(std::string value) {
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
+        return static_cast<char>(std::tolower(c));
+    });
+    return value;
+}
+
+std::string normalizePreprocessorName(const std::string& mode) {
+    const std::string lowered = toLower(mode);
+    if (lowered == "json-canon" || lowered == "json-canonical") {
+        return "json-canonical";
+    }
+    if (lowered == "xml-canon" || lowered == "xml-canonical") {
+        return "xml-canonical";
+    }
+    if (lowered == "image-meta-stripper" || lowered == "image-meta-strip") {
+        return "image-meta-strip";
+    }
+    if (lowered == "bayer-raw") {
+        return "bayer-raw";
+    }
+    if (lowered == "png-optimizer") {
+        return "png-optimizer";
+    }
+    if (lowered == "none") {
+        return "none";
+    }
+    return lowered;
+}
+
+std::vector<std::string> parsePreprocessorModes(const std::string& csv) {
+    std::vector<std::string> modes;
+    for (const auto& token : splitCsv(csv)) {
+        modes.push_back(normalizePreprocessorName(token));
+    }
+    std::sort(modes.begin(), modes.end());
+    modes.erase(std::unique(modes.begin(), modes.end()), modes.end());
+    return modes;
 }
 
 std::string wildcardToRegex(const std::string& pattern) {
@@ -356,6 +397,10 @@ int main(int argc, char* argv[]) {
     bool stripMetadata = false;
     bool noStripMetadata = false;
     bool fastFilters = false;
+    bool extendedMatrix = false;
+    std::string preprocessorsOpt = "none";
+    bool resume = false;
+    bool verifyRoundTrip = false;
 
     std::filesystem::path outputDir{"benchmarks/results"};
     std::filesystem::path exportFile;
@@ -412,6 +457,14 @@ int main(int argc, char* argv[]) {
     app.add_flag("--strip-metadata", stripMetadata, "Strip non-essential PNG metadata chunks");
     app.add_flag("--no-strip-metadata", noStripMetadata, "Keep PNG metadata chunks");
     app.add_flag("--fast-filters", fastFilters, "Use faster PNG filter search (less exhaustive)");
+    app.add_flag("--extended", extendedMatrix, "Extended matrix mode: test each file with all applicable preprocessors");
+    app.add_option(
+           "--preprocessors",
+           preprocessorsOpt,
+           "Preprocessor matrix for --extended: all or comma list (none,json-canon,xml-canon,png-optimizer,image-meta-stripper,bayer-raw)")
+        ->default_val("none");
+    app.add_flag("--resume", resume, "Resume from existing output database and skip already tested combinations");
+    app.add_flag("--verify-roundtrip", verifyRoundTrip, "Verify decompressed output byte-for-byte against input");
 
     app.add_option("-o,--output", outputDir, "Output directory");
     app.add_option("--export", exportFile, "Export results to file");
@@ -437,6 +490,9 @@ int main(int argc, char* argv[]) {
     (void)noColor;
     trackMemory = trackMemory && !noMemory;
     runDecode = runDecode && !noDecode;
+    if (verifyRoundTrip) {
+        runDecode = true;
+    }
 
     mosqueeze::bench::BenchmarkRunner runner;
     registerDefaultEngines(runner);
@@ -501,6 +557,13 @@ int main(int argc, char* argv[]) {
     config.pngEngine = pngEngine;
     config.pngStripMetadata = !noStripMetadata || stripMetadata;
     config.pngAllFilters = !fastFilters;
+    config.extendedMatrix = extendedMatrix;
+    config.verifyRoundTrip = verifyRoundTrip;
+    const auto requestedPreprocessors = parsePreprocessorModes(preprocessorsOpt);
+    config.preprocessAll = preprocessorsOpt == "all" || preprocessorsOpt == "ALL";
+    if (!config.preprocessAll) {
+        config.preprocessModes = requestedPreprocessors;
+    }
     if (pngEngine == "oxipng") {
         config.pngLevel = std::clamp(pngLevel, 0, 6);
     } else {
@@ -522,12 +585,15 @@ int main(int argc, char* argv[]) {
         std::cout << "  threadCount: " << config.threadCount << '\n';
         std::cout << "  sequential: " << (config.sequential ? "true" : "false") << '\n';
         std::cout << "  preprocess: " << config.preprocessMode << '\n';
+        std::cout << "  extendedMatrix: " << (config.extendedMatrix ? "true" : "false") << '\n';
+        std::cout << "  preprocessors: " << (config.preprocessAll ? "all" : preprocessorsOpt) << '\n';
+        std::cout << "  resume: " << (resume ? "true" : "false") << '\n';
+        std::cout << "  verifyRoundTrip: " << (config.verifyRoundTrip ? "true" : "false") << '\n';
         std::cout << "  forceBayer: " << (config.forceBayer ? "true" : "false") << '\n';
         std::cout << "  pngEngine: " << config.pngEngine << '\n';
         std::cout << "  pngLevel: " << config.pngLevel << '\n';
         std::cout << "  stripMetadata: " << (config.pngStripMetadata ? "true" : "false") << '\n';
         std::cout << "  allFilters: " << (config.pngAllFilters ? "true" : "false") << '\n';
-        std::cout << "  forceBayer: " << (config.forceBayer ? "true" : "false") << '\n';
         if (config.preprocessMode == "bayer-raw" || config.preprocessMode == "auto") {
             printRawDetectionDryRun(config.files, config.forceBayer);
         }
@@ -548,6 +614,14 @@ int main(int argc, char* argv[]) {
         };
     }
 
+    std::filesystem::create_directories(outputDir);
+    mosqueeze::bench::ResultsStore store(outputDir / "results.sqlite3");
+    if (resume) {
+        config.skipExistingKeys = store.loadExistingKeys();
+    } else {
+        store.clear();
+    }
+
     const auto startedAt = std::chrono::steady_clock::now();
     std::vector<mosqueeze::bench::BenchmarkResult> results;
     const bool useParallel = config.getEffectiveThreadCount() > 1 && config.files.size() > 1;
@@ -562,9 +636,7 @@ int main(int argc, char* argv[]) {
     const auto stats = runner.computeStats(results);
     const auto finishedAt = std::chrono::steady_clock::now();
     progressReporter.reset();
-    std::filesystem::create_directories(outputDir);
-    mosqueeze::bench::ResultsStore store(outputDir / "results.sqlite3");
-    store.clear();
+
     store.saveAll(results);
 
     if (!exportFile.empty()) {
