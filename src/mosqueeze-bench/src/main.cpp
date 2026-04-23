@@ -7,6 +7,7 @@
 #include <mosqueeze/engines/LzmaEngine.hpp>
 #include <mosqueeze/engines/ZpaqEngine.hpp>
 #include <mosqueeze/engines/ZstdEngine.hpp>
+#include <mosqueeze/RawFormat.hpp>
 
 #include <CLI/CLI.hpp>
 #include <nlohmann/json.hpp>
@@ -127,6 +128,63 @@ void dedupeFiles(std::vector<std::filesystem::path>& files) {
     std::sort(normalized.begin(), normalized.end());
     normalized.erase(std::unique(normalized.begin(), normalized.end()), normalized.end());
     files = std::move(normalized);
+}
+
+std::vector<uint8_t> readPrefix(const std::filesystem::path& file, size_t maxBytes) {
+    std::vector<uint8_t> buffer(maxBytes, 0);
+    std::ifstream in(file, std::ios::binary);
+    if (!in) {
+        return {};
+    }
+    in.read(reinterpret_cast<char*>(buffer.data()), static_cast<std::streamsize>(buffer.size()));
+    buffer.resize(static_cast<size_t>(in.gcount()));
+    return buffer;
+}
+
+std::string compressionToString(mosqueeze::RawCompression compression) {
+    switch (compression) {
+        case mosqueeze::RawCompression::Uncompressed:
+            return "uncompressed";
+        case mosqueeze::RawCompression::LosslessCompressed:
+            return "lossless-compressed";
+        case mosqueeze::RawCompression::LossyCompressed:
+            return "lossy-compressed";
+        case mosqueeze::RawCompression::Unknown:
+        default:
+            return "unknown";
+    }
+}
+
+void printRawDetectionDryRun(const std::vector<std::filesystem::path>& files, bool forceBayer) {
+    std::cout << "RAW format detection\n";
+    for (const auto& file : files) {
+        const auto prefix = readPrefix(file, 512);
+        auto detected = mosqueeze::RawFormatDetector::detect(prefix);
+        if (!detected.has_value()) {
+            detected = mosqueeze::RawFormatDetector::detectByExtension(file.filename().string());
+        }
+
+        if (!detected.has_value()) {
+            std::cout << "  " << file.string() << " -> unknown (bayer: "
+                      << (forceBayer ? "apply (forced)" : "skip by default")
+                      << ")\n";
+            continue;
+        }
+
+        const bool shouldApply = mosqueeze::RawFormatDetector::shouldApplyBayerPreprocessor(detected->compression);
+        std::string action = shouldApply ? "apply" : "skip";
+        if (!shouldApply && forceBayer && detected->compression != mosqueeze::RawCompression::LossyCompressed) {
+            action = "apply (forced)";
+        }
+        if (detected->compression == mosqueeze::RawCompression::LossyCompressed) {
+            action = "reject";
+        }
+
+        std::cout << "  " << file.string()
+                  << " -> " << detected->manufacturer << " " << detected->extension
+                  << " (" << compressionToString(detected->compression) << ")"
+                  << " | bayer: " << action << '\n';
+    }
 }
 
 struct ComparisonRow {
@@ -292,6 +350,7 @@ int main(int argc, char* argv[]) {
     int threadCount = 0;
     bool sequential = false;
     std::string preprocessMode = "none";
+    bool forceBayer = false;
 
     std::filesystem::path outputDir{"benchmarks/results"};
     std::filesystem::path exportFile;
@@ -337,6 +396,7 @@ int main(int argc, char* argv[]) {
            "Preprocessor mode: auto, none, bayer-raw, image-meta-strip, json-canonical, xml-canonical")
         ->check(CLI::IsMember({"auto", "none", "bayer-raw", "image-meta-strip", "json-canonical", "xml-canonical"}))
         ->default_val("none");
+    app.add_flag("--force-bayer", forceBayer, "Force Bayer preprocessing even when RAW appears compressed");
 
     app.add_option("-o,--output", outputDir, "Output directory");
     app.add_option("--export", exportFile, "Export results to file");
@@ -422,6 +482,7 @@ int main(int argc, char* argv[]) {
     config.threadCount = threadCount;
     config.sequential = sequential;
     config.preprocessMode = preprocessMode;
+    config.forceBayer = forceBayer;
 
     if (dryRun) {
         std::cout << "Configuration\n";
@@ -438,6 +499,10 @@ int main(int argc, char* argv[]) {
         std::cout << "  threadCount: " << config.threadCount << '\n';
         std::cout << "  sequential: " << (config.sequential ? "true" : "false") << '\n';
         std::cout << "  preprocess: " << config.preprocessMode << '\n';
+        std::cout << "  forceBayer: " << (config.forceBayer ? "true" : "false") << '\n';
+        if (config.preprocessMode == "bayer-raw" || config.preprocessMode == "auto") {
+            printRawDetectionDryRun(config.files, config.forceBayer);
+        }
         std::cout << "  effectiveThreads: " << config.getEffectiveThreadCount() << '\n';
         return 0;
     }

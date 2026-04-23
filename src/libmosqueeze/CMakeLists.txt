@@ -12,6 +12,7 @@ add_library(libmosqueeze SHARED
   src/engines/BrotliEngine.cpp
   src/engines/ZpaqEngine.cpp
   src/FileTypeDetector.cpp
+  src/RawFormat.cpp
   src/AlgorithmSelector.cpp
   src/PreprocessorSelector.cpp
   src/CompressionPipeline.cpp

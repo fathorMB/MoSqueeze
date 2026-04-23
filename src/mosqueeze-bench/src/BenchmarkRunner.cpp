@@ -82,9 +82,9 @@ std::unordered_map<std::string, std::vector<int>> buildLevelMap(
     return levelsByAlgorithm;
 }
 
-std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name) {
+std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name, const BenchmarkConfig& config) {
     if (name == "bayer-raw") {
-        return std::make_unique<BayerPreprocessor>();
+        return std::make_unique<BayerPreprocessor>(config.forceBayer);
     }
     if (name == "image-meta-strip") {
         return std::make_unique<ImageMetaStripper>();
@@ -157,12 +157,17 @@ BenchmarkResult BenchmarkRunner::runIteration(
         preprocessMetrics.originalBytes = rawContent.size();
         preprocessMetrics.processedBytes = rawContent.size();
 
-        std::unique_ptr<IPreprocessor> selectedByName = createPreprocessor(config.preprocessMode);
+        std::unique_ptr<IPreprocessor> selectedByName = createPreprocessor(config.preprocessMode, config);
+        std::unique_ptr<IPreprocessor> selectedAutoOwned;
         std::unique_ptr<PreprocessorSelector> selector;
         IPreprocessor* preprocessor = nullptr;
         if (config.autoPreprocess()) {
             selector = std::make_unique<PreprocessorSelector>();
             preprocessor = selector->selectBest(fileType);
+            if (preprocessor != nullptr && preprocessor->name() == "bayer-raw") {
+                selectedAutoOwned = createPreprocessor("bayer-raw", config);
+                preprocessor = selectedAutoOwned.get();
+            }
         } else {
             preprocessor = selectedByName.get();
         }

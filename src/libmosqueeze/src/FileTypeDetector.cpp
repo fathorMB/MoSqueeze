@@ -253,6 +253,8 @@ FileClassification FileTypeDetector::detectFromExtension(const std::string& ext)
         {".arw", makeClassification(FileType::Image_Raw, "image/x-sony-arw", false, true, ".arw")},
         {".sr2", makeClassification(FileType::Image_Raw, "image/x-sony-sr2", false, true, ".sr2")},
         {".dng", makeClassification(FileType::Image_Raw, "image/x-adobe-dng", false, true, ".dng")},
+        {".iiq", makeClassification(FileType::Image_Raw, "image/x-phaseone-iiq", false, true, ".iiq")},
+        {".3fr", makeClassification(FileType::Image_Raw, "image/x-hasselblad-3fr", false, true, ".3fr")},
         {".orf", makeClassification(FileType::Image_Raw, "image/x-olympus-orf", false, true, ".orf")},
         {".rw2", makeClassification(FileType::Image_Raw, "image/x-panasonic-rw2", false, true, ".rw2")},
 

@@ -117,6 +117,20 @@ add_custom_command(TARGET FileTypeDetector_test POST_BUILD
 
 add_test(NAME FileTypeDetector_test COMMAND FileTypeDetector_test)
 
+add_executable(RawFormat_test
+  unit/RawFormat_test.cpp
+)
+target_link_libraries(RawFormat_test
+  PRIVATE
+    libmosqueeze
+)
+add_custom_command(TARGET RawFormat_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:RawFormat_test>
+)
+add_test(NAME RawFormat_test COMMAND RawFormat_test)
+
 add_executable(AlgorithmSelector_test
   unit/AlgorithmSelector_test.cpp
 )

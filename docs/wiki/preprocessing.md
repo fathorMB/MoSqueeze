@@ -24,6 +24,16 @@ Current behavior:
 - unparseable/non-RAF RAW payloads safely fall back to pass-through (`metadata version 0`)
 - postprocess supports both new region-based metadata (`version 2`) and legacy full-file metadata (`version 1`)
 
+## RAW Compression Classification
+
+`bayer-raw` now classifies RAW compression before transforming:
+
+- `Uncompressed`: transform is applied
+- `Lossless compressed`: skipped by default (`metadata version 0`) because improvement is typically negligible
+- `Lossy compressed`: rejected to avoid harmful transforms
+
+For benchmark workflows, use `--force-bayer` to override the default skip for lossless-compressed files, and use `--dry-run` to print per-file RAW classification.
+
 ## Available Preprocessors
 
 | Name | File Types | Typical Improvement (Target) |

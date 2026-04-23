@@ -94,3 +94,7 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `preprocessing.md` with `bayer-raw` RAF region-only transform behavior
 - Documented safe fallback mode for unparseable/non-RAF raw payloads
 - Documented metadata compatibility (`version 2` region mode + legacy `version 1`)
+
+### Feature Docs: RAW Format Support (Issue #53)
+- Updated `guides/benchmark-tool.md` with `--force-bayer` and Bayer RAW dry-run classification flow
+- Updated `preprocessing.md` with RAW compression classification behavior (uncompressed/lossless/lossy)

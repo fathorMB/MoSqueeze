@@ -59,9 +59,25 @@ mosqueeze v0.1.0
 # Run benchmark with automatic preprocessing selection
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --preprocess auto --default-only --verbose
 
+# Check RAW format detection/compression classification for Bayer preprocessing
+./build/src/mosqueeze-bench/mosqueeze-bench --directory ./raw --preprocess bayer-raw --dry-run
+
+# Force Bayer preprocessing even when RAW is detected as compressed
+./build/src/mosqueeze-bench/mosqueeze-bench --directory ./raw --preprocess bayer-raw --force-bayer
+
 # Export HTML report
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --export ./benchmarks/results/report.html --format html
 ```
+
+## RAW format support
+
+Bayer preprocessing now classifies RAW payloads before transforming:
+
+- `Uncompressed`: processed normally
+- `Lossless compressed`: skipped by default (no expected gain), unless `--force-bayer`
+- `Lossy compressed`: rejected to avoid harmful transforms
+
+Current detector coverage includes: RAF, ARW, CR2, CR3, NEF/NRW (by extension), IIQ, 3FR, DNG.
 
 ## Run Tests
 
