@@ -193,6 +193,47 @@ int main() {
     assert(meta.has_value());
     assert(meta->pattern == mosqueeze::BayerPattern::RGGB);
 
+    // Empty metadata in postprocess should pass through unchanged.
+    {
+        mosqueeze::PreprocessResult emptyMeta{};
+        std::string passthrough = "abcdef";
+        std::istringstream passthroughIn(passthrough);
+        std::ostringstream passthroughOut;
+        preprocessor.postprocess(passthroughIn, passthroughOut, emptyMeta);
+        assert(passthroughOut.str() == passthrough);
+    }
+
+    // Metadata version 2 with invalid region should safely pass through.
+    {
+        mosqueeze::PreprocessResult invalidRegion{};
+        invalidRegion.type = mosqueeze::PreprocessorType::BayerPreprocessor;
+        invalidRegion.metadata = {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        std::string transformedData = transformedText;
+        std::istringstream invalidIn(transformedData);
+        std::ostringstream invalidOut;
+        preprocessor.postprocess(invalidIn, invalidOut, invalidRegion);
+        assert(invalidOut.str() == transformedData);
+    }
+
+    // Legacy metadata version 1 restore path should still work.
+    {
+        const std::string legacyOriginal = "abcdefgh";
+        std::string legacyProcessed(legacyOriginal.size(), '\0');
+        const size_t words = legacyOriginal.size() / 2;
+        for (size_t i = 0; i < words; ++i) {
+            legacyProcessed[i] = legacyOriginal[i * 2];
+            legacyProcessed[words + i] = legacyOriginal[(i * 2) + 1];
+        }
+
+        mosqueeze::PreprocessResult legacyMeta{};
+        legacyMeta.type = mosqueeze::PreprocessorType::BayerPreprocessor;
+        legacyMeta.metadata = {1, 8, 0, 0, 0};
+        std::istringstream legacyIn(legacyProcessed);
+        std::ostringstream legacyOut;
+        preprocessor.postprocess(legacyIn, legacyOut, legacyMeta);
+        assert(legacyOut.str() == legacyOriginal);
+    }
+
     std::cout << "[PASS] BayerPreprocessor_test\n";
     return 0;
 }

@@ -17,7 +17,8 @@ enum class PreprocessorType : uint8_t {
     XmlCanonicalizer = 2,
     ImageMetaStripper = 3,
     DictionaryPreprocessor = 4,
-    BayerPreprocessor = 5
+    BayerPreprocessor = 5,
+    PngOptimizer = 6
 };
 
 struct PreprocessResult {

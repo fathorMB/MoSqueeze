@@ -148,6 +148,20 @@ add_custom_command(TARGET AlgorithmSelector_test POST_BUILD
 
 add_test(NAME AlgorithmSelector_test COMMAND AlgorithmSelector_test)
 
+add_executable(PreprocessorSelector_test
+  unit/PreprocessorSelector_test.cpp
+)
+target_link_libraries(PreprocessorSelector_test
+  PRIVATE
+    libmosqueeze
+)
+add_custom_command(TARGET PreprocessorSelector_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:PreprocessorSelector_test>
+)
+add_test(NAME PreprocessorSelector_test COMMAND PreprocessorSelector_test)
+
 add_executable(BenchmarkConfig_test
   unit/BenchmarkConfig_test.cpp
 )
@@ -253,6 +267,17 @@ add_custom_command(TARGET ImageMetaStripper_test POST_BUILD
           $<TARGET_FILE_DIR:ImageMetaStripper_test>
 )
 add_test(NAME ImageMetaStripper_test COMMAND ImageMetaStripper_test)
+
+add_executable(PngOptimizer_test
+  unit/PngOptimizer_test.cpp
+)
+target_link_libraries(PngOptimizer_test PRIVATE libmosqueeze)
+add_custom_command(TARGET PngOptimizer_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:PngOptimizer_test>
+)
+add_test(NAME PngOptimizer_test COMMAND PngOptimizer_test)
 
 add_executable(BayerPreprocessor_test
   unit/BayerPreprocessor_test.cpp

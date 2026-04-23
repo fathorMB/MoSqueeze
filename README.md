@@ -24,6 +24,7 @@ Dependencies are declared in `vcpkg.json`:
 - nlohmann-json
 - sqlite3
 - pugixml
+- zlib
 
 ## Build
 
@@ -65,6 +66,9 @@ mosqueeze v0.1.0
 # Force Bayer preprocessing even when RAW is detected as compressed
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./raw --preprocess bayer-raw --force-bayer
 
+# PNG optimization with explicit engine selection
+./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --preprocess png-optimizer --png-engine oxipng --png-level 3
+
 # Export HTML report
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --export ./benchmarks/results/report.html --format html
 ```
@@ -84,6 +88,9 @@ Current detector coverage includes: RAF, ARW, CR2, CR3, NEF/NRW (by extension), 
 ```bash
 cd build
 ctest --output-on-failure
+
+# Run only preprocessor-focused tests
+ctest -R "BayerPreprocessor_test|ImageMetaStripper_test|JsonCanonicalizer_test|XmlCanonicalizer_test|DictionaryPreprocessor_test|PreprocessorSelector_test" --output-on-failure
 ```
 
 ## Documentation

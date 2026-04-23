@@ -8,6 +8,8 @@ Current implementation status:
 
 - `json-canonical`, `xml-canonical`: canonicalize and store original bytes for exact postprocess restoration.
 - `image-meta-strip`: currently pass-through transform for JPEG/PNG/RAW routing (safe, reversible baseline).
+- `png-optimizer`: PNG-only recompression with selectable `libpng`/`oxipng` engine (lossless).
+- `png-optimizer`: PNG-only re-deflate + metadata-chunk stripping (`tEXt`, `zTXt`, `iTXt`, `eXIf`, color/profile chunks), with selectable `libpng`/`oxipng` engine and fallback.
 - `bayer-raw`: reversible byte-plane transform for `Image_Raw` payloads (experimental baseline).
 - `zstd-dict`: training/load flow implemented; preprocess step currently pass-through.
 
@@ -41,6 +43,7 @@ For benchmark workflows, use `--force-bayer` to override the default skip for lo
 | `json-canonical` | Structured text (JSON-like) | 10-25% |
 | `xml-canonical` | Structured text (XML-like) | 5-15% |
 | `image-meta-strip` | JPEG, PNG, TIFF-based RAW (NEF/CR2/CR3/RAF/ARW/DNG/ORF/RW2) | Routing enabled; stripping logic staged |
+| `png-optimizer` | PNG | 5-30% (dataset-dependent) |
 | `bayer-raw` | RAW Bayer streams (Image_Raw) | Experimental reversible transform (dataset-dependent) |
 | `zstd-dict` | Similar datasets after training | 15-35% |
 
@@ -52,6 +55,9 @@ mosqueeze --list-preprocessors
 
 # Benchmark with preprocessing enabled
 mosqueeze-bench --directory ./datasets --preprocess auto --default-only
+
+# Force PNG optimizer with oxipng (if installed in PATH; otherwise libpng fallback)
+mosqueeze-bench --directory ./images --preprocess png-optimizer --png-engine oxipng --png-level 3
 ```
 
 ## Pipeline Format

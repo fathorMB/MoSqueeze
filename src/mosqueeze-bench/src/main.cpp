@@ -351,6 +351,11 @@ int main(int argc, char* argv[]) {
     bool sequential = false;
     std::string preprocessMode = "none";
     bool forceBayer = false;
+    std::string pngEngine = "libpng";
+    int pngLevel = 9;
+    bool stripMetadata = false;
+    bool noStripMetadata = false;
+    bool fastFilters = false;
 
     std::filesystem::path outputDir{"benchmarks/results"};
     std::filesystem::path exportFile;
@@ -393,10 +398,20 @@ int main(int argc, char* argv[]) {
     app.add_option(
            "--preprocess",
            preprocessMode,
-           "Preprocessor mode: auto, none, bayer-raw, image-meta-strip, json-canonical, xml-canonical")
-        ->check(CLI::IsMember({"auto", "none", "bayer-raw", "image-meta-strip", "json-canonical", "xml-canonical"}))
+           "Preprocessor mode: auto, none, bayer-raw, image-meta-strip, png-optimizer, json-canonical, xml-canonical")
+        ->check(CLI::IsMember(
+            {"auto", "none", "bayer-raw", "image-meta-strip", "png-optimizer", "json-canonical", "xml-canonical"}))
         ->default_val("none");
     app.add_flag("--force-bayer", forceBayer, "Force Bayer preprocessing even when RAW appears compressed");
+    app.add_option("--png-engine", pngEngine, "PNG engine: libpng, oxipng")
+        ->check(CLI::IsMember({"libpng", "oxipng"}))
+        ->default_val("libpng");
+    app.add_option("--png-level", pngLevel, "PNG compression level (libpng: 1-9, oxipng: 0-6)")
+        ->check(CLI::NonNegativeNumber)
+        ->default_val(9);
+    app.add_flag("--strip-metadata", stripMetadata, "Strip non-essential PNG metadata chunks");
+    app.add_flag("--no-strip-metadata", noStripMetadata, "Keep PNG metadata chunks");
+    app.add_flag("--fast-filters", fastFilters, "Use faster PNG filter search (less exhaustive)");
 
     app.add_option("-o,--output", outputDir, "Output directory");
     app.add_option("--export", exportFile, "Export results to file");
@@ -483,6 +498,14 @@ int main(int argc, char* argv[]) {
     config.sequential = sequential;
     config.preprocessMode = preprocessMode;
     config.forceBayer = forceBayer;
+    config.pngEngine = pngEngine;
+    config.pngStripMetadata = !noStripMetadata || stripMetadata;
+    config.pngAllFilters = !fastFilters;
+    if (pngEngine == "oxipng") {
+        config.pngLevel = std::clamp(pngLevel, 0, 6);
+    } else {
+        config.pngLevel = std::clamp(pngLevel, 1, 9);
+    }
 
     if (dryRun) {
         std::cout << "Configuration\n";
@@ -499,6 +522,11 @@ int main(int argc, char* argv[]) {
         std::cout << "  threadCount: " << config.threadCount << '\n';
         std::cout << "  sequential: " << (config.sequential ? "true" : "false") << '\n';
         std::cout << "  preprocess: " << config.preprocessMode << '\n';
+        std::cout << "  forceBayer: " << (config.forceBayer ? "true" : "false") << '\n';
+        std::cout << "  pngEngine: " << config.pngEngine << '\n';
+        std::cout << "  pngLevel: " << config.pngLevel << '\n';
+        std::cout << "  stripMetadata: " << (config.pngStripMetadata ? "true" : "false") << '\n';
+        std::cout << "  allFilters: " << (config.pngAllFilters ? "true" : "false") << '\n';
         std::cout << "  forceBayer: " << (config.forceBayer ? "true" : "false") << '\n';
         if (config.preprocessMode == "bayer-raw" || config.preprocessMode == "auto") {
             printRawDetectionDryRun(config.files, config.forceBayer);
