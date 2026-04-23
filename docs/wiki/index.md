@@ -1,8 +1,8 @@
-﻿# MoSqueeze Wiki
+# MoSqueeze Wiki
 
 **Summary**: Knowledge base per MoSqueeze - compressione cold storage data-driven.
 
-**Last updated**: 2026-04-22
+**Last updated**: 2026-04-23
 
 ---
 
@@ -33,12 +33,21 @@ mindmap
       Methodology
       Corpus
       Results
+        PNG Baseline
+        PNG Full Matrix
+        PNG + Oxipng
       Graphs
     Guide
       Getting Started
       Adding New Engine
       Cold Storage Patterns
       Analyze Command
+
+    Preprocessing
+      PNG Optimizer (oxipng)
+      Bayer RAW
+      JSON Canonicalizer
+      XML Canonicalizer
 ```
 
 ---
@@ -60,8 +69,8 @@ Analisi dettagliata di ogni algoritmo di compressione supportato, con trade-off,
 
 ADR (Architecture Decision Records) per le scelte chiave del progetto.
 
-- [[decisions/file-type-to-algorithm]] - Mappatura FileType -> Engine raccomandato
-- [[decisions/streaming-architecture]] - Perche streaming 64KB buffer
+- [[decisions/file-type-to-algorithm]] - **Mappatura FileType -> Engine raccomandato** *(aggiornato 2026-04-23)*
+- [[decisions/streaming-architecture]] - Perché streaming 64KB buffer
 - [[decisions/compression-levels]] - Quando usare extremes vs defaults
 - [[decisions/algorithm-selection-engine]] - Flusso selezione algoritmo e fallback
 
@@ -70,8 +79,13 @@ ADR (Architecture Decision Records) per le scelte chiave del progetto.
 Dati reali dalle esecuzioni del benchmark harness.
 
 - [[benchmarks/methodology]] - Come eseguiamo i benchmark
-- [[benchmarks/corpus-selection]] - Quali file testiamo e perche
-- [[benchmarks/results/index]] - Storico risultati per data
+- [[benchmarks/corpus-selection]] - Quali file testiamo e perché
+- [[benchmarks/results/index]] - **Storico risultati** *(aggiornato 2026-04-23)*
+
+**PNG Benchmark Results** (1,445 files, 75K+ measurements):
+- [PNG Full Matrix](../benchmarks/png-full-matrix-results.md) — Tutti i livelli testati
+- [PNG + Oxipng](../benchmarks/png-oxipng-results.md) — Preprocessing oxipng
+
 - [[benchmarks/graphs/ratio-by-algorithm]] - Grafici comparativi
 
 ### [[guides/]] - Guide per Contributor
@@ -92,6 +106,23 @@ Panoramica della pipeline di preprocessing lossless prima della compressione.
 
 ---
 
+## Key Findings
+
+### PNG Compression (2026-04-23)
+
+| Config | Ratio | Time | Use Case |
+|--------|-------|------|----------|
+| ZSTD/19 (baseline) | 1.091x | 42ms | Fast |
+| **Oxipng + ZSTD/22** | **1.120x** | 370ms | **Cold Storage** |
+| BROTLI/1 | 1.057x | ~0ms | Instant |
+
+**Insight**: PNG è comprimibile (~9-12%) — oxipng aggiunge +2.5%.
+
+---
+
 ## Changelog
 
 Vedi [[log]] per la cronologia completa delle modifiche al wiki.
+
+- **2026-04-23**: Aggiunti risultati PNG baseline, full matrix, oxipng
+- **2026-04-22**: Initial benchmark results

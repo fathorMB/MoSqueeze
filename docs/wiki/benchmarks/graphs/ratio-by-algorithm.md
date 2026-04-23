@@ -2,7 +2,61 @@
 
 **Summary**: Grafici comparativi del compression ratio per algoritmo.
 
-**Last updated**: 2026-04-22
+**Last updated**: 2026-04-23
+
+---
+
+## PNG Corpus
+
+### Baseline Compression (ZSTD levels)
+
+**Corpus**: 1,445 PNG files | **Measurements**: 70,805
+
+```mermaid
+%%{init: {"theme": "dark"}}%%
+xychart-beta
+    title "Compression Ratio - PNG Baseline (ZSTD levels)"
+    x-axis ["zstd-1", "zstd-10", "zstd-19", "zstd-22"]
+    y-axis "Ratio" 1.00 --> 1.12
+    bar [1.042, 1.083, 1.091, 1.091]
+```
+
+**Osservazioni**:
+- **ZSTD/19 = ZSTD/22** in ratio (1.091x)
+- **ZSTD/19 è 4x più veloce** (42ms vs 180ms)
+- **PNG è comprimibile** (~9% con algoritmi moderni)
+
+### PNG + Oxipng Preprocessing
+
+**Corpus**: 1,445 PNG files | **Measurements**: 4,335
+
+```mermaid
+%%{init: {"theme": "dark"}}%%
+xychart-beta
+    title "Compression Ratio - PNG + Oxipng Preprocessing"
+    x-axis ["ZSTD/22+oxipng", "BROTLI/11+oxipng", "ZPAQ/5+oxipng", "ZSTD/22 baseline"]
+    y-axis "Ratio" 1.00 --> 1.15
+    bar [1.120, 1.118, 1.108, 1.091]
+```
+
+**Key Insight**: Oxipng aggiunge **+2.5% compressione** (lossless preprocessing)
+
+### Encode Time Trade-off
+
+```mermaid
+%%{init: {"theme": "dark"}}%%
+xychart-beta
+    title "Encode Time (ms) - PNG Comparison"
+    x-axis ["ZSTD/19", "ZSTD/22", "ZSTD/22+oxipng", "BROTLI/1"]
+    y-axis "Time" 0 --> 400
+    bar [42, 180, 370, 0]
+```
+
+**Trade-off**:
+- ZSTD/19: Fast (42ms) — buon ratio
+- ZSTD/22: Lento (180ms) — stesso ratio di /19
+- **Oxipng + ZSTD/22**: 370ms — miglior ratio (+2.5%)
+- BROTLI/1: Istantaneo (~0ms) — ratio minore
 
 ---
 
@@ -98,6 +152,19 @@ xychart-beta
 
 **lzma-9 domina**: 2.8x vs 2.3x di zstd
 
+### PNG Images
+
+```mermaid
+%%{init: {"theme": "dark"}}%%
+xychart-beta
+    title "Ratio - PNG Images (1,445 files)"
+    x-axis ["BROTLI/1", "ZSTD/19", "ZSTD/22", "Oxipng+ZSTD/22"]
+    y-axis "Ratio" 1.00 --> 1.15
+    bar [1.057, 1.091, 1.091, 1.120]
+```
+
+**PNG Insight**: Contrariamente alla credenza comune, PNG è comprimibile!
+
 ---
 
 ## Summary Table
@@ -110,6 +177,7 @@ xychart-beta
 | 2 | **zstd-22** | General purpose | 5.2x |
 | 3 | **lzma-9** | Binary, DB, logs | 4.6x |
 | 4 | **zstd-19** | Balanced | 4.8x |
+| 5 | **oxipng+zstd-22** | PNG cold storage | 1.12x |
 
 ### Speed Rankings
 
@@ -129,18 +197,19 @@ xychart-beta
 
 ```
 File Type          → Algorithm    → Level
-─────────────────────────────────────────
-Text/JSON/XML      → brotli       → 11
-Source code        → zstd         → 19-22
-Binary/Database    → lzma         → 9 extreme
-Mixed/Unknown      → zstd         → 19
-Real-time          → zstd         → 3-5
+────────────────────────────────────────────
+PNG (cold storage) → zstd + oxipng → 22
+PNG (fast)         → zstd          → 19
+Text/JSON          → brotli        → 11
+Binary/DB          → lzma          → 9
+General            → zstd          → 19
 ```
 
 ---
 
 ## Related Pages
 
-- [[methodology]] — Come generare questi dati
-- [[../algorithms/comparison-matrix]] — Tabella completa
-- [[../decisions/file-type-to-algorithm]] — Decision mapping
+- [[results/index]] — Storico risultati
+- [[methodology]] — Come eseguiamo i benchmark
+- ../../benchmarks/png-full-matrix-results.md — PNG full data
+- ../../benchmarks/png-oxipng-results.md — PNG + oxipng data
