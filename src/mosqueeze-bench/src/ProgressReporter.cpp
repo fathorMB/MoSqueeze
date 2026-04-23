@@ -1,9 +1,20 @@
 #include <mosqueeze/bench/ProgressReporter.hpp>
 
 #include <algorithm>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
+#include <sys/ioctl.h>
+#include <unistd.h>
+#endif
 
 namespace mosqueeze::bench {
 namespace {
@@ -16,6 +27,8 @@ ProgressReporter::ProgressReporter(size_t totalFiles, bool verbose, bool quiet)
     : totalFiles_(totalFiles), verbose_(verbose), quiet_(quiet) {
     startTime_ = std::chrono::steady_clock::now();
     lastActivity_ = startTime_;
+    ansiEnabled_ = detectAnsiSupport();
+    terminalWidth_ = detectTerminalWidth();
     if (!quiet_ && totalFiles_ > 0) {
         renderThread_ = std::thread([this]() {
             std::unique_lock<std::mutex> lock(mutex_);
@@ -105,14 +118,18 @@ void ProgressReporter::updateDisplay(bool force) {
         return;
     }
 
-    std::string line = buildLine();
-    if (line.size() < lastLineLength_) {
+    std::string line = fitToTerminalWidth(buildLine());
+    if (!ansiEnabled_ && line.size() < lastLineLength_) {
         line.append(lastLineLength_ - line.size(), ' ');
     }
     lastLineLength_ = line.size();
     lastRender_ = now;
     printedLine_ = true;
-    std::cout << '\r' << line << std::flush;
+    if (ansiEnabled_) {
+        std::cout << "\r\x1b[2K" << line << std::flush;
+    } else {
+        std::cout << '\r' << line << std::flush;
+    }
 }
 
 std::string ProgressReporter::buildLine() const {
@@ -181,6 +198,74 @@ std::string ProgressReporter::shortenFile(const std::string& file) const {
         return file;
     }
     return file.substr(0, kMax - 3) + "...";
+}
+
+std::string ProgressReporter::fitToTerminalWidth(std::string line) const {
+    // Reserve one column to avoid implicit terminal wrapping that can create
+    // duplicated progress rows when repeatedly writing '\r' updates.
+    if (terminalWidth_ == 0 || terminalWidth_ <= 8) {
+        return line;
+    }
+    const size_t maxVisible = terminalWidth_ - 1;
+    if (line.size() <= maxVisible) {
+        return line;
+    }
+    if (maxVisible <= 3) {
+        return line.substr(0, maxVisible);
+    }
+    return line.substr(0, maxVisible - 3) + "...";
+}
+
+size_t ProgressReporter::detectTerminalWidth() const {
+    const char* columns = std::getenv("COLUMNS");
+    if (columns != nullptr) {
+        try {
+            const size_t parsed = static_cast<size_t>(std::stoul(columns));
+            if (parsed >= 20) {
+                return parsed;
+            }
+        } catch (...) {
+        }
+    }
+
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO csbi{};
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) != 0) {
+        const SHORT width = static_cast<SHORT>(csbi.srWindow.Right - csbi.srWindow.Left + 1);
+        if (width > 0) {
+            return static_cast<size_t>(width);
+        }
+    }
+#else
+    winsize ws{};
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_col > 0) {
+        return static_cast<size_t>(ws.ws_col);
+    }
+#endif
+
+    return 120;
+}
+
+bool ProgressReporter::detectAnsiSupport() const {
+#ifdef _WIN32
+    HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (stdoutHandle == INVALID_HANDLE_VALUE || stdoutHandle == nullptr) {
+        return false;
+    }
+
+    DWORD mode = 0;
+    if (GetConsoleMode(stdoutHandle, &mode) == 0) {
+        return false;
+    }
+
+    const DWORD wanted = mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (SetConsoleMode(stdoutHandle, wanted) == 0) {
+        return false;
+    }
+    return true;
+#else
+    return true;
+#endif
 }
 
 } // namespace mosqueeze::bench

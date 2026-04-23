@@ -2,10 +2,12 @@
 
 #include <cassert>
 #include <chrono>
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <thread>
 #include <vector>
+#include <string_view>
 
 int main() {
     using mosqueeze::bench::ProgressInfo;
@@ -69,6 +71,31 @@ int main() {
         assert(text.find("zstd L22") != std::string::npos);
         assert(text.find("iter 2/2") != std::string::npos);
         assert(text.find("ETA ") != std::string::npos);
+        const auto newlines = static_cast<int>(std::count(text.begin(), text.end(), '\n'));
+        assert(newlines <= 1);
+    }
+
+    {
+        std::ostringstream capture;
+        auto* oldBuf = std::cout.rdbuf(capture.rdbuf());
+
+        {
+            ProgressReporter reporter(2, false, false);
+            ProgressInfo info{};
+            info.totalFiles = 2;
+            info.completedFiles = 1;
+            info.progress = 0.5;
+            info.currentFile =
+                "this_is_a_very_long_filename_that_should_be_truncated_to_avoid_terminal_wrapping_progress_duplication.txt";
+            info.currentAlgorithm = "zstd";
+            info.currentLevel = 19;
+            reporter.onProgress(info);
+            std::this_thread::sleep_for(std::chrono::milliseconds(150));
+        }
+
+        std::cout.rdbuf(oldBuf);
+        const std::string text = capture.str();
+        assert(text.find("...") != std::string::npos);
     }
 
     {

@@ -24,6 +24,9 @@ private:
     std::string buildLine() const;
     std::string formatEta(std::chrono::seconds remaining) const;
     std::string shortenFile(const std::string& file) const;
+    std::string fitToTerminalWidth(std::string line) const;
+    size_t detectTerminalWidth() const;
+    bool detectAnsiSupport() const;
 
     size_t totalFiles_ = 0;
     std::atomic<size_t> completedFiles_{0};
@@ -36,6 +39,8 @@ private:
 
     bool verbose_ = false;
     bool quiet_ = false;
+    bool ansiEnabled_ = false;
+    size_t terminalWidth_ = 0;
     bool printedLine_ = false;
     size_t lastLineLength_ = 0;
     mutable size_t spinnerIndex_ = 0;
