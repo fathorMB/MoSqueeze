@@ -72,6 +72,9 @@ mosqueeze v0.1.0
 ```bash
 cd build
 ctest --output-on-failure
+
+# Run only preprocessor-focused tests
+ctest -R "BayerPreprocessor_test|ImageMetaStripper_test|JsonCanonicalizer_test|XmlCanonicalizer_test|DictionaryPreprocessor_test|PreprocessorSelector_test" --output-on-failure
 ```
 
 ## Documentation
