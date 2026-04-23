@@ -29,6 +29,20 @@
 - **Oxipng preprocessing**: +2.5% compression improvement
 - **Best config**: Oxipng + ZSTD/22 = 1.120x ratio (370ms)
 
+
+### 2026-04-23 — JPEG Benchmark
+
+**Corpus**: 49 JPEG files
+
+**Results**: [JPEG Baseline Results](../../../../benchmarks/jpeg-baseline-results.md)
+
+**Highlights**:
+- **JPEG is NOT compressible** — 60-70% files get larger
+- ZSTD/22: 61% files worse, avg ratio 1.008x
+- ZPAQ/5: safe but only +2% gain, 788ms
+- **Recommendation**: SKIP JPEG compression
+
+
 ### 2026-04-22 — Initial Benchmark
 
 **Commit**: `aa48401`

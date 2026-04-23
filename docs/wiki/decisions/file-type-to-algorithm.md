@@ -36,6 +36,21 @@
 - ZSTD/19 = ZSTD/22 in ratio ma 4x più veloce
 - **Raccomandazione**: oxipng + ZSTD/22 per cold storage
 
+
+### JPEG Findings (benchmark 2026-04-23, 49 files):
+
+- JPEG è **già lossy-compresso** → 60-70% file diventano più grandi
+- **SKIP raccomandato** per tutti i casi eccetto entropia molto bassa
+- Eccezione: Entropia < 7.9 → considerare ZPAQ/5 (+15% potenziale)
+
+| Algorithm | Files Peggiorati | Avg Ratio |
+|-----------|------------------|-----------|
+| ZSTD/22 | 61% | 1.008x |
+| XZ/9 | 67% | 1.007x |
+| BROTLI/11 | 71% | 1.010x |
+| ZPAQ/5 | 0% | 1.018x (sicuro ma lento) |
+
+
 ### Binary Files
 
 | FileType | Algoritmo | Livello | Motivazione |
