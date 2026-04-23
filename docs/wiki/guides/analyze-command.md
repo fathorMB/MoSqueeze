@@ -19,7 +19,7 @@ mosqueeze analyze <file> [-v|--verbose] [-b|--benchmark] [--preprocess <mode>]
   - compressed yes/no
   - recommended action
 - Accepts `--preprocess` hint values:
-  - `auto`, `none`, `json-canonical`, `xml-canonical`, `image-meta-strip`, `bayer-raw`, `zstd-dict`
+  - `auto`, `none`, `json-canonical`, `xml-canonical`, `image-meta-strip`, `png-optimizer`, `bayer-raw`, `zstd-dict`
 
 If file should be skipped, output includes explicit reason (for example already-compressed media).
 

@@ -94,3 +94,17 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `preprocessing.md` with `bayer-raw` RAF region-only transform behavior
 - Documented safe fallback mode for unparseable/non-RAF raw payloads
 - Documented metadata compatibility (`version 2` region mode + legacy `version 1`)
+
+### Feature Docs: RAW Format Support (Issue #53)
+- Updated `guides/benchmark-tool.md` with `--force-bayer` and Bayer RAW dry-run classification flow
+- Updated `preprocessing.md` with RAW compression classification behavior (uncompressed/lossless/lossy)
+
+### Feature Docs: oxipng Integration (Issue #51)
+- Updated `preprocessing.md` to document `png-optimizer` and `libpng`/`oxipng` engine behavior
+- Updated `guides/benchmark-tool.md` with `--png-engine`, `--png-level`, metadata-strip, and filter-speed options
+- Updated `guides/analyze-command.md` preprocess list to include `png-optimizer`
+
+### Feature Docs: PNG Optimization (Issue #13)
+- Updated `preprocessing.md` with `png-optimizer` behavior and availability
+- Updated `guides/benchmark-tool.md` preprocess mode list to include `png-optimizer`
+- Updated `guides/analyze-command.md` `--preprocess` values to include `png-optimizer`
