@@ -1,130 +1,74 @@
-# Worker Spec: Compressed Formats Benchmark Corpus
+# PNG Baseline Benchmark Results
 
-**Issue:** #62
-**Branch:** `feat/compressed-formats-corpus`
-**Type:** Feature - Benchmark Extension
+**Date:** 2026-04-23
+**Corpus:** 1,445 PNG files (0.2 KB - 2.5 MB, median 78 KB)
+**Run:** Default levels only (ZSTD/22, XZ/9, BROTLI/11, ZPAQ/5)
 
-## Overview
+## Summary
 
-Establish benchmark corpus for already-compressed file formats (JPEG, PNG, video) to validate the intelligent algorithm selector and populate decision database.
+| Algorithm | Level | Avg Ratio | Avg Encode | Files Tested |
+|-----------|-------|-----------|------------|--------------|
+| **ZSTD** | 22 | **1.0914x** | 175ms | 1,445 |
+| BROTLI | 11 | 1.0901x | 356ms | 1,445 |
+| XZ | 9 | 1.0849x | 50ms | 1,445 |
+| ZPAQ | 5 | 1.0819x | 502ms | 1,445 |
 
-## Current Context
+## Key Findings
 
-### Available Resources
-- **JPEG:** 881 files (139 MB) in `/sources/images/`
-- **PNG:** 17 files (16 MB) in `/sources/images/`
-- **oxipng preprocessor:** Merged in #57, needs testing
-- **Intelligent Selector:** Implemented in #60, needs validation on compressed formats
+### 1. PNG Files Are Compressible!
 
-### Gap
-Current benchmarks only cover RAW files (8 RAF). No data on compressed format behavior.
+Contrary to expectations, PNG files show **~9% compression potential**:
+- **92.3%** of files are compressible (ratio ≥ 1.01)
+- Only **7.7%** are already optimized (ratio < 1.01)
 
-## Implementation Plan
+This is because PNG uses DEFLATE (same as gzip) which modern algorithms can improve upon.
 
-### Phase 1: JPEG Subset Selection
+### 2. Best Algorithm Depends on Use Case
 
-**Goal:** Select 50-100 representative JPEG files
+| Use Case | Recommended | Why |
+|----------|-------------|-----|
+| **Cold storage** | ZSTD/22 | Best ratio (9.1%), reasonable time |
+| **Fast compression** | XZ/9 | Only 50ms, ~8.5% ratio |
+| **Balance** | ZSTD/19-20 | Good ratio, faster than /22 |
 
-**Selection Criteria:**
-```cpp
-// Categorize by size
-namespace SizeCategory {
-    constexpr size_t Small = 100 * 1024;    // < 100KB
-    constexpr size_t Medium = 1024 * 1024;   // 100KB - 1MB
-    constexpr size_t Large = 10 * 1024 * 1024; // 1MB - 10MB
-}
-```
+### 3. ZPAQ Underperforms on PNG
 
-**Files to Create/Modify:**
-- `src/mosqueeze-bench/tools/corpus_selector.cpp` - Select representative files
-- `scripts/select_corpus.py` - Python helper for corpus selection
+On RAW files, ZPAQ/5 achieved **2.35%** improvement.
+On PNG, only **0.82%** - PNG's DEFLATE already removes most redundancy.
 
-### Phase 2: Run Benchmarks
-
-**Command:**
-```cmd
-# JPEG benchmark (no preprocessing - already compressed)
-mosqueeze-bench -d "G:\mosqueeze-bench\sources\images" -a zstd,xz,brotli,zpaq --default-only -o results/compressed-jpeg --json --csv -v --threads 4
-
-# PNG without oxipng
-mosqueeze-bench -d "G:\mosqueeze-bench\sources\images" -a zstd,xz,brotli,zpaq -g "*.png" --default-only -o results/png-no-prep --json --csv -v
-
-# PNG with oxipng preprocessing
-mosqueeze-bench -d "G:\mosqueeze-bench\sources\images" -a zstd,xz,brotli,zpaq --preprocess oxipng -g "*.png" --default-only -o results/png-oxipng --json --csv -v
-```
-
-**Expected Output:**
-- `results/compressed-jpeg/results.json` - Full benchmark data
-- `results/compressed-jpeg/results.csv` - Tabular format
-- `results/compressed-jpeg/results.sqlite3` - Queryable database
-
-### Phase 3: Analysis Queries
-
-**Add to `docs/queries/`:**
-```sql
--- Average ratio by file type
-SELECT file_type, algorithm, level, 
-       AVG(ratio) as avg_ratio,
-       AVG(encode_ms) as avg_encode_ms
-FROM results 
-WHERE file LIKE '%.jpg'
-GROUP BY file_type, algorithm, level
-ORDER BY avg_ratio DESC;
-
--- Size category analysis
-SELECT 
-    CASE 
-        WHEN original_bytes < 100000 THEN 'small'
-        WHEN original_bytes < 1000000 THEN 'medium'
-        ELSE 'large'
-    END as size_cat,
-    algorithm, AVG(ratio)
-FROM results
-GROUP BY size_cat, algorithm;
-```
-
-## Expected Results
-
-| Format | ZPAQ/5 Ratio | ZSTD/22 Ratio | Notes |
-|--------|--------------|---------------|-------|
-| JPEG | ~1.01-1.02x | ~1.005-1.01x | Minimal gain, ZPAQ best |
-| PNG (raw) | ~1.01-1.02x | ~1.01x | depends on image content |
-| PNG (oxipng) | ~1.02-1.03x | ~1.015x | Metadata stripped improves ratio |
-
-## Files to Create/Modify
+### 4. File Size Distribution
 
 ```
-docs/features/feat-62-compressed-formats.md (this file)
-src/mosqueeze-bench/tools/corpus_selector.cpp (optional)
-scripts/select_corpus.py (optional helper)
-docs/queries/compressed_formats_analysis.sql
+Min:    0.2 KB
+Max:    2,540 KB (2.5 MB)
+Avg:    186 KB
+Median: 78 KB
 ```
 
-## Acceptance Criteria
+Most files are small-to-medium, making encode time critical.
 
-- [ ] JPEG subset benchmark complete (50+ files recommended)
-- [ ] PNG benchmark with and without oxipng preprocessing
-- [ ] Results stored in SQLite database
-- [ ] Query demonstrates: "ZPAQ/5 is optimal for JPEG cold storage"
-- [ ] Intelligent selector rules updated for compressed formats
+## Decision Rules (Draft)
 
-## Testing
-
-```bash
-# Verify oxipng preprocessor works
-mosqueeze-bench -f test.png -a zstd --preprocess oxipng -v
-
-# Verify database has results
-sqlite3 results.sqlite3 "SELECT COUNT(*) FROM results WHERE file LIKE '%.jpg'"
+```python
+# For PNG files
+if purpose == "cold_storage":
+    return "zstd", 22  # Best ratio
+elif purpose == "fast":
+    return "xz", 9     # 50ms, good ratio
+elif purpose == "balanced":
+    return "zstd", 19   # Good tradeoff
 ```
 
-## Dependencies
+## Next Steps
 
-- #57: oxipng integration (merged ✓)
-- #55: Intelligent Algorithm Selection Engine (merged ✓)
+- [x] PNG baseline (default levels)
+- [ ] PNG full matrix (all levels) - RUNNING
+- [ ] PNG with oxipng preprocessing
+- [ ] JPEG baseline
+- [ ] Video formats
 
-## Estimated Effort
+## Raw Data
 
-- Phase 1 (JPEG selection): 1-2 hours
-- Phase 2 (Run benchmarks): 2-4 hours (depends on corpus size)
-- Phase 3 (Analysis): 1-2 hours
+- Location: `G:\mosqueeze-bench\results\png-baseline\`
+- Format: CSV, JSON, SQLite3
+- Files: 1,445 PNG × 4 algorithms = 5,780 measurements
