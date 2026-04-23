@@ -43,6 +43,10 @@ cmake --build build
 
 # Recommendation with explicit goal and JSON output
 ./build/src/mosqueeze-cli/mosqueeze suggest ./data/sample.png --goal fastest --json
+
+# Compress/decompress
+./build/src/mosqueeze-cli/mosqueeze compress ./data/input.bin -o ./data/input.msz -a zstd
+./build/src/mosqueeze-cli/mosqueeze decompress ./data/input.msz -o ./data/input.restored.bin
 ```
 
 Expected output:

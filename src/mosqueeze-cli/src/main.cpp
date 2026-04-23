@@ -1,4 +1,6 @@
-﻿#include <CLI/CLI.hpp>
+#include "commands/CompressCommand.hpp"
+#include "commands/DecompressCommand.hpp"
+#include <CLI/CLI.hpp>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <mosqueeze/AlgorithmSelector.hpp>
@@ -199,6 +201,8 @@ int main(int argc, char** argv) {
 
     addAnalyzeCommand(app);
     addSuggestCommand(app);
+    mosqueeze::cli::addCompressCommand(app);
+    mosqueeze::cli::addDecompressCommand(app);
 
     CLI11_PARSE(app, argc, argv);
 
