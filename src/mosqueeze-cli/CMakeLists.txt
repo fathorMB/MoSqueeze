@@ -1,9 +1,12 @@
-﻿find_package(CLI11 CONFIG REQUIRED)
+find_package(CLI11 CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 add_executable(mosqueeze
   src/main.cpp
+  src/commands/CompressCommand.cpp
+  src/commands/DecompressCommand.cpp
 )
 
 target_link_libraries(mosqueeze
@@ -12,6 +15,7 @@ target_link_libraries(mosqueeze
     CLI11::CLI11
     fmt::fmt
     spdlog::spdlog
+    nlohmann_json::nlohmann_json
 )
 
 if(WIN32)
