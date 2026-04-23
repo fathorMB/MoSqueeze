@@ -15,6 +15,7 @@
 - repeated runs with warmup (`--iterations`, `--warmup`)
 - optional decode and memory tracking (`--no-decode`, `--no-memory`)
 - optional preprocessing (`--preprocess none|auto|bayer-raw|image-meta-strip|png-optimizer|json-canonical|xml-canonical`)
+- RAW safety controls for Bayer preprocessing (`--force-bayer` + RAW classification in `--dry-run`)
 - live in-place progress feedback (enabled by default, suppressed by `--quiet`)
 - result exports (`json`, `csv`, `markdown`, `html`)
 - previous run comparison (`--compare`, `--diff-only`)
@@ -78,6 +79,7 @@ Benchmark:
       --decode
       --no-decode
       --preprocess MODE   (none|auto|bayer-raw|image-meta-strip|png-optimizer|json-canonical|xml-canonical)
+      --force-bayer
       --png-engine NAME   (libpng|oxipng)
       --png-level N       (libpng: 1-9, oxipng: 0-6)
       --strip-metadata
@@ -142,9 +144,21 @@ Misc:
 # Baseline run without preprocessing for A/B comparison
 ./mosqueeze-bench --directory ./raw --preprocess none --output ./benchmarks/results/no-pre
 
+# Inspect RAW compression classification before running Bayer preprocessing
+./mosqueeze-bench --directory ./raw --preprocess bayer-raw --dry-run
+
+# Override skip behavior for lossless-compressed RAW
+./mosqueeze-bench --directory ./raw --preprocess bayer-raw --force-bayer
+
 # PNG optimizer with oxipng (falls back to libpng if oxipng is unavailable)
 ./mosqueeze-bench --directory ./images --preprocess png-optimizer --png-engine oxipng --png-level 3
 ```
+
+`bayer-raw` handling now depends on RAW compression classification:
+
+- `uncompressed`: preprocessing applied
+- `lossless-compressed`: skipped by default (can be overridden with `--force-bayer`)
+- `lossy-compressed`: rejected for safety
 
 ---
 

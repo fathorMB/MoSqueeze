@@ -85,7 +85,7 @@ std::unordered_map<std::string, std::vector<int>> buildLevelMap(
 
 std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name, const BenchmarkConfig& config) {
     if (name == "bayer-raw") {
-        return std::make_unique<BayerPreprocessor>();
+        return std::make_unique<BayerPreprocessor>(config.forceBayer);
     }
     if (name == "image-meta-strip") {
         return std::make_unique<ImageMetaStripper>();
@@ -173,8 +173,12 @@ BenchmarkResult BenchmarkRunner::runIteration(
         if (config.autoPreprocess()) {
             selector = std::make_unique<PreprocessorSelector>();
             preprocessor = selector->selectBest(fileType);
-            if (preprocessor != nullptr && preprocessor->name() == "png-optimizer") {
+            if (preprocessor != nullptr && preprocessor->name() == "bayer-raw") {
+                selectedAutoOwned = createPreprocessor("bayer-raw", config);
+            } else if (preprocessor != nullptr && preprocessor->name() == "png-optimizer") {
                 selectedAutoOwned = createPreprocessor("png-optimizer", config);
+            }
+            if (selectedAutoOwned) {
                 preprocessor = selectedAutoOwned.get();
             }
         } else {

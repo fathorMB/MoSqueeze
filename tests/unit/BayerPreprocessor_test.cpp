@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <exception>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -21,7 +22,7 @@ void writeLe32(std::vector<uint8_t>& data, size_t offset, uint32_t value) {
     data[offset + 3] = static_cast<uint8_t>((value >> 24U) & 0xFFU);
 }
 
-std::vector<uint8_t> makeSyntheticRaf(size_t& rawOffset, size_t& rawSize) {
+std::vector<uint8_t> makeSyntheticRaf(size_t& rawOffset, size_t& rawSize, uint8_t compressionMarker = 0) {
     constexpr size_t kSize = 0x240;
     constexpr size_t kTiffBase = 0x80;
     constexpr uint32_t kFirstIfd = 0x08;
@@ -34,6 +35,7 @@ std::vector<uint8_t> makeSyntheticRaf(size_t& rawOffset, size_t& rawSize) {
     for (size_t i = 0; i < 8; ++i) {
         data[i] = static_cast<uint8_t>(magic[i]);
     }
+    data[84] = compressionMarker;
 
     writeLe32(data, 0x34, static_cast<uint32_t>(kIfd));
     data[kTiffBase] = 0x49;
@@ -139,6 +141,51 @@ int main() {
     std::ostringstream restored;
     preprocessor.postprocess(transformedIn, restored, result);
     assert(restored.str() == original);
+
+    // Lossless-compressed RAF is skipped by default.
+    {
+        size_t losslessOffset = 0;
+        size_t losslessSize = 0;
+        const std::vector<uint8_t> losslessRaf = makeSyntheticRaf(losslessOffset, losslessSize, 1);
+        const std::string losslessText(reinterpret_cast<const char*>(losslessRaf.data()), losslessRaf.size());
+        std::istringstream losslessIn(losslessText);
+        std::ostringstream losslessOut;
+        const auto losslessResult = preprocessor.preprocess(losslessIn, losslessOut, mosqueeze::FileType::Image_Raw);
+        assert(losslessResult.metadata.size() == 1);
+        assert(losslessResult.metadata[0] == 0);
+        assert(losslessOut.str() == losslessText);
+    }
+
+    // Force mode allows processing lossless-compressed RAF.
+    {
+        mosqueeze::BayerPreprocessor forced(true);
+        size_t losslessOffset = 0;
+        size_t losslessSize = 0;
+        const std::vector<uint8_t> losslessRaf = makeSyntheticRaf(losslessOffset, losslessSize, 1);
+        const std::string losslessText(reinterpret_cast<const char*>(losslessRaf.data()), losslessRaf.size());
+        std::istringstream forcedIn(losslessText);
+        std::ostringstream forcedOut;
+        const auto forcedResult = forced.preprocess(forcedIn, forcedOut, mosqueeze::FileType::Image_Raw);
+        assert(forcedResult.metadata.size() == 13);
+        assert(forcedResult.metadata[0] == 2);
+    }
+
+    // Lossy-compressed RAF must be rejected.
+    {
+        bool threw = false;
+        try {
+            size_t lossyOffset = 0;
+            size_t lossySize = 0;
+            const std::vector<uint8_t> lossyRaf = makeSyntheticRaf(lossyOffset, lossySize, 2);
+            const std::string lossyText(reinterpret_cast<const char*>(lossyRaf.data()), lossyRaf.size());
+            std::istringstream lossyIn(lossyText);
+            std::ostringstream lossyOut;
+            (void)preprocessor.preprocess(lossyIn, lossyOut, mosqueeze::FileType::Image_Raw);
+        } catch (const std::exception&) {
+            threw = true;
+        }
+        assert(threw);
+    }
 
     const auto pattern = mosqueeze::BayerPreprocessor::detectPattern(nonRaf);
     assert(pattern == mosqueeze::BayerPattern::RGGB);

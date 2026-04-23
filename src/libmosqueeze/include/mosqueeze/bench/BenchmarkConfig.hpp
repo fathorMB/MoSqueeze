@@ -53,6 +53,7 @@ struct BenchmarkConfig {
     int threadCount = 0;
     bool sequential = false;
     std::string preprocessMode = "none";
+    bool forceBayer = false;
     std::string pngEngine = "libpng";
     int pngLevel = 9;
     bool pngStripMetadata = true;
