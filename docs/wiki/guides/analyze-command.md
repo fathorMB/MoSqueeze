@@ -9,6 +9,16 @@ Use `mosqueeze analyze` to inspect a file and get a recommended algorithm/level 
 mosqueeze analyze <file> [-v|--verbose] [-b|--benchmark] [--preprocess <mode>]
 ```
 
+## Intelligent Suggestion Mode
+
+For recommendation-oriented workflow, use:
+
+```bash
+mosqueeze suggest <file> [--goal min-size|fastest|balanced|min-memory|best-decompression] [--db <sqlite-file>] [--json]
+```
+
+This mode uses the new intelligent selector pipeline (`FileAnalyzer` + optional `BenchmarkDatabase` + heuristic fallback) and returns preprocessor + algorithm + level with confidence.
+
 ## Current Behavior
 
 - Detects file class and MIME via `FileTypeDetector`

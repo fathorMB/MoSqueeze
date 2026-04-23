@@ -17,13 +17,13 @@ public:
     FileClassification detect(const std::filesystem::path& path);
 
     // Detection by magic bytes (most reliable)
-    FileClassification detectFromMagic(const std::vector<uint8_t>& buffer);
+    FileClassification detectFromMagic(const std::vector<uint8_t>& buffer) const;
 
     // Extension-based fallback detection
-    FileClassification detectFromExtension(const std::string& ext);
+    FileClassification detectFromExtension(const std::string& ext) const;
 
     // Text sniffing (UTF-8/plain code/log/structured)
-    FileClassification detectTextContent(const std::vector<uint8_t>& buffer);
+    FileClassification detectTextContent(const std::vector<uint8_t>& buffer) const;
 
 private:
     struct MagicEntry {

@@ -81,6 +81,7 @@ Documentazione operativa.
 - [[guides/getting-started]] - Build, test, contribuire
 - [[guides/benchmark-tool]] - Enhanced `mosqueeze-bench` usage and options
 - [[guides/benchmark-visualization]] - `mosqueeze-viz` dashboard/report generation
+- [[guides/intelligent-selector]] - Intelligent recommendation engine (`mosqueeze suggest`)
 - [[guides/adding-new-engine]] - Step-by-step per nuovo algoritmo
 - [[guides/cold-storage-patterns]] - Best practices archiviazione
 - [[guides/analyze-command]] - Come usare `mosqueeze analyze`

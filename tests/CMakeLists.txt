@@ -117,6 +117,39 @@ add_custom_command(TARGET FileTypeDetector_test POST_BUILD
 
 add_test(NAME FileTypeDetector_test COMMAND FileTypeDetector_test)
 
+add_executable(FileAnalyzer_test
+  unit/FileAnalyzer_test.cpp
+)
+target_link_libraries(FileAnalyzer_test PRIVATE libmosqueeze)
+add_custom_command(TARGET FileAnalyzer_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:FileAnalyzer_test>
+)
+add_test(NAME FileAnalyzer_test COMMAND FileAnalyzer_test)
+
+add_executable(BenchmarkDatabase_test
+  unit/BenchmarkDatabase_test.cpp
+)
+target_link_libraries(BenchmarkDatabase_test PRIVATE libmosqueeze)
+add_custom_command(TARGET BenchmarkDatabase_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:BenchmarkDatabase_test>
+)
+add_test(NAME BenchmarkDatabase_test COMMAND BenchmarkDatabase_test)
+
+add_executable(IntelligentSelector_test
+  unit/IntelligentSelector_test.cpp
+)
+target_link_libraries(IntelligentSelector_test PRIVATE libmosqueeze)
+add_custom_command(TARGET IntelligentSelector_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:IntelligentSelector_test>
+)
+add_test(NAME IntelligentSelector_test COMMAND IntelligentSelector_test)
+
 add_executable(RawFormat_test
   unit/RawFormat_test.cpp
 )

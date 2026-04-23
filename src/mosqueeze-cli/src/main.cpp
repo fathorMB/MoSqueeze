@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <mosqueeze/AlgorithmSelector.hpp>
+#include <mosqueeze/IntelligentSelector.hpp>
 #include <mosqueeze/FileTypeDetector.hpp>
 #include <mosqueeze/PreprocessorSelector.hpp>
 #include <mosqueeze/Version.hpp>
@@ -15,6 +16,7 @@
 #include <filesystem>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 namespace {
 
@@ -90,6 +92,99 @@ void addAnalyzeCommand(CLI::App& app) {
     });
 }
 
+mosqueeze::OptimizationGoal parseGoal(const std::string& value) {
+    if (value == "fastest") {
+        return mosqueeze::OptimizationGoal::Fastest;
+    }
+    if (value == "balanced") {
+        return mosqueeze::OptimizationGoal::Balanced;
+    }
+    if (value == "min-memory") {
+        return mosqueeze::OptimizationGoal::MinMemory;
+    }
+    if (value == "best-decompression") {
+        return mosqueeze::OptimizationGoal::BestDecompression;
+    }
+    return mosqueeze::OptimizationGoal::MinSize;
+}
+
+void printRecommendation(const mosqueeze::Recommendation& rec, bool jsonOutput) {
+    if (jsonOutput) {
+        fmt::print(
+            "{{\"preprocessor\":\"{}\",\"algorithm\":\"{}\",\"level\":{},\"expectedRatio\":{},\"expectedTimeMs\":{},\"expectedSize\":{},\"confidence\":{},\"sampleCount\":{},\"explanation\":\"{}\"}}\n",
+            rec.preprocessor,
+            rec.algorithm,
+            rec.level,
+            rec.expectedRatio,
+            rec.expectedTimeMs,
+            rec.expectedSize,
+            rec.confidence,
+            rec.sampleCount,
+            rec.explanation);
+        return;
+    }
+
+    fmt::print("Recommendation\n");
+    fmt::print("  Preprocessor: {}\n", rec.preprocessor);
+    fmt::print("  Algorithm:    {}\n", rec.algorithm);
+    fmt::print("  Level:        {}\n", rec.level);
+    fmt::print("  Expected ratio: {:.3f}\n", rec.expectedRatio);
+    fmt::print("  Expected time : {:.1f} ms\n", rec.expectedTimeMs);
+    fmt::print("  Confidence    : {:.0f}%\n", rec.confidence * 100.0);
+    fmt::print("  Explanation   : {}\n", rec.explanation);
+
+    if (!rec.alternatives.empty()) {
+        fmt::print("Alternatives:\n");
+        for (const auto& alt : rec.alternatives) {
+            fmt::print(
+                "  - {} + {}:{} (ratio {:.3f}, {:.1f} ms, conf {:.0f}%)\n",
+                alt.preprocessor,
+                alt.algorithm,
+                alt.level,
+                alt.expectedRatio,
+                alt.expectedTimeMs,
+                alt.confidence * 100.0);
+        }
+    }
+}
+
+void addSuggestCommand(CLI::App& app) {
+    auto* suggest = app.add_subcommand("suggest", "Intelligent compression suggestion for a single file");
+
+    auto inputFile = std::make_shared<std::string>();
+    auto goal = std::make_shared<std::string>("min-size");
+    auto dbPath = std::make_shared<std::string>();
+    auto jsonOutput = std::make_shared<bool>(false);
+
+    suggest->add_option("file", *inputFile, "File to analyze")->required();
+    suggest
+        ->add_option("--goal", *goal, "Optimization goal: min-size, fastest, balanced, min-memory, best-decompression")
+        ->check(CLI::IsMember({"min-size", "fastest", "balanced", "min-memory", "best-decompression"}))
+        ->default_val("min-size");
+    suggest->add_option("--db", *dbPath, "Optional benchmark database path");
+    suggest->add_flag("--json", *jsonOutput, "Print compact JSON output");
+
+    suggest->callback([inputFile, goal, dbPath, jsonOutput]() {
+        std::filesystem::path path(*inputFile);
+        if (!std::filesystem::exists(path)) {
+            throw std::runtime_error("Input file does not exist: " + path.string());
+        }
+
+        mosqueeze::IntelligentSelector selector(parseGoal(*goal));
+        if (!dbPath->empty()) {
+            const bool opened = selector.loadBenchmarkDatabase(*dbPath);
+            if (!opened) {
+                throw std::runtime_error("Failed to open benchmark database: " + *dbPath);
+            }
+        }
+
+        auto recommendation = selector.analyzeWithAlternatives(
+            path,
+            {mosqueeze::OptimizationGoal::Fastest, mosqueeze::OptimizationGoal::Balanced});
+        printRecommendation(recommendation, *jsonOutput);
+    });
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -103,6 +198,7 @@ int main(int argc, char** argv) {
     app.add_flag("--list-preprocessors", listPreprocessors, "List available preprocessors");
 
     addAnalyzeCommand(app);
+    addSuggestCommand(app);
 
     CLI11_PARSE(app, argc, argv);
 
