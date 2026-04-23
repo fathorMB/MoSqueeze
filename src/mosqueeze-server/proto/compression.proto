@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package mosqueeze;
+
+service Compression {
+  rpc Compress(CompressRequest) returns (CompressResponse);
+  rpc Decompress(DecompressRequest) returns (DecompressResponse);
+  rpc StreamCompress(stream StreamCompressRequest) returns (stream StreamCompressResponse);
+  rpc StreamDecompress(stream StreamDecompressRequest) returns (stream StreamDecompressResponse);
+  rpc GetAlgorithms(GetAlgorithmsRequest) returns (GetAlgorithmsResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message CompressRequest {
+  bytes payload = 1;
+  string algorithm = 2;
+  int32 level = 3;
+  string preprocessor = 4;
+  map<string, string> options = 5;
+}
+
+message CompressResponse {
+  bool success = 1;
+  bytes payload = 2;
+  int64 input_size = 3;
+  int64 output_size = 4;
+  double ratio = 5;
+  string algorithm = 6;
+  int32 level = 7;
+  string preprocessor_used = 8;
+  string error_message = 9;
+}
+
+message DecompressRequest {
+  bytes payload = 1;
+  map<string, string> options = 2;
+}
+
+message DecompressResponse {
+  bool success = 1;
+  bytes payload = 2;
+  int64 input_size = 3;
+  int64 output_size = 4;
+  string preprocessor_used = 5;
+  string error_message = 6;
+}
+
+message FileMetadata {
+  string filename = 1;
+  string algorithm = 2;
+  int32 level = 3;
+  string preprocessor = 4;
+  int64 expected_size = 5;
+}
+
+message StreamCompressRequest {
+  oneof data {
+    FileMetadata metadata = 1;
+    bytes chunk = 2;
+  }
+}
+
+message Progress {
+  int64 bytes_processed = 1;
+  int64 total_bytes = 2;
+  double percentage = 3;
+}
+
+message StreamCompressResponse {
+  oneof data {
+    Progress progress = 1;
+    CompressResponse result = 2;
+  }
+}
+
+message StreamDecompressRequest {
+  oneof data {
+    string filename = 1;
+    bytes chunk = 2;
+  }
+}
+
+message StreamDecompressResponse {
+  oneof data {
+    Progress progress = 1;
+    DecompressResponse result = 2;
+  }
+}
+
+message GetAlgorithmsRequest {}
+
+message AlgorithmInfo {
+  string name = 1;
+  string display_name = 2;
+  int32 min_level = 3;
+  int32 max_level = 4;
+  int32 default_level = 5;
+  string description = 6;
+  repeated string supported_preprocessors = 7;
+}
+
+message GetAlgorithmsResponse {
+  repeated AlgorithmInfo algorithms = 1;
+}
+
+message HealthCheckRequest {
+  string service = 1;
+}
+
+message HealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+  }
+
+  ServingStatus status = 1;
+  string version = 2;
+  map<string, string> details = 3;
+}

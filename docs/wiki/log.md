@@ -117,3 +117,8 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 ### Feature Docs: Extended Benchmark Plan
 - Updated `guides/benchmark-tool.md` with extended matrix mode (`--extended`, `--preprocessors`), resume behavior, and round-trip verification
 - Documented new export fields for file features and verification outcomes in benchmark JSON/CSV output
+
+### Feature Docs: gRPC Service (Issue #34)
+- Added `guides/grpc-service.md` with build/run instructions, RPC surface summary, and environment variables
+- Updated `index.md` guide list to include `mosqueeze-server` documentation
+- Documented first-time Windows dependency build behavior after enabling `MOSQUEEZE_BUILD_SERVER` (`grpc`/`protobuf` via vcpkg)

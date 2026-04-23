@@ -12,6 +12,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(MOSQUEEZE_BUILD_TESTS "Build unit tests" ON)
+option(MOSQUEEZE_BUILD_SERVER "Build gRPC server" OFF)
+
+if(MOSQUEEZE_BUILD_TESTS)
+  enable_testing()
+endif()
 
 add_subdirectory(third_party/zpaq)
 add_subdirectory(src/libmosqueeze)
@@ -19,7 +24,9 @@ add_subdirectory(src/mosqueeze-cli)
 add_subdirectory(src/mosqueeze-bench)
 add_subdirectory(src/mosqueeze-viz)
 
+if(MOSQUEEZE_BUILD_SERVER)
+  add_subdirectory(src/mosqueeze-server)
+endif()
 if(MOSQUEEZE_BUILD_TESTS)
-  enable_testing()
   add_subdirectory(tests)
 endif()
