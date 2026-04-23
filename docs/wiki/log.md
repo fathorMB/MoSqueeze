@@ -117,3 +117,7 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 ### Feature Docs: Extended Benchmark Plan
 - Updated `guides/benchmark-tool.md` with extended matrix mode (`--extended`, `--preprocessors`), resume behavior, and round-trip verification
 - Documented new export fields for file features and verification outcomes in benchmark JSON/CSV output
+
+### Feature Docs: CLI Compress/Decompress (Issue #67)
+- Updated `guides/getting-started.md` CLI section with current `mosqueeze` command usage
+- Added examples for `mosqueeze compress` and `mosqueeze decompress` including JSON mode and preprocess selection

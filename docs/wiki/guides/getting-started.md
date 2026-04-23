@@ -160,37 +160,39 @@ From `vcpkg.json`:
 ### Basic Usage
 
 ```bash
-# Compress a file
-./mosqueeze-cli compress input.txt output.zst
+# Analyze recommendation
+./build/src/mosqueeze-cli/mosqueeze analyze ./data/sample.json
 
-# Compress with specific algorithm
-./mosqueeze-cli compress input.txt output.xz --algorithm lzma
+# Intelligent recommendation
+./build/src/mosqueeze-cli/mosqueeze suggest ./data/sample.json --goal min-size --json
 
-# Compress with level
-./mosqueeze-cli compress input.txt output.br --algorithm brotli --level 11
+# Compress with explicit algorithm/level/preprocessor
+./build/src/mosqueeze-cli/mosqueeze compress ./data/input.json -o ./data/input.msz -a zstd -l 3 --preprocess json-canonical
 
-# Decompress
-./mosqueeze-cli decompress output.zst restored.txt
-
-# Detect file type
-./mosqueeze-cli detect mystery.bin
+# Decompress (default output removes .msz suffix)
+./build/src/mosqueeze-cli/mosqueeze decompress ./data/input.msz
 ```
 
 ### Options
 
 ```
-Usage: mosqueeze-cli [OPTIONS] COMMAND [ARGS...]
+Usage: mosqueeze [OPTIONS] COMMAND [ARGS...]
 
 Commands:
-  compress     Compress a file
-  decompress   Decompress a file
-  detect       Detect file type
+  analyze       Analyze file and recommend algorithm
+  suggest       Intelligent compression suggestion
+  compress      Compress a file
+  decompress    Decompress a file
 
 Compress options:
-  --algorithm ALG    zstd (default), lzma, brotli
-  --level N          Compression level (algorithm-specific)
-  --extreme          Enable ultra mode (cold storage)
-  --verify           Verify after compression
+  -a, --algorithm    zstd|brotli|lzma|zpaq
+  -l, --level        Compression level (algorithm-specific)
+      --preprocess   none|json-canonical|xml-canonical|image-meta-strip|png-optimizer|bayer-raw
+      --json         Machine-readable result output
+
+Decompress options:
+  -o, --output       Output file (default: input without `.msz`)
+      --json         Machine-readable result output
 
 Global options:
   --version          Show version
