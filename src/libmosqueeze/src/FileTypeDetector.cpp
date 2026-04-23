@@ -155,7 +155,7 @@ FileClassification FileTypeDetector::detect(const std::filesystem::path& path) {
     return byText;
 }
 
-FileClassification FileTypeDetector::detectFromMagic(const std::vector<uint8_t>& buffer) {
+FileClassification FileTypeDetector::detectFromMagic(const std::vector<uint8_t>& buffer) const {
     if (buffer.size() >= 12 &&
         buffer[0] == 'R' && buffer[1] == 'I' && buffer[2] == 'F' && buffer[3] == 'F' &&
         buffer[8] == 'A' && buffer[9] == 'V' && buffer[10] == 'I') {
@@ -194,7 +194,7 @@ FileClassification FileTypeDetector::detectFromMagic(const std::vector<uint8_t>&
     return {};
 }
 
-FileClassification FileTypeDetector::detectFromExtension(const std::string& ext) {
+FileClassification FileTypeDetector::detectFromExtension(const std::string& ext) const {
     const std::string normalized = toLower(ext);
 
     static const std::unordered_map<std::string, FileClassification> extensionMap = {
@@ -282,7 +282,7 @@ FileClassification FileTypeDetector::detectFromExtension(const std::string& ext)
     return {};
 }
 
-FileClassification FileTypeDetector::detectTextContent(const std::vector<uint8_t>& buffer) {
+FileClassification FileTypeDetector::detectTextContent(const std::vector<uint8_t>& buffer) const {
     if (buffer.empty() || !isValidUtf8(buffer)) {
         return {};
     }

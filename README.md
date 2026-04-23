@@ -37,6 +37,12 @@ cmake --build build
 
 ```bash
 ./build/src/mosqueeze-cli/mosqueeze --version
+
+# Intelligent recommendation (best compression by default)
+./build/src/mosqueeze-cli/mosqueeze suggest ./data/sample.json
+
+# Recommendation with explicit goal and JSON output
+./build/src/mosqueeze-cli/mosqueeze suggest ./data/sample.png --goal fastest --json
 ```
 
 Expected output:
@@ -106,6 +112,7 @@ ctest -R "BayerPreprocessor_test|ImageMetaStripper_test|JsonCanonicalizer_test|X
 - [Benchmark Visualization Guide](docs/wiki/guides/benchmark-visualization.md) — `mosqueeze-viz` dashboards and comparisons
 - [Preprocessing Guide](docs/wiki/preprocessing.md) — Current preprocessors and trailing header format
 - [Getting Started Guide](docs/wiki/guides/getting-started.md) — Full setup instructions
+- [Intelligent Selector Guide](docs/wiki/guides/intelligent-selector.md) — `mosqueeze suggest` recommendations and confidence
 
 ## License
 

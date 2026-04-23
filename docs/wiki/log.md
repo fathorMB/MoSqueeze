@@ -108,3 +108,8 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `preprocessing.md` with `png-optimizer` behavior and availability
 - Updated `guides/benchmark-tool.md` preprocess mode list to include `png-optimizer`
 - Updated `guides/analyze-command.md` `--preprocess` values to include `png-optimizer`
+
+### Feature Docs: Intelligent Selector (Issue #55)
+- Added `guides/intelligent-selector.md` for `mosqueeze suggest` usage, goals, JSON output, and fallback behavior
+- Updated `guides/analyze-command.md` with intelligent suggestion mode overview
+- Updated wiki `index.md` guide list to include intelligent selector documentation
