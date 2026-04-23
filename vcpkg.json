@@ -13,6 +13,8 @@
     "nlohmann-json",
     "sqlite3",
     "pugixml",
-    "zlib"
+    "zlib",
+    "grpc",
+    "protobuf"
   ]
 }

@@ -118,6 +118,11 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Updated `guides/benchmark-tool.md` with extended matrix mode (`--extended`, `--preprocessors`), resume behavior, and round-trip verification
 - Documented new export fields for file features and verification outcomes in benchmark JSON/CSV output
 
+### Feature Docs: gRPC Service (Issue #34)
+- Added `guides/grpc-service.md` with build/run instructions, RPC surface summary, and environment variables
+- Updated `index.md` guide list to include `mosqueeze-server` documentation
+- Documented first-time Windows dependency build behavior after enabling `MOSQUEEZE_BUILD_SERVER` (`grpc`/`protobuf` via vcpkg)
+
 ### Feature Docs: CLI Compress/Decompress (Issue #67)
 - Updated `guides/getting-started.md` CLI section with current `mosqueeze` command usage
 - Added examples for `mosqueeze compress` and `mosqueeze decompress` including JSON mode and preprocess selection
