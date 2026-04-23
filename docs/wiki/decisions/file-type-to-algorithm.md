@@ -1,8 +1,8 @@
-﻿# FileType -> Algorithm Mapping
+# FileType -> Algorithm Mapping
 
 **Summary**: Mappatura tra tipi di file e algoritmo raccomandato per cold storage.
 
-**Last updated**: 2026-04-22
+**Last updated**: 2026-04-23
 
 ---
 
@@ -19,15 +19,22 @@
 
 ### Image / Media Files
 
-| FileType | Algoritmo | Livello | Motivazione |
-|----------|-----------|---------|-------------|
-| Image_PNG | zstd | 19 | Migliora spesso su zlib |
-| Image_JPEG | SKIP | - | Gia lossy compresso |
-| Image_WebP | SKIP | - | Gia compresso |
-| Image_Raw | lzma | 9 | Pixel data non compresso |
-| Video_* | SKIP | - | Codec gia compressi |
-| Audio_WAV | lzma | 9 | PCM non compresso |
-| Audio_MP3 / Audio_FLAC | SKIP | - | Gia compresso |
+| FileType | Preprocessing | Algoritmo | Livello | Ratio | Motivazione |
+|----------|---------------|-----------|---------|-------|-------------|
+| Image_PNG | oxipng | zstd | 22 | **1.120x** | Best cold storage (+2.5% vs baseline) |
+| Image_PNG | none | zstd | 19 | 1.091x | Fast compression (42ms) |
+| Image_JPEG | - | SKIP | - | - | Già lossy compresso |
+| Image_WebP | - | SKIP | - | - | Già compresso |
+| Image_Raw | bayer-raw | zpaq | 5 | ~1.000x | Max ratio per RAW (minimo gain) |
+| Video_* | - | SKIP | - | - | Codec già compressi |
+| Audio_WAV | - | lzma | 9 | - | PCM non compresso |
+| Audio_MP3 / Audio_FLAC | - | SKIP | - | - | Già compresso |
+
+**PNG Findings** (benchmark 2026-04-23, 1,445 files):
+- PNG è comprimibile (~9% con ZSTD/19, ~12% con oxipng + ZSTD/22)
+- Oxipng preprocessing aggiunge ~2.5% compressione (lossless)
+- ZSTD/19 = ZSTD/22 in ratio ma 4x più veloce
+- **Raccomandazione**: oxipng + ZSTD/22 per cold storage
 
 ### Binary Files
 
@@ -43,9 +50,9 @@ Fallback per `Binary_Database`: `lzma level 9`.
 
 | FileType | Algoritmo | Azione | Motivazione |
 |----------|-----------|--------|-------------|
-| Archive_ZIP | SKIP | Extract then recompress | Archive gia compresso |
+| Archive_ZIP | SKIP | Extract then recompress | Archive già compresso |
 | Archive_TAR | zstd | 22 | TAR non compresso |
-| Archive_7Z | SKIP | Extract then recompress | Gia compresso (tipicamente LZMA) |
+| Archive_7Z | SKIP | Extract then recompress | Già compresso (tipicamente LZMA) |
 
 ---
 
@@ -54,7 +61,20 @@ Fallback per `Binary_Database`: `lzma level 9`.
 1. Se `recommendation == skip` -> SKIP.
 2. Se `recommendation == extract-then-compress` -> non comprimere direttamente.
 3. Altrimenti usare regola per `FileType`.
-4. Se presente benchmark data, puo sovrascrivere la regola statica.
+4. Se presente benchmark data, può sovrascrivere la regola statica.
+
+---
+
+## Benchmark Data
+
+Risultati PNG (vedi [[../benchmarks/png-oxipng-results]]):
+
+| Config | Ratio | Encode Time | Use Case |
+|--------|-------|-------------|----------|
+| ZSTD/19 (baseline) | 1.091x | 42ms | Fast compression |
+| ZSTD/22 (baseline) | 1.091x | 180ms | Not recommended |
+| **Oxipng + ZSTD/22** | **1.120x** | 370ms | **Cold storage** |
+| BROTLI/1 (baseline) | 1.057x | ~0ms | Instant compression |
 
 ---
 
@@ -63,3 +83,5 @@ Fallback per `Binary_Database`: `lzma level 9`.
 - [[algorithm-selection-engine]]
 - [[../algorithms/comparison-matrix]]
 - [[../algorithms/zpaq]]
+- [[../benchmarks/png-oxipng-results]] – PNG benchmark results
+- [[../benchmarks/png-full-matrix-results]] – Full PNG level matrix
