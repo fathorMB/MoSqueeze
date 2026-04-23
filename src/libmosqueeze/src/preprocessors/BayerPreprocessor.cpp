@@ -1,4 +1,5 @@
 #include <mosqueeze/preprocessors/BayerPreprocessor.hpp>
+#include <mosqueeze/RawFormat.hpp>
 #include "RafParser.hpp"
 
 #include <iterator>
@@ -46,15 +47,52 @@ PreprocessResult BayerPreprocessor::preprocess(
     result.originalBytes = originalSize;
 
     const std::vector<uint8_t> fileData(raw.begin(), raw.end());
+    const auto detectedFormat = RawFormatDetector::detect(fileData);
+    if (detectedFormat.has_value()) {
+        if (detectedFormat->compression == RawCompression::LossyCompressed) {
+            throw std::runtime_error(
+                std::string("BayerPreprocessor rejected lossy RAW format: ") +
+                std::string(detectedFormat->manufacturer) + " " +
+                std::string(detectedFormat->extension));
+        }
+        if (detectedFormat->compression == RawCompression::LosslessCompressed && !forceProcess_) {
+            output.write(raw.data(), static_cast<std::streamsize>(raw.size()));
+            result.processedBytes = originalSize;
+            result.metadata = {0}; // version 0 = pass-through/no transform
+            return result;
+        }
+    }
+
     const RafMetadata rafMeta = RafParser::parse(fileData);
 
     if (!rafMeta.valid ||
         rafMeta.rawImageSize < 2 ||
         static_cast<uint64_t>(rafMeta.rawImageOffset) + static_cast<uint64_t>(rafMeta.rawImageSize) > originalSize ||
         originalSize > static_cast<size_t>(std::numeric_limits<uint32_t>::max())) {
-        output.write(raw.data(), static_cast<std::streamsize>(raw.size()));
-        result.processedBytes = originalSize;
-        result.metadata = {0}; // version 0 = pass-through/no transform
+        if (!forceProcess_) {
+            output.write(raw.data(), static_cast<std::streamsize>(raw.size()));
+            result.processedBytes = originalSize;
+            result.metadata = {0}; // version 0 = pass-through/no transform
+            return result;
+        }
+
+        // Fallback: full-payload reversible byte-plane transform.
+        const size_t words = originalSize / 2;
+        std::vector<uint8_t> transformed;
+        transformed.resize(originalSize);
+        for (size_t i = 0; i < words; ++i) {
+            transformed[i] = fileData[i * 2];
+            transformed[words + i] = fileData[(i * 2) + 1];
+        }
+        if ((originalSize % 2) != 0U) {
+            transformed[words * 2] = fileData[words * 2];
+        }
+
+        output.write(reinterpret_cast<const char*>(transformed.data()), static_cast<std::streamsize>(transformed.size()));
+        result.processedBytes = transformed.size();
+        result.metadata.reserve(5);
+        result.metadata.push_back(1); // version 1 = full payload transform
+        writeU32LE(result.metadata, static_cast<uint32_t>(originalSize));
         return result;
     }
 

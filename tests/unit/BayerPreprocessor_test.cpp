@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <exception>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -21,7 +22,7 @@ void writeLe32(std::vector<uint8_t>& data, size_t offset, uint32_t value) {
     data[offset + 3] = static_cast<uint8_t>((value >> 24U) & 0xFFU);
 }
 
-std::vector<uint8_t> makeSyntheticRaf(size_t& rawOffset, size_t& rawSize) {
+std::vector<uint8_t> makeSyntheticRaf(size_t& rawOffset, size_t& rawSize, uint8_t compressionMarker = 0) {
     constexpr size_t kSize = 0x240;
     constexpr size_t kTiffBase = 0x80;
     constexpr uint32_t kFirstIfd = 0x08;
@@ -34,6 +35,7 @@ std::vector<uint8_t> makeSyntheticRaf(size_t& rawOffset, size_t& rawSize) {
     for (size_t i = 0; i < 8; ++i) {
         data[i] = static_cast<uint8_t>(magic[i]);
     }
+    data[84] = compressionMarker;
 
     writeLe32(data, 0x34, static_cast<uint32_t>(kIfd));
     data[kTiffBase] = 0x49;
@@ -140,11 +142,97 @@ int main() {
     preprocessor.postprocess(transformedIn, restored, result);
     assert(restored.str() == original);
 
+    // Lossless-compressed RAF is skipped by default.
+    {
+        size_t losslessOffset = 0;
+        size_t losslessSize = 0;
+        const std::vector<uint8_t> losslessRaf = makeSyntheticRaf(losslessOffset, losslessSize, 1);
+        const std::string losslessText(reinterpret_cast<const char*>(losslessRaf.data()), losslessRaf.size());
+        std::istringstream losslessIn(losslessText);
+        std::ostringstream losslessOut;
+        const auto losslessResult = preprocessor.preprocess(losslessIn, losslessOut, mosqueeze::FileType::Image_Raw);
+        assert(losslessResult.metadata.size() == 1);
+        assert(losslessResult.metadata[0] == 0);
+        assert(losslessOut.str() == losslessText);
+    }
+
+    // Force mode allows processing lossless-compressed RAF.
+    {
+        mosqueeze::BayerPreprocessor forced(true);
+        size_t losslessOffset = 0;
+        size_t losslessSize = 0;
+        const std::vector<uint8_t> losslessRaf = makeSyntheticRaf(losslessOffset, losslessSize, 1);
+        const std::string losslessText(reinterpret_cast<const char*>(losslessRaf.data()), losslessRaf.size());
+        std::istringstream forcedIn(losslessText);
+        std::ostringstream forcedOut;
+        const auto forcedResult = forced.preprocess(forcedIn, forcedOut, mosqueeze::FileType::Image_Raw);
+        assert(forcedResult.metadata.size() == 13);
+        assert(forcedResult.metadata[0] == 2);
+    }
+
+    // Lossy-compressed RAF must be rejected.
+    {
+        bool threw = false;
+        try {
+            size_t lossyOffset = 0;
+            size_t lossySize = 0;
+            const std::vector<uint8_t> lossyRaf = makeSyntheticRaf(lossyOffset, lossySize, 2);
+            const std::string lossyText(reinterpret_cast<const char*>(lossyRaf.data()), lossyRaf.size());
+            std::istringstream lossyIn(lossyText);
+            std::ostringstream lossyOut;
+            (void)preprocessor.preprocess(lossyIn, lossyOut, mosqueeze::FileType::Image_Raw);
+        } catch (const std::exception&) {
+            threw = true;
+        }
+        assert(threw);
+    }
+
     const auto pattern = mosqueeze::BayerPreprocessor::detectPattern(nonRaf);
     assert(pattern == mosqueeze::BayerPattern::RGGB);
     const auto meta = mosqueeze::BayerPreprocessor::extractMetadata(nonRaf);
     assert(meta.has_value());
     assert(meta->pattern == mosqueeze::BayerPattern::RGGB);
+
+    // Empty metadata in postprocess should pass through unchanged.
+    {
+        mosqueeze::PreprocessResult emptyMeta{};
+        std::string passthrough = "abcdef";
+        std::istringstream passthroughIn(passthrough);
+        std::ostringstream passthroughOut;
+        preprocessor.postprocess(passthroughIn, passthroughOut, emptyMeta);
+        assert(passthroughOut.str() == passthrough);
+    }
+
+    // Metadata version 2 with invalid region should safely pass through.
+    {
+        mosqueeze::PreprocessResult invalidRegion{};
+        invalidRegion.type = mosqueeze::PreprocessorType::BayerPreprocessor;
+        invalidRegion.metadata = {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        std::string transformedData = transformedText;
+        std::istringstream invalidIn(transformedData);
+        std::ostringstream invalidOut;
+        preprocessor.postprocess(invalidIn, invalidOut, invalidRegion);
+        assert(invalidOut.str() == transformedData);
+    }
+
+    // Legacy metadata version 1 restore path should still work.
+    {
+        const std::string legacyOriginal = "abcdefgh";
+        std::string legacyProcessed(legacyOriginal.size(), '\0');
+        const size_t words = legacyOriginal.size() / 2;
+        for (size_t i = 0; i < words; ++i) {
+            legacyProcessed[i] = legacyOriginal[i * 2];
+            legacyProcessed[words + i] = legacyOriginal[(i * 2) + 1];
+        }
+
+        mosqueeze::PreprocessResult legacyMeta{};
+        legacyMeta.type = mosqueeze::PreprocessorType::BayerPreprocessor;
+        legacyMeta.metadata = {1, 8, 0, 0, 0};
+        std::istringstream legacyIn(legacyProcessed);
+        std::ostringstream legacyOut;
+        preprocessor.postprocess(legacyIn, legacyOut, legacyMeta);
+        assert(legacyOut.str() == legacyOriginal);
+    }
 
     std::cout << "[PASS] BayerPreprocessor_test\n";
     return 0;

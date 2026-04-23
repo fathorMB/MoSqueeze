@@ -117,6 +117,53 @@ add_custom_command(TARGET FileTypeDetector_test POST_BUILD
 
 add_test(NAME FileTypeDetector_test COMMAND FileTypeDetector_test)
 
+add_executable(FileAnalyzer_test
+  unit/FileAnalyzer_test.cpp
+)
+target_link_libraries(FileAnalyzer_test PRIVATE libmosqueeze)
+add_custom_command(TARGET FileAnalyzer_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:FileAnalyzer_test>
+)
+add_test(NAME FileAnalyzer_test COMMAND FileAnalyzer_test)
+
+add_executable(BenchmarkDatabase_test
+  unit/BenchmarkDatabase_test.cpp
+)
+target_link_libraries(BenchmarkDatabase_test PRIVATE libmosqueeze)
+add_custom_command(TARGET BenchmarkDatabase_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:BenchmarkDatabase_test>
+)
+add_test(NAME BenchmarkDatabase_test COMMAND BenchmarkDatabase_test)
+
+add_executable(IntelligentSelector_test
+  unit/IntelligentSelector_test.cpp
+)
+target_link_libraries(IntelligentSelector_test PRIVATE libmosqueeze)
+add_custom_command(TARGET IntelligentSelector_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:IntelligentSelector_test>
+)
+add_test(NAME IntelligentSelector_test COMMAND IntelligentSelector_test)
+
+add_executable(RawFormat_test
+  unit/RawFormat_test.cpp
+)
+target_link_libraries(RawFormat_test
+  PRIVATE
+    libmosqueeze
+)
+add_custom_command(TARGET RawFormat_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:RawFormat_test>
+)
+add_test(NAME RawFormat_test COMMAND RawFormat_test)
+
 add_executable(AlgorithmSelector_test
   unit/AlgorithmSelector_test.cpp
 )
@@ -133,6 +180,20 @@ add_custom_command(TARGET AlgorithmSelector_test POST_BUILD
 )
 
 add_test(NAME AlgorithmSelector_test COMMAND AlgorithmSelector_test)
+
+add_executable(PreprocessorSelector_test
+  unit/PreprocessorSelector_test.cpp
+)
+target_link_libraries(PreprocessorSelector_test
+  PRIVATE
+    libmosqueeze
+)
+add_custom_command(TARGET PreprocessorSelector_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:PreprocessorSelector_test>
+)
+add_test(NAME PreprocessorSelector_test COMMAND PreprocessorSelector_test)
 
 add_executable(BenchmarkConfig_test
   unit/BenchmarkConfig_test.cpp
@@ -239,6 +300,17 @@ add_custom_command(TARGET ImageMetaStripper_test POST_BUILD
           $<TARGET_FILE_DIR:ImageMetaStripper_test>
 )
 add_test(NAME ImageMetaStripper_test COMMAND ImageMetaStripper_test)
+
+add_executable(PngOptimizer_test
+  unit/PngOptimizer_test.cpp
+)
+target_link_libraries(PngOptimizer_test PRIVATE libmosqueeze)
+add_custom_command(TARGET PngOptimizer_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:PngOptimizer_test>
+)
+add_test(NAME PngOptimizer_test COMMAND PngOptimizer_test)
 
 add_executable(BayerPreprocessor_test
   unit/BayerPreprocessor_test.cpp

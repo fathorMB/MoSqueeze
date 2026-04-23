@@ -12,6 +12,7 @@
     "spdlog",
     "nlohmann-json",
     "sqlite3",
-    "pugixml"
+    "pugixml",
+    "zlib"
   ]
 }

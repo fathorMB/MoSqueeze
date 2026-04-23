@@ -30,6 +30,9 @@ struct RawMetadata {
 
 class BayerPreprocessor : public IPreprocessor {
 public:
+    explicit BayerPreprocessor(bool forceProcess = false)
+        : forceProcess_(forceProcess) {}
+
     PreprocessorType type() const override { return PreprocessorType::BayerPreprocessor; }
     std::string name() const override { return "bayer-raw"; }
     bool canProcess(FileType fileType) const override { return fileType == FileType::Image_Raw; }
@@ -50,6 +53,12 @@ public:
 
     static BayerPattern detectPattern(const std::vector<uint8_t>& data);
     static std::optional<RawMetadata> extractMetadata(const std::vector<uint8_t>& data);
+
+    void setForceProcess(bool forceProcess) { forceProcess_ = forceProcess; }
+    bool forceProcess() const { return forceProcess_; }
+
+private:
+    bool forceProcess_ = false;
 };
 
 } // namespace mosqueeze

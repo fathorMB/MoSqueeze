@@ -6,6 +6,7 @@
 #include <mosqueeze/preprocessors/BayerPreprocessor.hpp>
 #include <mosqueeze/preprocessors/ImageMetaStripper.hpp>
 #include <mosqueeze/preprocessors/JsonCanonicalizer.hpp>
+#include <mosqueeze/preprocessors/PngOptimizer.hpp>
 #include <mosqueeze/preprocessors/XmlCanonicalizer.hpp>
 
 #include <algorithm>
@@ -82,9 +83,9 @@ std::unordered_map<std::string, std::vector<int>> buildLevelMap(
     return levelsByAlgorithm;
 }
 
-std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name) {
+std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name, const BenchmarkConfig& config) {
     if (name == "bayer-raw") {
-        return std::make_unique<BayerPreprocessor>();
+        return std::make_unique<BayerPreprocessor>(config.forceBayer);
     }
     if (name == "image-meta-strip") {
         return std::make_unique<ImageMetaStripper>();
@@ -94,6 +95,14 @@ std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name) {
     }
     if (name == "xml-canonical") {
         return std::make_unique<XmlCanonicalizer>();
+    }
+    if (name == "png-optimizer") {
+        auto optimizer = std::make_unique<PngOptimizer>(
+            config.pngEngine == "oxipng" ? PngEngine::Oxipng : PngEngine::LibPng);
+        optimizer->setCompressionLevel(config.pngLevel);
+        optimizer->setStripMetadata(config.pngStripMetadata);
+        optimizer->setFilterSelection(config.pngAllFilters);
+        return optimizer;
     }
     return nullptr;
 }
@@ -157,13 +166,23 @@ BenchmarkResult BenchmarkRunner::runIteration(
         preprocessMetrics.originalBytes = rawContent.size();
         preprocessMetrics.processedBytes = rawContent.size();
 
-        std::unique_ptr<IPreprocessor> selectedByName = createPreprocessor(config.preprocessMode);
+        std::unique_ptr<IPreprocessor> selectedByName;
+        std::unique_ptr<IPreprocessor> selectedAutoOwned;
         std::unique_ptr<PreprocessorSelector> selector;
         IPreprocessor* preprocessor = nullptr;
         if (config.autoPreprocess()) {
             selector = std::make_unique<PreprocessorSelector>();
             preprocessor = selector->selectBest(fileType);
+            if (preprocessor != nullptr && preprocessor->name() == "bayer-raw") {
+                selectedAutoOwned = createPreprocessor("bayer-raw", config);
+            } else if (preprocessor != nullptr && preprocessor->name() == "png-optimizer") {
+                selectedAutoOwned = createPreprocessor("png-optimizer", config);
+            }
+            if (selectedAutoOwned) {
+                preprocessor = selectedAutoOwned.get();
+            }
         } else {
+            selectedByName = createPreprocessor(config.preprocessMode, config);
             preprocessor = selectedByName.get();
         }
 

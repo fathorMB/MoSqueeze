@@ -9,6 +9,16 @@ Use `mosqueeze analyze` to inspect a file and get a recommended algorithm/level 
 mosqueeze analyze <file> [-v|--verbose] [-b|--benchmark] [--preprocess <mode>]
 ```
 
+## Intelligent Suggestion Mode
+
+For recommendation-oriented workflow, use:
+
+```bash
+mosqueeze suggest <file> [--goal min-size|fastest|balanced|min-memory|best-decompression] [--db <sqlite-file>] [--json]
+```
+
+This mode uses the new intelligent selector pipeline (`FileAnalyzer` + optional `BenchmarkDatabase` + heuristic fallback) and returns preprocessor + algorithm + level with confidence.
+
 ## Current Behavior
 
 - Detects file class and MIME via `FileTypeDetector`
@@ -19,7 +29,7 @@ mosqueeze analyze <file> [-v|--verbose] [-b|--benchmark] [--preprocess <mode>]
   - compressed yes/no
   - recommended action
 - Accepts `--preprocess` hint values:
-  - `auto`, `none`, `json-canonical`, `xml-canonical`, `image-meta-strip`, `bayer-raw`, `zstd-dict`
+  - `auto`, `none`, `json-canonical`, `xml-canonical`, `image-meta-strip`, `png-optimizer`, `bayer-raw`, `zstd-dict`
 
 If file should be skipped, output includes explicit reason (for example already-compressed media).
 

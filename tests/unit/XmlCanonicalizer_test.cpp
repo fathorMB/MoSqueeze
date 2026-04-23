@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <stdexcept>
 #include <sstream>
 #include <string>
 
@@ -20,6 +21,37 @@ int main() {
     assert(!preprocessed.str().empty());
     assert(preprocessed.str().find("<root>") != std::string::npos);
     assert(preprocessed.str().find("</root>") != std::string::npos);
+    assert(result.type == mosqueeze::PreprocessorType::XmlCanonicalizer);
+    assert(result.metadata.size() == input.size());
+
+    // postprocess fallback path when metadata is absent.
+    mosqueeze::PreprocessResult emptyMeta{};
+    std::istringstream passthroughIn("<x/>");
+    std::ostringstream passthroughOut;
+    canon.postprocess(passthroughIn, passthroughOut, emptyMeta);
+    assert(passthroughOut.str() == "<x/>");
+
+    // malformed XML must throw.
+    bool malformedThrown = false;
+    try {
+        std::istringstream malformed("<root>");
+        std::ostringstream ignored;
+        (void)canon.preprocess(malformed, ignored, mosqueeze::FileType::Text_Structured);
+    } catch (const std::exception&) {
+        malformedThrown = true;
+    }
+    assert(malformedThrown);
+
+    // wrong file type must throw.
+    bool wrongTypeThrown = false;
+    try {
+        std::istringstream wrongType(input);
+        std::ostringstream ignored;
+        (void)canon.preprocess(wrongType, ignored, mosqueeze::FileType::Image_JPEG);
+    } catch (const std::exception&) {
+        wrongTypeThrown = true;
+    }
+    assert(wrongTypeThrown);
 
     std::cout << "[PASS] XmlCanonicalizer_test\n";
     return 0;
