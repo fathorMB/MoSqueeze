@@ -2,7 +2,7 @@
 
 **Summary**: Practical guide for the enhanced benchmark CLI implemented in Issue #23.
 
-**Last updated**: 2026-04-22
+**Last updated**: 2026-04-23
 
 ---
 
@@ -78,6 +78,11 @@ Benchmark:
       --decode
       --no-decode
       --preprocess MODE   (none|auto|bayer-raw|image-meta-strip|png-optimizer|json-canonical|xml-canonical)
+      --png-engine NAME   (libpng|oxipng)
+      --png-level N       (libpng: 1-9, oxipng: 0-6)
+      --strip-metadata
+      --no-strip-metadata
+      --fast-filters
 
 Output:
   -o, --output DIR
@@ -136,6 +141,9 @@ Misc:
 
 # Baseline run without preprocessing for A/B comparison
 ./mosqueeze-bench --directory ./raw --preprocess none --output ./benchmarks/results/no-pre
+
+# PNG optimizer with oxipng (falls back to libpng if oxipng is unavailable)
+./mosqueeze-bench --directory ./images --preprocess png-optimizer --png-engine oxipng --png-level 3
 ```
 
 ---

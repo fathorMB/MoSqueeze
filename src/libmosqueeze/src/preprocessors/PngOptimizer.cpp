@@ -2,10 +2,18 @@
 
 #include <zlib.h>
 
+#include <algorithm>
 #include <array>
+#include <chrono>
+#include <cstdlib>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <functional>
 #include <set>
 #include <stdexcept>
+#include <string>
+#include <thread>
 
 namespace mosqueeze {
 namespace {
@@ -16,7 +24,37 @@ const std::set<std::string> kMetadataChunks = {
     "tEXt", "zTXt", "iTXt", "eXIf", "iCCP", "sRGB", "tIME", "pHYs", "bKGD", "hIST", "sPLT", "gAMA", "cHRM"
 };
 
+int runShellCommand(const std::string& command) {
+    return std::system(command.c_str());
+}
+
 } // namespace
+
+PngOptimizer::PngOptimizer(PngEngine engine)
+    : configuredEngine_(engine),
+      effectiveEngine_(engine == PngEngine::Oxipng && !isOxipngAvailable() ? PngEngine::LibPng : engine),
+      usedFallback_(engine == PngEngine::Oxipng && !isOxipngAvailable()),
+      compressionLevel_(engine == PngEngine::Oxipng ? 3 : 9) {}
+
+void PngOptimizer::setEngine(PngEngine engine) {
+    configuredEngine_ = engine;
+    usedFallback_ = false;
+    if (engine == PngEngine::Oxipng && !isOxipngAvailable()) {
+        effectiveEngine_ = PngEngine::LibPng;
+        usedFallback_ = true;
+    } else {
+        effectiveEngine_ = engine;
+    }
+    setCompressionLevel(compressionLevel_);
+}
+
+void PngOptimizer::setCompressionLevel(int level) {
+    if (configuredEngine_ == PngEngine::Oxipng) {
+        compressionLevel_ = std::clamp(level, 0, 6);
+        return;
+    }
+    compressionLevel_ = std::clamp(level, 1, 9);
+}
 
 PreprocessResult PngOptimizer::preprocess(
     std::istream& input,
@@ -31,6 +69,61 @@ PreprocessResult PngOptimizer::preprocess(
         throw std::runtime_error("Invalid PNG signature");
     }
 
+    std::vector<uint8_t> optimized;
+    usedFallback_ = false;
+    effectiveEngine_ = configuredEngine_;
+    if (configuredEngine_ == PngEngine::Oxipng) {
+        if (!isOxipngAvailable()) {
+            effectiveEngine_ = PngEngine::LibPng;
+            usedFallback_ = true;
+        } else {
+            try {
+                optimized = preprocessWithOxipng(raw);
+            } catch (...) {
+                effectiveEngine_ = PngEngine::LibPng;
+                usedFallback_ = true;
+            }
+        }
+    }
+
+    if (effectiveEngine_ == PngEngine::LibPng) {
+        optimized = preprocessWithLibPng(raw);
+    }
+
+    output.write(reinterpret_cast<const char*>(optimized.data()), static_cast<std::streamsize>(optimized.size()));
+
+    PreprocessResult result{};
+    result.type = PreprocessorType::PngOptimizer;
+    result.originalBytes = raw.size();
+    result.processedBytes = optimized.size();
+    result.metadata = {
+        static_cast<uint8_t>(configuredEngine_),
+        static_cast<uint8_t>(effectiveEngine_),
+        static_cast<uint8_t>(usedFallback_ ? 1 : 0),
+        static_cast<uint8_t>(compressionLevel_),
+        static_cast<uint8_t>(stripMetadata_ ? 1 : 0),
+        static_cast<uint8_t>(allFilters_ ? 1 : 0)
+    };
+    return result;
+}
+
+void PngOptimizer::postprocess(
+    std::istream& input,
+    std::ostream& output,
+    const PreprocessResult& result) {
+    (void)result;
+    output << input.rdbuf();
+}
+
+bool PngOptimizer::isOxipngAvailable() {
+#ifdef _WIN32
+    return runShellCommand("oxipng --version >nul 2>&1") == 0;
+#else
+    return runShellCommand("oxipng --version >/dev/null 2>&1") == 0;
+#endif
+}
+
+std::vector<uint8_t> PngOptimizer::preprocessWithLibPng(const std::vector<uint8_t>& raw) const {
     std::vector<Chunk> chunks;
     if (!parseChunks(raw, chunks)) {
         throw std::runtime_error("Invalid PNG chunk layout");
@@ -56,7 +149,7 @@ PreprocessResult PngOptimizer::preprocess(
             hasIend = true;
             continue;
         }
-        if (isMetadataChunk(chunk.type)) {
+        if (stripMetadata_ && isMetadataChunk(chunk.type)) {
             continue;
         }
         optimized.push_back(chunk);
@@ -67,7 +160,7 @@ PreprocessResult PngOptimizer::preprocess(
     }
 
     const std::vector<uint8_t> inflated = inflateZlib(idatCombined);
-    const std::vector<uint8_t> recompressed = deflateZlib(inflated, Z_BEST_COMPRESSION);
+    const std::vector<uint8_t> recompressed = deflateZlib(inflated, compressionLevel_);
 
     Chunk idat{};
     idat.type = "IDAT";
@@ -84,22 +177,55 @@ PreprocessResult PngOptimizer::preprocess(
     for (const Chunk& chunk : optimized) {
         appendChunk(rebuilt, chunk);
     }
-
-    output.write(reinterpret_cast<const char*>(rebuilt.data()), static_cast<std::streamsize>(rebuilt.size()));
-
-    PreprocessResult result{};
-    result.type = PreprocessorType::PngOptimizer;
-    result.originalBytes = raw.size();
-    result.processedBytes = rebuilt.size();
-    return result;
+    return rebuilt;
 }
 
-void PngOptimizer::postprocess(
-    std::istream& input,
-    std::ostream& output,
-    const PreprocessResult& result) {
-    (void)result;
-    output << input.rdbuf();
+std::vector<uint8_t> PngOptimizer::preprocessWithOxipng(const std::vector<uint8_t>& raw) const {
+    const auto tempBase = std::filesystem::temp_directory_path() / (
+        "mosqueeze_oxipng_" + std::to_string(
+            std::chrono::high_resolution_clock::now().time_since_epoch().count()) + "_" +
+        std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())));
+    const auto inputPath = tempBase.string() + ".png";
+
+    {
+        std::ofstream out(inputPath, std::ios::binary);
+        out.write(reinterpret_cast<const char*>(raw.data()), static_cast<std::streamsize>(raw.size()));
+        if (!out) {
+            throw std::runtime_error("Failed to write temporary PNG for oxipng");
+        }
+    }
+
+    std::string command = "oxipng --quiet --force --opt ";
+    command += std::to_string(std::clamp(compressionLevel_, 0, 6));
+    if (stripMetadata_) {
+        command += " --strip safe";
+    }
+    if (!allFilters_) {
+        command += " --fast";
+    }
+    command += " ";
+    command += quoteForShell(inputPath);
+
+    const int exitCode = runShellCommand(command);
+    std::vector<uint8_t> optimized;
+
+    if (exitCode == 0) {
+        std::ifstream in(inputPath, std::ios::binary);
+        optimized.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+        if (!in || optimized.empty() || !isPng(optimized)) {
+            std::error_code ec;
+            std::filesystem::remove(inputPath, ec);
+            throw std::runtime_error("oxipng produced invalid output");
+        }
+    } else {
+        std::error_code ec;
+        std::filesystem::remove(inputPath, ec);
+        throw std::runtime_error("oxipng command failed");
+    }
+
+    std::error_code ec;
+    std::filesystem::remove(inputPath, ec);
+    return optimized;
 }
 
 bool PngOptimizer::isPng(const std::vector<uint8_t>& bytes) {
@@ -133,7 +259,6 @@ bool PngOptimizer::parseChunks(const std::vector<uint8_t>& bytes, std::vector<Ch
         chunk.data.assign(bytes.begin() + static_cast<std::ptrdiff_t>(offset),
                           bytes.begin() + static_cast<std::ptrdiff_t>(offset + length));
         offset += length;
-        // Skip CRC (validated only for structural bounds).
         offset += 4;
         chunks.push_back(std::move(chunk));
         if (!chunks.empty() && chunks.back().type == "IEND") {
@@ -230,6 +355,32 @@ std::vector<uint8_t> PngOptimizer::deflateZlib(const std::vector<uint8_t>& in, i
 
     deflateEnd(&stream);
     return out;
+}
+
+std::string PngOptimizer::quoteForShell(const std::string& path) {
+#ifdef _WIN32
+    std::string quoted = "\"";
+    for (char c : path) {
+        if (c == '"') {
+            quoted += "\\\"";
+        } else {
+            quoted += c;
+        }
+    }
+    quoted += "\"";
+    return quoted;
+#else
+    std::string quoted = "'";
+    for (char c : path) {
+        if (c == '\'') {
+            quoted += "'\"'\"'";
+        } else {
+            quoted += c;
+        }
+    }
+    quoted += "'";
+    return quoted;
+#endif
 }
 
 } // namespace mosqueeze

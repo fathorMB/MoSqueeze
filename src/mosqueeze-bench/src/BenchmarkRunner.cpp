@@ -83,7 +83,7 @@ std::unordered_map<std::string, std::vector<int>> buildLevelMap(
     return levelsByAlgorithm;
 }
 
-std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name) {
+std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name, const BenchmarkConfig& config) {
     if (name == "bayer-raw") {
         return std::make_unique<BayerPreprocessor>();
     }
@@ -97,7 +97,12 @@ std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name) {
         return std::make_unique<XmlCanonicalizer>();
     }
     if (name == "png-optimizer") {
-        return std::make_unique<PngOptimizer>();
+        auto optimizer = std::make_unique<PngOptimizer>(
+            config.pngEngine == "oxipng" ? PngEngine::Oxipng : PngEngine::LibPng);
+        optimizer->setCompressionLevel(config.pngLevel);
+        optimizer->setStripMetadata(config.pngStripMetadata);
+        optimizer->setFilterSelection(config.pngAllFilters);
+        return optimizer;
     }
     return nullptr;
 }
@@ -161,13 +166,19 @@ BenchmarkResult BenchmarkRunner::runIteration(
         preprocessMetrics.originalBytes = rawContent.size();
         preprocessMetrics.processedBytes = rawContent.size();
 
-        std::unique_ptr<IPreprocessor> selectedByName = createPreprocessor(config.preprocessMode);
+        std::unique_ptr<IPreprocessor> selectedByName;
+        std::unique_ptr<IPreprocessor> selectedAutoOwned;
         std::unique_ptr<PreprocessorSelector> selector;
         IPreprocessor* preprocessor = nullptr;
         if (config.autoPreprocess()) {
             selector = std::make_unique<PreprocessorSelector>();
             preprocessor = selector->selectBest(fileType);
+            if (preprocessor != nullptr && preprocessor->name() == "png-optimizer") {
+                selectedAutoOwned = createPreprocessor("png-optimizer", config);
+                preprocessor = selectedAutoOwned.get();
+            }
         } else {
+            selectedByName = createPreprocessor(config.preprocessMode, config);
             preprocessor = selectedByName.get();
         }
 

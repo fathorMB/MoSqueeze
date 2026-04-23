@@ -9,6 +9,7 @@
 
 int main() {
     using mosqueeze::FileType;
+    using mosqueeze::PngEngine;
     using mosqueeze::PngOptimizer;
     using mosqueeze::PreprocessorType;
     using mosqueeze::PreprocessorSelector;
@@ -32,8 +33,7 @@ int main() {
         0xAE, 0x42, 0x60, 0x82
     };
 
-    std::string raw(minimalPng.begin(), minimalPng.end());
-    std::istringstream input(raw);
+    std::istringstream input(std::string(minimalPng.begin(), minimalPng.end()));
     std::ostringstream output;
     const auto result = optimizer.preprocess(input, output, FileType::Image_PNG);
     const std::string optimized = output.str();
@@ -41,6 +41,7 @@ int main() {
     assert(result.type == PreprocessorType::PngOptimizer);
     assert(result.originalBytes == minimalPng.size());
     assert(result.processedBytes == optimized.size());
+    assert(result.metadata.size() >= 2);
     assert(optimized.size() > 8);
     assert(static_cast<uint8_t>(optimized[0]) == 0x89);
     assert(optimized[1] == 'P');
@@ -51,6 +52,18 @@ int main() {
     std::ostringstream postOut;
     optimizer.postprocess(postIn, postOut, result);
     assert(postOut.str() == optimized);
+
+    PngOptimizer oxipngOptimizer(PngEngine::Oxipng);
+    oxipngOptimizer.setCompressionLevel(3);
+    std::istringstream input2(std::string(minimalPng.begin(), minimalPng.end()));
+    std::ostringstream output2;
+    const auto result2 = oxipngOptimizer.preprocess(input2, output2, FileType::Image_PNG);
+    assert(result2.type == PreprocessorType::PngOptimizer);
+    assert(output2.str().size() > 8);
+    if (!PngOptimizer::isOxipngAvailable()) {
+        assert(oxipngOptimizer.usedFallback());
+        assert(oxipngOptimizer.effectiveEngine() == PngEngine::LibPng);
+    }
 
     PreprocessorSelector selector;
     auto* bestForPng = selector.selectBest(FileType::Image_PNG);

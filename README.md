@@ -24,6 +24,7 @@ Dependencies are declared in `vcpkg.json`:
 - nlohmann-json
 - sqlite3
 - pugixml
+- zlib
 
 ## Build
 
@@ -58,6 +59,9 @@ mosqueeze v0.1.0
 
 # Run benchmark with automatic preprocessing selection
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --preprocess auto --default-only --verbose
+
+# PNG optimization with explicit engine selection
+./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --preprocess png-optimizer --png-engine oxipng --png-level 3
 
 # Export HTML report
 ./build/src/mosqueeze-bench/mosqueeze-bench --directory ./benchmarks/corpus --export ./benchmarks/results/report.html --format html
