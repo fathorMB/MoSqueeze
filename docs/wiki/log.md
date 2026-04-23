@@ -113,3 +113,7 @@ Initial wiki population for Issue #16 â€” focus on algorithmic decision-mak
 - Added `guides/intelligent-selector.md` for `mosqueeze suggest` usage, goals, JSON output, and fallback behavior
 - Updated `guides/analyze-command.md` with intelligent suggestion mode overview
 - Updated wiki `index.md` guide list to include intelligent selector documentation
+
+### Feature Docs: Extended Benchmark Plan
+- Updated `guides/benchmark-tool.md` with extended matrix mode (`--extended`, `--preprocessors`), resume behavior, and round-trip verification
+- Documented new export fields for file features and verification outcomes in benchmark JSON/CSV output

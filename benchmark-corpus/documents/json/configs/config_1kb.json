@@ -1,0 +1,221 @@
+{
+  "version": "1.0.0",
+  "app_name": "MyApplication",
+  "environment": "staging",
+  "settings": {
+    "setting_0": {
+      "value": "value_0_4839",
+      "type": "number",
+      "description": "Description for setting 0. Description for setting 0. Description for setting 0. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6"
+      ]
+    },
+    "setting_1": {
+      "value": "value_1_4740",
+      "type": "string",
+      "description": "Description for setting 1. Description for setting 1. Description for setting 1. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_2": {
+      "value": "value_2_6591",
+      "type": "object",
+      "description": "Description for setting 2. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2"
+      ]
+    },
+    "setting_3": {
+      "value": "value_3_9209",
+      "type": "object",
+      "description": "Description for setting 3. Description for setting 3. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_4": {
+      "value": "value_4_4819",
+      "type": "object",
+      "description": "Description for setting 4. Description for setting 4. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_5": {
+      "value": "value_5_8837",
+      "type": "object",
+      "description": "Description for setting 5. Description for setting 5. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_6": {
+      "value": "value_6_5054",
+      "type": "string",
+      "description": "Description for setting 6. Description for setting 6. ",
+      "default": "default_value",
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5"
+      ]
+    },
+    "setting_7": {
+      "value": "value_7_8272",
+      "type": "number",
+      "description": "Description for setting 7. Description for setting 7. Description for setting 7. ",
+      "default": true,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3"
+      ]
+    },
+    "setting_8": {
+      "value": "value_8_7162",
+      "type": "number",
+      "description": "Description for setting 8. Description for setting 8. ",
+      "default": null,
+      "options": [
+        "option_0",
+        "option_1",
+        "option_2",
+        "option_3",
+        "option_4",
+        "option_5",
+        "option_6",
+        "option_7",
+        "option_8",
+        "option_9"
+      ]
+    },
+    "setting_9": {
+      "value": "value_9_6466",
+      "type": "object",
+      "description": "Description for setting 9. ",
+      "default": false,
+      "options": [
+        "option_0",
+        "option_1"
+      ]
+    }
+  },
+  "features": {
+    "feature_0": {
+      "enabled": true,
+      "percentage": 72,
+      "config": {
+        "param_a": 94,
+        "param_b": "c",
+        "param_c": [
+          405,
+          680,
+          931,
+          301,
+          494,
+          949,
+          312,
+          136
+        ]
+      }
+    },
+    "feature_1": {
+      "enabled": false,
+      "percentage": 45,
+      "config": {
+        "param_a": 83,
+        "param_b": "c",
+        "param_c": [
+          79,
+          227,
+          285,
+          532
+        ]
+      }
+    }
+  },
+  "endpoints": [
+    {
+      "path": "/api/v1/resource_0",
+      "method": "GET",
+      "auth": true,
+      "rate_limit": 102,
+      "cache_ttl": 1135,
+      "middlewares": [
+        "ratelimit"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_1",
+      "method": "DELETE",
+      "auth": false,
+      "rate_limit": 500,
+      "cache_ttl": 185,
+      "middlewares": [
+        "auth",
+        "cors"
+      ]
+    },
+    {
+      "path": "/api/v1/resource_2",
+      "method": "PUT",
+      "auth": false,
+      "rate_limit": 320,
+      "cache_ttl": 2687,
+      "middlewares": [
+        "auth",
+        "logging",
+        "cors",
+        "metrics",
+        "ratelimit"
+      ]
+    }
+  ],
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "name": "mydb",
+    "ssl": true,
+    "pool_size": 20
+  }
+}

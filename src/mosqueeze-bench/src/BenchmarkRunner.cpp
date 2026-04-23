@@ -2,6 +2,7 @@
 #include <mosqueeze/bench/ThreadPool.hpp>
 
 #include <mosqueeze/FileTypeDetector.hpp>
+#include <mosqueeze/FileAnalyzer.hpp>
 #include <mosqueeze/PreprocessorSelector.hpp>
 #include <mosqueeze/preprocessors/BayerPreprocessor.hpp>
 #include <mosqueeze/preprocessors/ImageMetaStripper.hpp>
@@ -11,11 +12,15 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cctype>
 #include <chrono>
 #include <cmath>
 #include <fstream>
 #include <future>
+#include <iomanip>
 #include <mutex>
+#include <optional>
+#include <span>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
@@ -105,6 +110,123 @@ std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& name, const
         return optimizer;
     }
     return nullptr;
+}
+
+std::string toLower(std::string value) {
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
+        return static_cast<char>(std::tolower(c));
+    });
+    return value;
+}
+
+std::string normalizePreprocessName(const std::string& mode) {
+    const std::string lowered = toLower(mode);
+    if (lowered == "json-canon" || lowered == "json-canonical") {
+        return "json-canonical";
+    }
+    if (lowered == "xml-canon" || lowered == "xml-canonical") {
+        return "xml-canonical";
+    }
+    if (lowered == "image-meta-stripper" || lowered == "image-meta-strip") {
+        return "image-meta-strip";
+    }
+    if (lowered == "bayer-raw") {
+        return "bayer-raw";
+    }
+    if (lowered == "png-optimizer") {
+        return "png-optimizer";
+    }
+    if (lowered == "none") {
+        return "none";
+    }
+    return lowered;
+}
+
+bool isJsonLike(const FileClassification& classification, const std::filesystem::path& file) {
+    const std::string ext = toLower(file.extension().string());
+    return ext == ".json" || classification.mimeType == "application/json";
+}
+
+bool isXmlLike(const FileClassification& classification, const std::filesystem::path& file) {
+    const std::string ext = toLower(file.extension().string());
+    return ext == ".xml" || ext == ".html" || ext == ".htm" || ext == ".svg" ||
+        classification.mimeType == "application/xml" || classification.mimeType == "text/xml" ||
+        classification.mimeType == "text/html" || classification.mimeType == "image/svg+xml";
+}
+
+bool isImageMetaLike(const FileClassification& classification) {
+    return classification.type == FileType::Image_Raw || classification.type == FileType::Image_PNG ||
+        classification.type == FileType::Image_JPEG || classification.type == FileType::Image_WebP;
+}
+
+std::vector<std::string> preprocessModesForFile(
+    const BenchmarkConfig& config,
+    const std::filesystem::path& file,
+    const FileClassification& classification) {
+    if (!config.extendedMatrix) {
+        return {normalizePreprocessName(config.preprocessMode)};
+    }
+
+    std::vector<std::string> desired;
+    if (config.preprocessAll || config.preprocessModes.empty()) {
+        desired = {"none", "json-canonical", "xml-canonical", "png-optimizer", "image-meta-strip", "bayer-raw"};
+    } else {
+        desired.reserve(config.preprocessModes.size());
+        for (const auto& mode : config.preprocessModes) {
+            desired.push_back(normalizePreprocessName(mode));
+        }
+    }
+
+    std::vector<std::string> applicable;
+    for (const auto& mode : desired) {
+        if (mode == "none") {
+            applicable.push_back(mode);
+            continue;
+        }
+        if (mode == "json-canonical" && isJsonLike(classification, file)) {
+            applicable.push_back(mode);
+            continue;
+        }
+        if (mode == "xml-canonical" && isXmlLike(classification, file)) {
+            applicable.push_back(mode);
+            continue;
+        }
+        if (mode == "png-optimizer" && classification.type == FileType::Image_PNG) {
+            applicable.push_back(mode);
+            continue;
+        }
+        if (mode == "image-meta-strip" && isImageMetaLike(classification)) {
+            applicable.push_back(mode);
+            continue;
+        }
+        if (mode == "bayer-raw" && classification.type == FileType::Image_Raw) {
+            applicable.push_back(mode);
+            continue;
+        }
+    }
+
+    if (applicable.empty()) {
+        applicable.push_back("none");
+    }
+
+    std::sort(applicable.begin(), applicable.end());
+    applicable.erase(std::unique(applicable.begin(), applicable.end()), applicable.end());
+    return applicable;
+}
+
+std::string makeSkipKey(const std::filesystem::path& file, const std::string& algorithm, int level, const std::string& preprocess) {
+    return file.string() + "|" + algorithm + "|" + std::to_string(level) + "|" + preprocess;
+}
+
+std::string hashHex(const std::string& bytes) {
+    uint64_t hash = 1469598103934665603ULL;
+    for (const unsigned char c : bytes) {
+        hash ^= static_cast<uint64_t>(c);
+        hash *= 1099511628211ULL;
+    }
+    std::ostringstream out;
+    out << std::hex << std::setw(16) << std::setfill('0') << hash;
+    return out.str();
 }
 
 } // namespace
@@ -226,6 +348,7 @@ BenchmarkResult BenchmarkRunner::runIteration(
     }
 
     std::chrono::milliseconds decodeDuration{0};
+    bool roundTripVerified = !config.verifyRoundTrip;
     if (config.runDecode) {
         std::istringstream compressedInput(compressed.str());
         std::ostringstream decompressed;
@@ -239,7 +362,20 @@ BenchmarkResult BenchmarkRunner::runIteration(
             throw std::runtime_error(
                 "Decompression exceeded max time for file: " + file.string() + " (" + engine->name() + ")");
         }
+
+        if (config.verifyRoundTrip) {
+            roundTripVerified = decompressed.str() == contentToCompress;
+            if (!roundTripVerified) {
+                throw std::runtime_error(
+                    "Round-trip verification failed for file: " + file.string() + " (" + engine->name() + ")");
+            }
+        }
     }
+
+    FileAnalyzer analyzer;
+    const auto feature = analyzer.analyze(
+        std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(rawContent.data()), rawContent.size()),
+        file.filename().string());
 
     BenchmarkResult row{};
     row.algorithm = engine->name();
@@ -251,6 +387,14 @@ BenchmarkResult BenchmarkRunner::runIteration(
     row.encodeTime = encodeDuration;
     row.decodeTime = decodeDuration;
     row.peakMemoryBytes = config.trackMemory ? encodeResult.peakMemoryBytes : 0;
+    row.fileHash = hashHex(rawContent);
+    row.detectedType = feature.detectedType;
+    row.extension = feature.extension;
+    row.entropy = feature.entropy;
+    row.repeatPatterns = feature.repeatPatterns;
+    row.chunkRatio = feature.chunkRatio;
+    row.isStructured = feature.isStructured;
+    row.roundTripVerified = roundTripVerified;
     row.preprocess = preprocessMetrics;
     return row;
 }
@@ -293,14 +437,29 @@ std::vector<BenchmarkResult> BenchmarkRunner::runWithConfig(const BenchmarkConfi
 
     const int iterations = std::max(1, config.iterations);
     const int warmups = std::max(0, config.warmupIterations);
-    int unitsPerFile = 0;
-    for (auto* engine : selectedEngines) {
-        unitsPerFile += static_cast<int>(levelsByAlgorithm.at(engine->name()).size()) * (iterations + warmups);
-    }
-    const int totalWork = std::max(1, unitsPerFile * static_cast<int>(config.files.size()));
-    int completedWork = 0;
-
     FileTypeDetector detector;
+    int totalWork = 0;
+    std::vector<FileClassification> classifications;
+    classifications.reserve(config.files.size());
+    for (const auto& file : config.files) {
+        classifications.push_back(detector.detect(file));
+    }
+    for (size_t fileIdx = 0; fileIdx < config.files.size(); ++fileIdx) {
+        const auto preprocessModes = preprocessModesForFile(config, config.files[fileIdx], classifications[fileIdx]);
+        for (const auto& preprocessMode : preprocessModes) {
+            for (auto* engine : selectedEngines) {
+                for (const int level : levelsByAlgorithm.at(engine->name())) {
+                    if (config.skipExistingKeys.count(makeSkipKey(config.files[fileIdx], engine->name(), level, preprocessMode)) > 0) {
+                        continue;
+                    }
+                    totalWork += iterations + warmups;
+                }
+            }
+        }
+    }
+    totalWork = std::max(1, totalWork);
+    int completedWork = 0;
+    int completedFiles = 0;
     std::vector<BenchmarkResult> results;
 
     auto lastProgressEmit = std::chrono::steady_clock::time_point{};
@@ -326,35 +485,47 @@ std::vector<BenchmarkResult> BenchmarkRunner::runWithConfig(const BenchmarkConfi
         info.currentIteration = currentIteration;
         info.totalIterations = iterations + warmups;
         info.totalFiles = static_cast<int>(config.files.size());
-        info.completedFiles = unitsPerFile > 0 ? completedWork / unitsPerFile : 0;
+        info.completedFiles = completedFiles;
         info.progress = static_cast<double>(completedWork) / static_cast<double>(totalWork);
         config.onProgress(info);
         lastProgressEmit = now;
     };
 
-    for (const auto& file : config.files) {
+    for (size_t fileIdx = 0; fileIdx < config.files.size(); ++fileIdx) {
+        const auto& file = config.files[fileIdx];
         if (config.hasCancellation() && config.shouldCancel()) {
             break;
         }
 
-        const auto classification = detector.detect(file);
-        for (auto* engine : selectedEngines) {
-            const auto& levelSet = levelsByAlgorithm.at(engine->name());
-            for (int level : levelSet) {
-                emitProgress(file, engine->name(), level, 0, true);
-                for (int i = 0; i < warmups; ++i) {
-                    (void)runIteration(engine, file, level, config, classification.type);
-                    ++completedWork;
-                    emitProgress(file, engine->name(), level, i + 1, false);
-                }
+        const auto preprocessModes = preprocessModesForFile(config, file, classifications[fileIdx]);
+        for (const auto& preprocessMode : preprocessModes) {
+            BenchmarkConfig perModeConfig = config;
+            perModeConfig.preprocessMode = preprocessMode;
 
-                for (int i = 0; i < iterations; ++i) {
-                    results.push_back(runIteration(engine, file, level, config, classification.type));
-                    ++completedWork;
-                    emitProgress(file, engine->name(), level, warmups + i + 1, false);
+            for (auto* engine : selectedEngines) {
+                const auto& levelSet = levelsByAlgorithm.at(engine->name());
+                for (int level : levelSet) {
+                    const std::string skipKey = makeSkipKey(file, engine->name(), level, preprocessMode);
+                    if (config.skipExistingKeys.count(skipKey) > 0) {
+                        continue;
+                    }
+
+                    emitProgress(file, engine->name(), level, 0, true);
+                    for (int i = 0; i < warmups; ++i) {
+                        (void)runIteration(engine, file, level, perModeConfig, classifications[fileIdx].type);
+                        ++completedWork;
+                        emitProgress(file, engine->name(), level, i + 1, false);
+                    }
+
+                    for (int i = 0; i < iterations; ++i) {
+                        results.push_back(runIteration(engine, file, level, perModeConfig, classifications[fileIdx].type));
+                        ++completedWork;
+                        emitProgress(file, engine->name(), level, warmups + i + 1, false);
+                    }
                 }
             }
         }
+        ++completedFiles;
     }
 
     emitProgress({}, "", 0, 0, true);
@@ -376,7 +547,12 @@ void BenchmarkRunner::processFile(
     const int warmups = std::max(0, config.warmupIterations);
 
     std::vector<BenchmarkResult> localResults;
-    for (ICompressionEngine* engine : engines) {
+    const auto preprocessModes = preprocessModesForFile(config, file, classification);
+    for (const auto& preprocessMode : preprocessModes) {
+        BenchmarkConfig perModeConfig = config;
+        perModeConfig.preprocessMode = preprocessMode;
+
+        for (ICompressionEngine* engine : engines) {
         if (config.hasCancellation() && config.shouldCancel()) {
             break;
         }
@@ -387,6 +563,9 @@ void BenchmarkRunner::processFile(
         const auto& levelSet = it->second;
 
         for (int level : levelSet) {
+            if (config.skipExistingKeys.count(makeSkipKey(file, engine->name(), level, preprocessMode)) > 0) {
+                continue;
+            }
             if (config.hasCancellation() && config.shouldCancel()) {
                 break;
             }
@@ -394,14 +573,15 @@ void BenchmarkRunner::processFile(
                 if (config.hasCancellation() && config.shouldCancel()) {
                     break;
                 }
-                (void)runIteration(engine, file, level, config, classification.type);
+                (void)runIteration(engine, file, level, perModeConfig, classification.type);
             }
             for (int i = 0; i < iterations; ++i) {
                 if (config.hasCancellation() && config.shouldCancel()) {
                     break;
                 }
-                localResults.push_back(runIteration(engine, file, level, config, classification.type));
+                localResults.push_back(runIteration(engine, file, level, perModeConfig, classification.type));
             }
+        }
         }
     }
 

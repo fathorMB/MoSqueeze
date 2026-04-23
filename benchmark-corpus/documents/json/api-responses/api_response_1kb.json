@@ -1,0 +1,233 @@
+{
+  "success": true,
+  "timestamp": "2024-01-15T10:30:00Z",
+  "pagination": {
+    "page": 1,
+    "per_page": 5,
+    "total": 50,
+    "total_pages": 10
+  },
+  "data": [
+    {
+      "id": "item_000000",
+      "name": "Product 0",
+      "description": "This is a detailed description for product 0. ",
+      "price": 472.25,
+      "quantity": 322,
+      "category": "electronics",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6"
+      ],
+      "metadata": {
+        "created": "2024-01-05T15:21:00Z",
+        "updated": "2024-05-22T18:07:00Z",
+        "version": "v4.79.93",
+        "author": "Diana",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-0-0",
+          "color": "black",
+          "size": "L",
+          "stock": 255
+        },
+        {
+          "sku": "SKU-0-1",
+          "color": "black",
+          "size": "L",
+          "stock": 159
+        },
+        {
+          "sku": "SKU-0-2",
+          "color": "blue",
+          "size": "L",
+          "stock": 181
+        },
+        {
+          "sku": "SKU-0-3",
+          "color": "green",
+          "size": "M",
+          "stock": 332
+        },
+        {
+          "sku": "SKU-0-4",
+          "color": "red",
+          "size": "XS",
+          "stock": 114
+        }
+      ]
+    },
+    {
+      "id": "item_000001",
+      "name": "Product 1",
+      "description": "This is a detailed description for product 1. This is a detailed description for product 1. This is a detailed description for product 1. This is a detailed description for product 1. ",
+      "price": 36.19,
+      "quantity": 286,
+      "category": "clothing",
+      "tags": [
+        "tag_0",
+        "tag_1"
+      ],
+      "metadata": {
+        "created": "2024-07-14T20:02:00Z",
+        "updated": "2024-05-05T00:01:00Z",
+        "version": "v2.82.0",
+        "author": "Alice",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-1-0",
+          "color": "white",
+          "size": "XL",
+          "stock": 480
+        },
+        {
+          "sku": "SKU-1-1",
+          "color": "white",
+          "size": "XL",
+          "stock": 268
+        }
+      ]
+    },
+    {
+      "id": "item_000002",
+      "name": "Product 2",
+      "description": "This is a detailed description for product 2. ",
+      "price": 43.99,
+      "quantity": 970,
+      "category": "electronics",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6",
+        "tag_7"
+      ],
+      "metadata": {
+        "created": "2024-04-19T09:04:00Z",
+        "updated": "2024-06-08T18:48:00Z",
+        "version": "v1.26.21",
+        "author": "Alice",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-2-0",
+          "color": "red",
+          "size": "XL",
+          "stock": 334
+        },
+        {
+          "sku": "SKU-2-1",
+          "color": "blue",
+          "size": "L",
+          "stock": 365
+        }
+      ]
+    },
+    {
+      "id": "item_000003",
+      "name": "Product 3",
+      "description": "This is a detailed description for product 3. This is a detailed description for product 3. This is a detailed description for product 3. ",
+      "price": 784.8,
+      "quantity": 396,
+      "category": "clothing",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6"
+      ],
+      "metadata": {
+        "created": "2024-02-28T15:34:00Z",
+        "updated": "2024-10-15T14:48:00Z",
+        "version": "v3.45.35",
+        "author": "Charlie",
+        "approved": true
+      },
+      "variants": [
+        {
+          "sku": "SKU-3-0",
+          "color": "red",
+          "size": "L",
+          "stock": 264
+        }
+      ]
+    },
+    {
+      "id": "item_000004",
+      "name": "Product 4",
+      "description": "This is a detailed description for product 4. This is a detailed description for product 4. This is a detailed description for product 4. ",
+      "price": 816.58,
+      "quantity": 979,
+      "category": "home",
+      "tags": [
+        "tag_0",
+        "tag_1",
+        "tag_2",
+        "tag_3",
+        "tag_4",
+        "tag_5",
+        "tag_6"
+      ],
+      "metadata": {
+        "created": "2024-04-12T03:39:00Z",
+        "updated": "2024-01-06T13:12:00Z",
+        "version": "v1.29.70",
+        "author": "Alice",
+        "approved": false
+      },
+      "variants": [
+        {
+          "sku": "SKU-4-0",
+          "color": "green",
+          "size": "L",
+          "stock": 333
+        },
+        {
+          "sku": "SKU-4-1",
+          "color": "white",
+          "size": "L",
+          "stock": 186
+        },
+        {
+          "sku": "SKU-4-2",
+          "color": "red",
+          "size": "S",
+          "stock": 394
+        },
+        {
+          "sku": "SKU-4-3",
+          "color": "white",
+          "size": "S",
+          "stock": 440
+        },
+        {
+          "sku": "SKU-4-4",
+          "color": "white",
+          "size": "XL",
+          "stock": 190
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "api_version": "3.2.1",
+    "server": "api-central.example.com",
+    "response_time_ms": 90
+  }
+}
