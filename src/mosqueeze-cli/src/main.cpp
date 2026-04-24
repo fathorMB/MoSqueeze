@@ -1,5 +1,6 @@
 #include "commands/CompressCommand.hpp"
 #include "commands/DecompressCommand.hpp"
+#include "commands/PredictCommand.hpp"
 #include <CLI/CLI.hpp>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -203,6 +204,7 @@ int main(int argc, char** argv) {
     addSuggestCommand(app);
     mosqueeze::cli::addCompressCommand(app);
     mosqueeze::cli::addDecompressCommand(app);
+    mosqueeze::cli::addPredictCommand(app);
 
     CLI11_PARSE(app, argc, argv);
 

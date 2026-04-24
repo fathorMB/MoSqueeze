@@ -15,6 +15,7 @@
     "pugixml",
     "zlib",
     "grpc",
-    "protobuf"
+    "protobuf",
+    "catch2"
   ]
 }

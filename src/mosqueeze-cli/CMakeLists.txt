@@ -7,6 +7,7 @@ add_executable(mosqueeze
   src/main.cpp
   src/commands/CompressCommand.cpp
   src/commands/DecompressCommand.cpp
+  src/commands/PredictCommand.cpp
 )
 
 target_link_libraries(mosqueeze

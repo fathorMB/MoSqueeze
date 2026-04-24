@@ -22,7 +22,8 @@ int main() {
     assert(pngFeatures.chunkRatio >= 0.0);
     assert(pngFeatures.chunkRatio <= 1.0);
 
-    const std::string json = R"({"project":"mosqueeze","items":[1,2,3]})";
+    const std::string json =
+        R"({"project":"mosqueeze","items":[1,2,3,4,5,6,7,8,9,10],"tags":["fast","safe","compact"],"project":"mosqueeze","version":"1.0.0"})";
     const std::vector<uint8_t> jsonBytes(json.begin(), json.end());
     const auto jsonFeatures = analyzer.analyze(jsonBytes, "config.json");
     assert(jsonFeatures.detectedType == "application/json");

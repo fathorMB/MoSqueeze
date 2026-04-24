@@ -382,6 +382,34 @@ add_custom_command(TARGET Pipeline_test POST_BUILD
 )
 add_test(NAME Pipeline_test COMMAND Pipeline_test)
 
+add_executable(PredictionEngine_test
+  unit/PredictionEngine_test.cpp
+)
+target_link_libraries(PredictionEngine_test PRIVATE libmosqueeze)
+target_compile_definitions(PredictionEngine_test PRIVATE
+    DECISION_MATRIX_JSON_PATH="${CMAKE_SOURCE_DIR}/docs/benchmarks/combined_decision_matrix.json"
+)
+add_custom_command(TARGET PredictionEngine_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:PredictionEngine_test>
+)
+add_test(NAME PredictionEngine_test COMMAND PredictionEngine_test)
+
+add_executable(DecisionMatrix_test
+  unit/DecisionMatrix_test.cpp
+)
+target_link_libraries(DecisionMatrix_test PRIVATE libmosqueeze)
+target_compile_definitions(DecisionMatrix_test PRIVATE
+    DECISION_MATRIX_JSON_PATH="${CMAKE_SOURCE_DIR}/docs/benchmarks/combined_decision_matrix.json"
+)
+add_custom_command(TARGET DecisionMatrix_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:DecisionMatrix_test>
+)
+add_test(NAME DecisionMatrix_test COMMAND DecisionMatrix_test)
+
 add_executable(Viz_test
   unit/Viz_test.cpp
 )
@@ -392,3 +420,5 @@ add_custom_command(TARGET Viz_test POST_BUILD
           $<TARGET_FILE_DIR:Viz_test>
 )
 add_test(NAME Viz_test COMMAND Viz_test)
+
+add_subdirectory(prediction)

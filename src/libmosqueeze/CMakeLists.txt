@@ -1,3 +1,5 @@
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/EmbedResources.cmake)
+
 find_package(zstd CONFIG REQUIRED)
 find_package(LibLZMA REQUIRED)
 find_package(unofficial-brotli CONFIG REQUIRED)
@@ -24,6 +26,8 @@ add_library(libmosqueeze SHARED
   src/AlgorithmSelector.cpp
   src/PreprocessorSelector.cpp
   src/CompressionPipeline.cpp
+  src/DecisionMatrix.cpp
+  src/PredictionEngine.cpp
   src/preprocessors/JsonCanonicalizer.cpp
   src/preprocessors/XmlCanonicalizer.cpp
   src/preprocessors/ImageMetaStripper.cpp
@@ -43,7 +47,10 @@ target_include_directories(libmosqueeze
     ${CMAKE_CURRENT_SOURCE_DIR}/include
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+add_dependencies(libmosqueeze generate_decision_matrix_header)
 
 target_link_libraries(libmosqueeze
   PRIVATE
