@@ -26,7 +26,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/mosqueeze-server
+  # Note: GHCR requires lowercase image names for cache refs
+  # IMAGE_NAME_LC is computed in the build job
 
 jobs:
   check:
@@ -52,6 +53,14 @@ jobs:
       packages: write
 
     steps:
+      - name: Prepare image name (lowercase)
+        id: image
+        run: |
+          # GHCR requires lowercase image names
+          IMAGE_NAME="${{ github.repository_owner }}/mosqueeze-server"
+          IMAGE_NAME_LC=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
+          echo "image_name=$IMAGE_NAME_LC" >> $GITHUB_OUTPUT
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -74,7 +83,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -90,9 +99,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
           cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ toLower(env.IMAGE_NAME) }}:buildcache
+            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:buildcache
             type=gha
-          cache-to: ${{ github.event.inputs.no_cache == 'true' && 'type=inline' || format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, toLower(env.IMAGE_NAME)) }}
+          cache-to: ${{ github.event.inputs.no_cache == 'true' && 'type=inline' || format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, steps.image.outputs.image_name) }}
           provenance: true
           sbom: true
           build-args: |
