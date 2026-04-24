@@ -2,7 +2,7 @@
 
 **Summary**: Knowledge base per MoSqueeze - compressione cold storage data-driven.
 
-**Last updated**: 2026-04-23
+**Last updated**: 2026-04-24
 
 ---
 
@@ -42,6 +42,8 @@ mindmap
       Adding New Engine
       Cold Storage Patterns
       Analyze Command
+      Predict Command
+      Intelligent Selector
 
     Preprocessing
       PNG Optimizer (oxipng)
@@ -96,6 +98,7 @@ Documentazione operativa.
 - [[guides/benchmark-tool]] - Enhanced `mosqueeze-bench` usage and options
 - [[guides/benchmark-visualization]] - `mosqueeze-viz` dashboard/report generation
 - [[guides/intelligent-selector]] - Intelligent recommendation engine (`mosqueeze suggest`)
+- [[guides/predict-command]] - **Compression prediction** (`mosqueeze predict`) *(new 2026-04-24)*
 - [[guides/grpc-service]] - Optional gRPC microservice (`mosqueeze-server`)
 - [[guides/adding-new-engine]] - Step-by-step per nuovo algoritmo
 - [[guides/cold-storage-patterns]] - Best practices archiviazione
