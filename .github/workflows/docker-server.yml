@@ -90,9 +90,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
           cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+            type=registry,ref=${{ env.REGISTRY }}/${{ toLower(env.IMAGE_NAME) }}:buildcache
             type=gha
-          cache-to: ${{ github.event.inputs.no_cache == 'true' && 'type=inline' || format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME) }}
+          cache-to: ${{ github.event.inputs.no_cache == 'true' && 'type=inline' || format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, toLower(env.IMAGE_NAME)) }}
           provenance: true
           sbom: true
           build-args: |
