@@ -1,6 +1,9 @@
+# ============================================
+# Stage 1: vcpkg dependencies (cached layer)
+# ============================================
 FROM debian:bookworm AS vcpkg-base
 
-# Install build tools - cached layer
+# Install build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
@@ -13,43 +16,50 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Setup vcpkg
+# Setup vcpkg with cache-friendly structure
 ENV VCPKG_ROOT=/opt/vcpkg
 ENV VCPKG_BINARY_SOURCES=clear
 
+# Clone vcpkg (this layer will be cached unless vcpkg commit changes)
 RUN git clone --depth 1 https://github.com/microsoft/vcpkg.git ${VCPKG_ROOT} \
     && ${VCPKG_ROOT}/bootstrap-vcpkg.sh -disableMetrics
 
 WORKDIR /app
 
-# Copy ONLY dependency manifests first (maximizes Docker layer cache)
+# Copy ONLY dependency manifests first (maximizes cache hit)
 COPY vcpkg.json vcpkg-configuration.json* ./
 
-# Install dependencies - cached layer if vcpkg.json unchanged
+# Install dependencies - this layer is cached if vcpkg.json doesn't change
 RUN cmake -B build-deps -S . \
     -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake \
     -DMOSQUEEZE_BUILD_SERVER=ON \
     -DMOSQUEEZE_BUILD_TESTS=OFF \
-    && echo "Dependencies ready"
+    && echo "Dependencies installed"
 
+# ============================================
+# Stage 2: Build application
+# ============================================
 FROM vcpkg-base AS build
 
 WORKDIR /app
 
-# Copy source code (separate layer - only invalidates on code change)
+# Copy source code (only invalidates cache when code changes)
 COPY CMakeLists.txt ./
 COPY src/ ./src/
 COPY include/ ./include/
 COPY cmake/ ./cmake/
 COPY tests/ ./tests/
 
-# Build application
+# Build the application
 RUN cmake -B build -S . \
     -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake \
     -DMOSQUEEZE_BUILD_SERVER=ON \
     -DMOSQUEEZE_BUILD_TESTS=OFF \
     && cmake --build build --config Release --target mosqueeze-server
 
+# ============================================
+# Stage 3: Minimal runtime image
+# ============================================
 FROM debian:bookworm-slim AS runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
