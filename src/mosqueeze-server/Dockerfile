@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV VCPKG_ROOT=/opt/vcpkg
 ENV VCPKG_BINARY_SOURCES=clear
 
-RUN git clone --depth 1 https://github.com/microsoft/vcpkg.git ${VCPKG_ROOT} \
+RUN git clone https://github.com/microsoft/vcpkg.git ${VCPKG_ROOT} \
     && ${VCPKG_ROOT}/bootstrap-vcpkg.sh -disableMetrics
 
 WORKDIR /app
