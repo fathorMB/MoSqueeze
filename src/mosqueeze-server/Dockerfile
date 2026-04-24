@@ -25,11 +25,8 @@ WORKDIR /app
 # Copy ONLY dependency manifests first (maximizes Docker layer cache)
 COPY vcpkg.json vcpkg-configuration.json* ./
 
-# Install dependencies - cached layer if vcpkg.json unchanged
-RUN cmake -B build-deps -S . \
-    -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake \
-    -DMOSQUEEZE_BUILD_SERVER=ON \
-    -DMOSQUEEZE_BUILD_TESTS=OFF \
+# Install dependencies in manifest mode (does not require CMakeLists.txt in /app)
+RUN ${VCPKG_ROOT}/vcpkg install --clean-after-build \
     && echo "Dependencies ready"
 
 FROM vcpkg-base AS build
