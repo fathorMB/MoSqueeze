@@ -39,9 +39,9 @@ WORKDIR /app
 # Copy source code (separate layer - only invalidates on code change)
 COPY CMakeLists.txt ./
 COPY src/ ./src/
-COPY include/ ./include/
 COPY cmake/ ./cmake/
 COPY tests/ ./tests/
+COPY third_party/ ./third_party/
 
 # Build application
 RUN cmake -B build -S . \
