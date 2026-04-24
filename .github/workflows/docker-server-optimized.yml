@@ -26,7 +26,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/mosqueeze-server
 
 jobs:
   check:
@@ -60,6 +59,13 @@ jobs:
       packages: write
 
     steps:
+      - name: Prepare image name (lowercase)
+        id: image
+        run: |
+          IMAGE_NAME="${{ github.repository_owner }}/mosqueeze-server"
+          IMAGE_NAME_LC=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
+          echo "image_name=$IMAGE_NAME_LC" >> $GITHUB_OUTPUT
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -84,7 +90,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -98,8 +104,8 @@ jobs:
           context: .
           file: ./src/mosqueeze-server/Dockerfile
           target: vcpkg-base
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ toLower(env.IMAGE_NAME) }}:cache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ toLower(env.IMAGE_NAME) }}:cache,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:cache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:cache,mode=max
           platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
           build-args: |
             MOSQUEEZE_VERSION=${{ github.ref_name }}
@@ -114,7 +120,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
           cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ toLower(env.IMAGE_NAME) }}:cache
+            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:cache
             type=gha
           cache-to: type=gha,mode=${{ github.event.inputs.no_cache == 'true' && 'min' || 'max' }}
           build-args: |
@@ -131,7 +137,7 @@ jobs:
           context: .
           file: ./src/mosqueeze-server/Dockerfile
           push: false
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ toLower(env.IMAGE_NAME) }}:cache,mode=max
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:cache,mode=max
           platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
           build-args: |
             MOSQUEEZE_VERSION=${{ github.ref_name }}
