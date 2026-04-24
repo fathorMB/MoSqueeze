@@ -24,10 +24,11 @@ int main() {
     mosqueeze::PreprocessorSelector selector;
 
     const auto names = selector.listNames();
-    assert(names.size() == 5);
+    assert(names.size() == 6);
     assert(containsName(names, "json-canonical"));
     assert(containsName(names, "xml-canonical"));
     assert(containsName(names, "image-meta-strip"));
+    assert(containsName(names, "png-optimizer"));
     assert(containsName(names, "bayer-raw"));
     assert(containsName(names, "zstd-dict"));
 
