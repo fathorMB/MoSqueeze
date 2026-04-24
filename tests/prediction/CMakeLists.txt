@@ -1,6 +1,5 @@
 find_package(Catch2 CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-include(Catch)
 
 add_executable(prediction_tests
     DecisionMatrixTest.cpp
@@ -27,4 +26,8 @@ add_custom_command(TARGET prediction_tests POST_BUILD
           $<TARGET_FILE_DIR:prediction_tests>
 )
 
-catch_discover_tests(prediction_tests)
+# Use add_test (runs at CTest time, not build time) so all DLLs are in
+# place before the binary executes. catch_discover_tests runs the binary
+# at build time which triggers 0xc0000135 on Windows when vcpkg DLLs
+# haven't been copied yet.
+add_test(NAME prediction_tests COMMAND prediction_tests)
