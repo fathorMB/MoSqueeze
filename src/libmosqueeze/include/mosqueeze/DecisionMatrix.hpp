@@ -49,6 +49,9 @@ public:
     bool loadFromFile(const std::filesystem::path& path);
 
     Prediction predict(const std::string& extension, size_t fileSize = 0) const;
+    Prediction predict(const char* extension, size_t fileSize = 0) const {
+        return predict(std::string(extension), fileSize);
+    }
     Prediction predict(const std::filesystem::path& file) const;
 
     bool hasData(const std::string& extension) const;
