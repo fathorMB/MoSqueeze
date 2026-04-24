@@ -92,7 +92,7 @@ jobs:
           cache-from: |
             type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
             type=gha
-          cache-to: ${{ github.event.inputs.no_cache == 'true' && 'type=inline' || 'type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max' }}
+          cache-to: ${{ github.event.inputs.no_cache == 'true' && 'type=inline' || format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME) }}
           provenance: true
           sbom: true
           build-args: |
