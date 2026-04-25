@@ -43,13 +43,6 @@ jobs:
             exit 1
           fi
           echo "Dockerfile found, proceeding with build"
-          
-      - name: Check vcpkg.json exists
-        run: |
-          if [ ! -f "vcpkg.json" ]; then
-            echo "::error::vcpkg.json not found - required for dependency caching"
-            exit 1
-          fi
 
   build:
     needs: check
@@ -75,8 +68,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          buildkitd-flags: --debug
 
       - name: Log in to Container Registry
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.push }}
@@ -96,20 +87,9 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
-      # Use registry cache for layer caching (faster than GHA cache for large layers)
-      - name: Cache Docker layers
-        if: ${{ github.event.inputs.no_cache != 'true' }}
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./src/mosqueeze-server/Dockerfile
-          target: vcpkg-base
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:cache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:cache,mode=max
-          platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
-          build-args: |
-            MOSQUEEZE_VERSION=${{ github.ref_name }}
-
+      # Build with multi-source cache for faster rebuilds
+      # - Registry cache: persists across runs (shared across workflows)
+      # - GHA cache: fast local cache within the same run
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -120,24 +100,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
           cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:cache
+            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:buildcache
             type=gha
-          cache-to: type=gha,mode=${{ github.event.inputs.no_cache == 'true' && 'min' || 'max' }}
-          build-args: |
-            MOSQUEEZE_VERSION=${{ github.ref_name }}
-          # Provenance attestation for better caching
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:buildcache,mode=max
           provenance: true
           sbom: true
-
-      # Update registry cache for next build (only if push is enabled)
-      - name: Update registry cache
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.push }}
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./src/mosqueeze-server/Dockerfile
-          push: false
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:cache,mode=max
-          platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
           build-args: |
             MOSQUEEZE_VERSION=${{ github.ref_name }}
