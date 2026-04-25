@@ -421,4 +421,23 @@ add_custom_command(TARGET Viz_test POST_BUILD
 )
 add_test(NAME Viz_test COMMAND Viz_test)
 
+add_executable(AlgorithmConstraint_test
+  unit/AlgorithmConstraint_test.cpp
+  ../src/mosqueeze-bench/src/BenchmarkRunner.cpp
+  ../src/mosqueeze-bench/src/ResultsStore.cpp
+  ../src/mosqueeze-bench/src/ThreadPool.cpp
+)
+
+target_include_directories(AlgorithmConstraint_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/mosqueeze-bench/include
+)
+
+target_link_libraries(AlgorithmConstraint_test
+  PRIVATE
+    libmosqueeze
+    SQLite::SQLite3
+)
+add_test(NAME AlgorithmConstraint_test COMMAND AlgorithmConstraint_test)
+
 add_subdirectory(prediction)

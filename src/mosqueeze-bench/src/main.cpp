@@ -418,6 +418,7 @@ int main(int argc, char* argv[]) {
     bool dryRun = false;
     bool listEngines = false;
     bool showVersion = false;
+    bool skipConstraints = false;
 
     app.add_option("-f,--file", files, "Add single file to benchmark");
     app.add_option("-d,--directory", directory, "Add all files from directory (recursive)");
@@ -481,6 +482,7 @@ int main(int argc, char* argv[]) {
     app.add_flag("--diff-only", diffOnly, "Show only files with different results");
 
     app.add_flag("--dry-run", dryRun, "Show configuration without running");
+    app.add_flag("--skip-constraints", skipConstraints, "Skip algorithm size constraints (run all levels regardless of file size)");
     app.add_flag("--list-engines", listEngines, "List available engines and levels");
     app.add_flag("--version", showVersion, "Show version");
 
@@ -559,6 +561,8 @@ int main(int argc, char* argv[]) {
     config.pngAllFilters = !fastFilters;
     config.extendedMatrix = extendedMatrix;
     config.verifyRoundTrip = verifyRoundTrip;
+    config.skipConstraints = skipConstraints;
+    config.quiet = quiet;
     const auto requestedPreprocessors = parsePreprocessorModes(preprocessorsOpt);
     config.preprocessAll = preprocessorsOpt == "all" || preprocessorsOpt == "ALL";
     if (!config.preprocessAll) {

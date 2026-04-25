@@ -14,14 +14,24 @@
 
 namespace mosqueeze::bench {
 
+struct AlgorithmConstraint {
+    size_t maxFileSize = 0;    // 0 = unlimited
+    int maxLevelForSize = 0;  // For files > maxFileSize, limit to this level
+};
+
 class BenchmarkRunner {
 public:
     BenchmarkRunner();
     ~BenchmarkRunner();
 
     void registerEngine(std::unique_ptr<ICompressionEngine> engine);
+    void registerConstraint(const std::string& algorithm, AlgorithmConstraint constraint);
     std::vector<std::string> availableAlgorithms() const;
     std::vector<int> availableLevels(const std::string& algorithm) const;
+    std::vector<int> filterLevelsBySize(
+        const std::string& algorithm,
+        const std::vector<int>& levels,
+        size_t fileSize) const;
 
     std::vector<BenchmarkResult> run(
         const std::vector<std::filesystem::path>& files,
@@ -39,6 +49,7 @@ public:
 
 private:
     std::vector<std::unique_ptr<ICompressionEngine>> engines_;
+    std::unordered_map<std::string, AlgorithmConstraint> constraints_;
     ICompressionEngine* findEngine(const std::string& name) const;
     BenchmarkResult runIteration(
         ICompressionEngine* engine,

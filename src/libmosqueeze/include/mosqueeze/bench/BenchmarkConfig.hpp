@@ -73,6 +73,12 @@ struct BenchmarkConfig {
     // Verify decode output matches original (or preprocessed) input bytes.
     bool verifyRoundTrip = false;
 
+    // Skip algorithm-level size constraints (e.g. zpaq level limits for large files).
+    bool skipConstraints = false;
+
+    // Suppress informational warnings (e.g. skipped combinations).
+    bool quiet = false;
+
     std::function<void(const ProgressInfo&)> onProgress;
     std::function<bool()> shouldCancel;
 
