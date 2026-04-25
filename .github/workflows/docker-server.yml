@@ -26,8 +26,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # Note: GHCR requires lowercase image names for cache refs
-  # IMAGE_NAME_LC is computed in the build job
 
 jobs:
   check:
@@ -45,6 +43,7 @@ jobs:
             exit 1
           fi
           echo "Dockerfile found, proceeding with build"
+          
   build:
     needs: check
     runs-on: ubuntu-latest
@@ -56,7 +55,6 @@ jobs:
       - name: Prepare image name (lowercase)
         id: image
         run: |
-          # GHCR requires lowercase image names
           IMAGE_NAME="${{ github.repository_owner }}/mosqueeze-server"
           IMAGE_NAME_LC=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
           echo "image_name=$IMAGE_NAME_LC" >> $GITHUB_OUTPUT
@@ -89,6 +87,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
+      # Build with registry cache for layer caching (faster rebuilds)
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -101,7 +100,7 @@ jobs:
           cache-from: |
             type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:buildcache
             type=gha
-          cache-to: ${{ github.event.inputs.no_cache == 'true' && 'type=inline' || format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, steps.image.outputs.image_name) }}
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ steps.image.outputs.image_name }}:buildcache,mode=max
           provenance: true
           sbom: true
           build-args: |

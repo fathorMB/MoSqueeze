@@ -1,0 +1,74 @@
+name: vcpkg Cache Warm-up
+
+on:
+  schedule:
+    # Every Sunday at 02:00 UTC (off-peak hours)
+    - cron: '0 2 * * 0'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  warmup-vcpkg:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ ninja-build pkg-config autoconf automake libtool curl zip unzip
+      
+      - name: Install system dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install cmake ninja autoconf automake libtool curl zip unzip
+      
+      - name: Setup vcpkg with caching
+        uses: lukka/run-vcpkg@v11.6
+        with:
+          vcpkgJsonGlob: '**/vcpkg.json'
+      
+      - name: Warm-up vcpkg cache
+        run: |
+          echo "Compiling all dependencies to populate cache..."
+          ${{ github.workspace }}/vcpkg/vcpkg install --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}/vcpkg_installed
+          echo "Cache warmed up successfully!"
+      
+      - name: Cache statistics
+        run: |
+          echo "=== vcpkg installed packages ==="
+          ${{ github.workspace }}/vcpkg/vcpkg list
+          
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            echo "=== Cache size (Windows) ==="
+            dir /s "%LOCALAPPDATA%\\vcpkg\\archives" 2>nul || echo "No cache directory"
+          else
+            echo "=== Cache size (Unix) ==="
+            du -sh ~/.cache/vcpkg/archives 2>/dev/null || echo "No cache directory"
+          fi
+        shell: bash
+
+  notify-success:
+    needs: warmup-vcpkg
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Log warm-up success
+        run: |
+          echo "✅ vcpkg cache warm-up completed successfully"
+          echo "All 3 platforms (Linux, Windows, macOS) now have warm caches"
+          echo "Next PR builds will use cached dependencies"
+
+  notify-failure:
+    needs: warmup-vcpkg
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Log warm-up failure
+        run: |
+          echo "❌ vcpkg cache warm-up failed"
+          echo "PR builds may need to compile dependencies from source"
