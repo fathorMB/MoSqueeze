@@ -28,7 +28,7 @@ public:
     std::vector<BenchmarkResult> query(const std::string& whereClause = "");
 
     void exportCsv(const std::filesystem::path& output);
-    void exportJson(const std::filesystem::path& output);
+    void exportJson(const std::filesystem::path& output, bool interrupted = false);
     std::unordered_set<std::string> loadExistingKeys();
 
     void clear();

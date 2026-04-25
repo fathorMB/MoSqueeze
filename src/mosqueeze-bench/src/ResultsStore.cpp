@@ -299,12 +299,12 @@ void ResultsStore::exportCsv(const std::filesystem::path& output) {
     }
 }
 
-void ResultsStore::exportJson(const std::filesystem::path& output) {
+void ResultsStore::exportJson(const std::filesystem::path& output, bool interrupted) {
     std::filesystem::create_directories(output.parent_path());
 
-    nlohmann::json payload = nlohmann::json::array();
+    nlohmann::json resultsArray = nlohmann::json::array();
     for (const auto& row : query()) {
-        payload.push_back({
+        resultsArray.push_back({
             {"algorithm", row.algorithm},
             {"level", row.level},
             {"file", row.file.string()},
@@ -335,6 +335,10 @@ void ResultsStore::exportJson(const std::filesystem::path& output) {
             }}
         });
     }
+
+    nlohmann::json payload;
+    payload["interrupted"] = interrupted;
+    payload["results"] = std::move(resultsArray);
 
     std::ofstream out(output, std::ios::binary);
     if (!out) {
