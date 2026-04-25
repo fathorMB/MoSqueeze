@@ -139,6 +139,108 @@ void testJsonConfig() {
     std::cout << "[PASS] JSON config save/load\n";
 }
 
+void testSkipFLAC() {
+    FileClassification classification;
+    classification.type = FileType::Audio_FLAC;
+    classification.mimeType = "audio/flac";
+    classification.extension = ".flac";
+    classification.isCompressed = true;
+    classification.canRecompress = false;
+    classification.recommendation = "skip";
+
+    AlgorithmSelector selector;
+    const auto selection = selector.select(classification);
+
+    assert(selection.shouldSkip);
+    std::cout << "[PASS] FLAC skip\n";
+}
+
+void testSkipPDF() {
+    FileClassification classification;
+    classification.type = FileType::Document_PDF;
+    classification.mimeType = "application/pdf";
+    classification.extension = ".pdf";
+    classification.isCompressed = true;
+    classification.canRecompress = true;
+    classification.recommendation = "compress";
+
+    AlgorithmSelector selector;
+    const auto selection = selector.select(classification);
+
+    assert(selection.shouldSkip);
+    std::cout << "[PASS] PDF skip\n";
+}
+
+void testEntropyThresholdSkip() {
+    FileClassification classification;
+    classification.type = FileType::Binary_Chunked;
+    classification.mimeType = "application/octet-stream";
+    classification.extension = ".bin";
+    classification.isCompressed = false;
+    classification.canRecompress = true;
+    classification.recommendation = "compress";
+
+    FileFeatures features;
+    features.classification = classification;
+    features.entropy = 7.8;
+
+    SelectionConfig cfg;
+    cfg.entropyThreshold = 7.5;
+    cfg.skipExtensions = {".bin"};
+
+    AlgorithmSelector selector;
+    selector.setConfig(cfg);
+    const auto selection = selector.select(classification, features);
+
+    assert(selection.shouldSkip);
+    std::cout << "[PASS] Entropy threshold skip\n";
+}
+
+void testEntropyThresholdPass() {
+    FileClassification classification;
+    classification.type = FileType::Binary_Chunked;
+    classification.mimeType = "application/octet-stream";
+    classification.extension = ".dat";
+    classification.isCompressed = false;
+    classification.canRecompress = true;
+    classification.recommendation = "compress";
+
+    FileFeatures features;
+    features.classification = classification;
+    features.entropy = 4.0;
+
+    SelectionConfig cfg;
+    cfg.entropyThreshold = 7.5;
+
+    AlgorithmSelector selector;
+    selector.setConfig(cfg);
+    const auto selection = selector.select(classification, features);
+
+    assert(!selection.shouldSkip);
+    std::cout << "[PASS] Entropy threshold pass (low entropy compresses)\n";
+}
+
+void testTextStillCompresses() {
+    FileClassification classification;
+    classification.type = FileType::Text_Prose;
+    classification.mimeType = "text/plain";
+    classification.extension = ".txt";
+    classification.isCompressed = false;
+    classification.canRecompress = true;
+    classification.recommendation = "compress";
+
+    FileFeatures features;
+    features.classification = classification;
+    features.entropy = 4.05;
+
+    AlgorithmSelector selector;
+    const auto selection = selector.select(classification, features);
+
+    assert(!selection.shouldSkip);
+    assert(selection.algorithm == "brotli" || selection.algorithm == "zstd");
+    std::cout << "[PASS] Text still compresses with low entropy\n";
+}
+
 int main() {
     testTextSourceCode();
     testJsonFile();
@@ -148,6 +250,11 @@ int main() {
     testArchiveExtract();
     testUnknownFile();
     testJsonConfig();
+    testSkipFLAC();
+    testSkipPDF();
+    testEntropyThresholdSkip();
+    testEntropyThresholdPass();
+    testTextStillCompresses();
 
     std::cout << "[PASS] All AlgorithmSelector tests passed\n";
     return 0;

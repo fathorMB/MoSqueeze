@@ -218,9 +218,31 @@ bool DecisionMatrix::parseJsonContent(std::string_view content) {
             totalBenchmarks_ += ed.testCount;
             data_.emplace(ext, std::move(ed));
         }
+
+        // Override skip for known already-compressed formats where benchmark
+        // data may show misleading ratios (e.g. FLAC/PDF with embedded
+        // compressed streams) but secondary compression provides minimal gain.
+        applySkipOverrides();
+
         return true;
     } catch (const std::exception&) {
         return false;
+    }
+}
+
+void DecisionMatrix::applySkipOverrides() {
+    static const std::unordered_map<std::string, std::string> kSkipOverrides = {
+        {".flac", "Already FLAC compressed, secondary compression < 10% gain"},
+        {".pdf",  "PDF internal compression often sufficient, < 5% gain"},
+    };
+
+    for (const auto& [ext, reason] : kSkipOverrides) {
+        auto it = data_.find(ext);
+        if (it != data_.end()) {
+            it->second.skip = true;
+            it->second.skipReason = reason;
+            it->second.results.clear();
+        }
     }
 }
 
