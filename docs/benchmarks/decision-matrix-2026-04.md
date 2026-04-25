@@ -305,10 +305,118 @@ def select_algorithm(extension: str,
 
 **Moderate Compression (1.5-2x):** `.list`, `.sample`, `.mod`, `.sum`, `.gplv2`, `.0bsd`, `.rev`, `.optimized`
 
-**Skip Compression (< 1.5x):** `.7z`, `.gz`, `.jpg`, `.jpeg`, `.mov`, `.mp4`, `.png`, `.wav`, `.webp`, `.heic`, `.heif`, `.z`
+**Skip Compression (< 1.5x):** `.7z`, `.gz`, `.jpg`, `.jpeg`, `.mov`, `.mp4`, `.png`, `.wav`, `.webp`, `.heic`, `.heif`, `.z`, `.flac`, `.pdf`
 
 ---
 
-*Generated: 2026-04-25*
+## Porter Benchmark Data (April 2026)
 
-*Total benchmarks: 69,959 (Linux VM: 69,358, Windows: 601)*
+Additional benchmarks from Porter (autonomous worker) on already-compressed file types.
+
+### Source Corpora
+
+| Corpus | Files | Type | Notes |
+|--------|-------|------|-------|
+| **FLAC LibriSpeech** | 2,703 | Audio (already compressed) | Speech recognition dataset |
+| **PDF Gutenberg** | 5 | Documents (already compressed) | Classic books |
+| **Text Corpus** | 102 | Plain text | BOOKS.TXT from Porter tests |
+
+### Key Findings: Already-Compressed Files
+
+⚠️ **Critical**: Previously reported compression ratios for `.flac` and `.pdf` were from uncompressed sources. Real-world FLAC and PDF files are **already compressed** — secondary compression provides minimal gain.
+
+| Extension | Avg Ratio | Best Ratio | Best Algorithm | Recommendation |
+|-----------|-----------|------------|----------------|----------------|
+| `.flac` | 1.09x | 1.10x | brotli/9 or zstd/6 | **Skip compression** — already FLAC compressed |
+| `.pdf` | 1.03x | 1.04x | brotli/9 | **Skip compression** — already PDF compressed |
+| `.txt` (Porter) | 2.10x | 2.57x | brotli/11 | Compress — good candidate |
+
+### FLAC Compression Analysis
+
+FLAC audio files (LibriSpeech corpus, 2,703 files, 54,060 tests):
+
+```
+Source: Already compressed FLAC (audio codec applied)
+Entropy: ~7.57 bit/byte (high, near maximum)
+
+Results:
+- brotli/11: 1.097x (22ms) — minimal gain
+- brotli/9:  1.097x (19ms) — minimal gain  
+- zstd/6:    1.097x (0ms) — fastest with same ratio
+- zstd/3:    1.096x (0ms) — good for real-time
+
+Recommendation: Do NOT apply secondary compression to FLAC files.
+The 10% gain is negligible compared to CPU cost.
+```
+
+### PDF Compression Analysis
+
+PDF files (Gutenberg corpus, 5 files, 100 tests):
+
+```
+Source: Already compressed PDF (internal compression)
+Entropy: ~7.97 bit/byte (very high, near maximum)
+
+Results:
+- brotli/11: 1.04x (20ms) — minimal gain
+- brotli/9:  1.04x (20ms) — minimal gain
+- zstd/3:    1.03x (0ms) — fastest
+
+Recommendation: Do NOT apply secondary compression to PDF files.
+PDFs already use internal compression (Flate, LZW, etc.)
+```
+
+### Text Files (Porter Corpus)
+
+Text files show good compression potential:
+
+```
+Source: BOOKS.TXT (plain text)
+Entropy: ~4.05 bit/byte (moderate — compressible)
+
+Results:
+- brotli/11: 2.57x (23ms) — best ratio
+- brotli/6:  2.27x (0ms) — good balance
+- zstd/3:   2.23x (0ms) — fast real-time
+
+Recommendation: Compress text files with zstd/3 or brotli/6.
+```
+
+---
+
+## Files Generated
+
+| File | Description |
+|------|-------------|
+| `decision-matrix-2026-04.md` | This document |
+| `combined_decision_matrix.json` | Aggregated decision matrix (JSON) |
+| `benchmark-vm-results/` | Linux VM benchmark results |
+| `consolidated-benchmark.db` | Porter consolidated SQLite database |
+
+---
+
+## Benchmark Data Summary
+
+### Total Benchmarks: 126,159
+
+| Source | Platform | Tests | Notes |
+|--------|----------|-------|-------|
+| **Windows** | Windows 10/11 | 601 | Full corpora, all algorithms |
+| **Linux VM** | Linux | 69,358 | Code corpus |
+| **Porter** | Linux VM | 56,200 | FLAC LibriSpeech + PDF Gutenberg + Text |
+
+### Extensions Tested (72 total)
+
+**Excellent Compression (5x+):** `.json`, `.txt`, `.md`, `.py`, `.js`, `.ts`, `.tsx`, `.cpp`, `.hpp`, `.h`, `.go`, `.db`, `.sqlite3`, `.ninja`, `.cmake`, `.css`, `.sql`
+
+**Good Compression (2-5x):** `.yaml`, `.yml`, `.svg`, `.xml`, `.html`, `.log`, `.csv`, `.c`, `.proto`, `.bin`, `.out`, `.a`, `.so`
+
+**Moderate Compression (1.5-2x):** `.list`, `.sample`, `.mod`, `.sum`, `.gplv2`, `.0bsd`, `.rev`, `.optimized`
+
+**Skip Compression (< 1.5x):** `.7z`, `.gz`, `.jpg`, `.jpeg`, `.mov`, `.mp4`, `.png`, `.wav`, `.webp`, `.heic`, `.heif`, `.z`, `.flac`, `.pdf`, `.aac`, `.arw`, `.cr2`, `.nef`
+
+---
+
+*Generated: 2026-04-26*
+
+*Updated with Porter benchmark data (56,200 additional tests)*
