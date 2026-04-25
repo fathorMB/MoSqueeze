@@ -271,7 +271,9 @@ FileClassification FileTypeDetector::detectFromExtension(const std::string& ext)
         {".bin", makeClassification(FileType::Binary_Chunked, "application/octet-stream", false, true, ".bin")},
         {".dat", makeClassification(FileType::Binary_Chunked, "application/octet-stream", false, true, ".dat")},
         {".wasm", makeClassification(FileType::Binary_Executable, "application/wasm", false, true, ".wasm")},
-        {".exe", makeClassification(FileType::Binary_Executable, "application/vnd.microsoft.portable-executable", false, true, ".exe")}
+        {".exe", makeClassification(FileType::Binary_Executable, "application/vnd.microsoft.portable-executable", false, true, ".exe")},
+
+        {".pdf", makeClassification(FileType::Document_PDF, "application/pdf", true, true, ".pdf")}
     };
 
     const auto it = extensionMap.find(normalized);
@@ -341,7 +343,7 @@ void FileTypeDetector::registerCommonTypes() {
         {{0x4D, 0x4D, 0x00, 0x2A}, 0, FileType::Image_Raw, "image/tiff", false, true},
         {{0x47, 0x49, 0x46, 0x38}, 0, FileType::Image_Raw, "image/gif", true, true},
         {{0x42, 0x4D}, 0, FileType::Image_Raw, "image/bmp", false, true},
-        {{0x25, 0x50, 0x44, 0x46}, 0, FileType::Binary_Chunked, "application/pdf", true, true},
+        {{0x25, 0x50, 0x44, 0x46}, 0, FileType::Document_PDF, "application/pdf", true, true},
 
         {{0x50, 0x4B, 0x03, 0x04}, 0, FileType::Archive_ZIP, "application/zip", true, false},
         {{0x50, 0x4B, 0x05, 0x06}, 0, FileType::Archive_ZIP, "application/zip", true, false},

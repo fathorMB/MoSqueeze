@@ -57,6 +57,9 @@ enum class FileType {
     Binary_Database,
     Binary_Chunked,
 
+    // Documents
+    Document_PDF,
+
     // Archives
     Archive_ZIP,
     Archive_TAR,

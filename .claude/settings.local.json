@@ -4,9 +4,12 @@
       "Bash(python3)",
       "Read(//tmp/**)",
       "Bash(git *)",
+      "Bash(cmake -S . -B build -DCMAKE_BUILD_TYPE=Release)",
+      "Bash(cmake --build build --config Release --parallel)",
       "Bash(cmake --build build -j1)",
-      "Bash(./build/tests/unit/AlgorithmConstraint_test *)",
-      "Bash(ctest --output-on-failure)"
+      "Bash(ctest -C Release --output-on-failure)",
+      "Bash(ctest --output-on-failure)",
+      "Bash(./build/tests/unit/AlgorithmConstraint_test *)"
     ]
   }
 }

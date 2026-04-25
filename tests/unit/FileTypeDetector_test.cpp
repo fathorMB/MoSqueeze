@@ -75,6 +75,24 @@ int main() {
     assert(!classification.canRecompress);
     std::cout << "[PASS] MP4 detection OK\n";
 
+    // PDF magic bytes (%PDF)
+    std::vector<uint8_t> pdfData = {0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x34};
+    pdfData.resize(100, 0);
+    writeFile(testDir / "test.pdf", pdfData);
+    classification = detector.detect(testDir / "test.pdf");
+    assert(classification.type == mosqueeze::FileType::Document_PDF);
+    assert(classification.mimeType == "application/pdf");
+    assert(classification.isCompressed);
+    assert(classification.canRecompress);
+    std::cout << "[PASS] PDF magic detection OK\n";
+
+    // PDF extension fallback (no valid magic)
+    std::vector<uint8_t> fakePdf(100, 0xAB);
+    writeFile(testDir / "fake.pdf", fakePdf);
+    classification = detector.detect(testDir / "fake.pdf");
+    assert(classification.type == mosqueeze::FileType::Document_PDF);
+    std::cout << "[PASS] PDF extension fallback OK\n";
+
     // Plain text sniffing
     const std::string text = "Hello world, this is plain text content.";
     std::vector<uint8_t> textData(text.begin(), text.end());
