@@ -79,7 +79,7 @@ static FileType classifyExtension(const std::string& ext) {
         {".db",     FileType::Binary_Database},
         {".sqlite", FileType::Binary_Database},
         {".sqlite3",FileType::Binary_Database},
-        {".pdf",    FileType::Binary_Chunked},
+        {".pdf",    FileType::Document_PDF},
     };
     auto it = kMap.find(ext);
     return it != kMap.end() ? it->second : FileType::Unknown;
