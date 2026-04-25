@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(python3)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(git *)",
+      "Bash(cmake --build build -j1)",
+      "Bash(./build/tests/unit/AlgorithmConstraint_test *)",
+      "Bash(ctest --output-on-failure)"
     ]
   }
 }
