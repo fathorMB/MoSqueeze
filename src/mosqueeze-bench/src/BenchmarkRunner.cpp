@@ -18,6 +18,7 @@
 #include <fstream>
 #include <future>
 #include <iomanip>
+#include <iostream>
 #include <mutex>
 #include <optional>
 #include <span>
@@ -218,6 +219,19 @@ std::string makeSkipKey(const std::filesystem::path& file, const std::string& al
     return file.string() + "|" + algorithm + "|" + std::to_string(level) + "|" + preprocess;
 }
 
+std::string formatBytes(size_t bytes) {
+    static const char* suffixes[] = {"B", "KB", "MB", "GB"};
+    double value = static_cast<double>(bytes);
+    size_t suffix = 0;
+    while (value >= 1024.0 && suffix < 3) {
+        value /= 1024.0;
+        ++suffix;
+    }
+    std::ostringstream out;
+    out << std::fixed << std::setprecision(suffix == 0 ? 0 : 1) << value << suffixes[suffix];
+    return out.str();
+}
+
 std::string hashHex(const std::string& bytes) {
     uint64_t hash = 1469598103934665603ULL;
     for (const unsigned char c : bytes) {
@@ -231,7 +245,13 @@ std::string hashHex(const std::string& bytes) {
 
 } // namespace
 
-BenchmarkRunner::BenchmarkRunner() = default;
+BenchmarkRunner::BenchmarkRunner() {
+    // Default constraint: zpaq level >1 is too slow for files >2MB
+    constraints_["zpaq"] = AlgorithmConstraint{
+        .maxFileSize = 2 * 1024 * 1024,
+        .maxLevelForSize = 1
+    };
+}
 BenchmarkRunner::~BenchmarkRunner() = default;
 
 void BenchmarkRunner::registerEngine(std::unique_ptr<ICompressionEngine> engine) {
@@ -259,6 +279,30 @@ std::vector<int> BenchmarkRunner::availableLevels(const std::string& algorithm) 
     auto levels = engine->supportedLevels();
     std::sort(levels.begin(), levels.end());
     return levels;
+}
+
+void BenchmarkRunner::registerConstraint(const std::string& algorithm, AlgorithmConstraint constraint) {
+    constraints_[algorithm] = std::move(constraint);
+}
+
+std::vector<int> BenchmarkRunner::filterLevelsBySize(
+    const std::string& algorithm,
+    const std::vector<int>& levels,
+    size_t fileSize) const {
+    auto it = constraints_.find(algorithm);
+    if (it == constraints_.end() || it->second.maxFileSize == 0) {
+        return levels;
+    }
+    if (fileSize <= it->second.maxFileSize) {
+        return levels;
+    }
+    std::vector<int> filtered;
+    for (int level : levels) {
+        if (level <= it->second.maxLevelForSize) {
+            filtered.push_back(level);
+        }
+    }
+    return filtered;
 }
 
 ICompressionEngine* BenchmarkRunner::findEngine(const std::string& name) const {
@@ -445,10 +489,16 @@ std::vector<BenchmarkResult> BenchmarkRunner::runWithConfig(const BenchmarkConfi
         classifications.push_back(detector.detect(file));
     }
     for (size_t fileIdx = 0; fileIdx < config.files.size(); ++fileIdx) {
+        std::error_code ec;
+        const size_t fileSize = static_cast<size_t>(std::filesystem::file_size(config.files[fileIdx], ec));
         const auto preprocessModes = preprocessModesForFile(config, config.files[fileIdx], classifications[fileIdx]);
         for (const auto& preprocessMode : preprocessModes) {
             for (auto* engine : selectedEngines) {
-                for (const int level : levelsByAlgorithm.at(engine->name())) {
+                auto effectiveLevels = levelsByAlgorithm.at(engine->name());
+                if (!config.skipConstraints) {
+                    effectiveLevels = filterLevelsBySize(engine->name(), effectiveLevels, fileSize);
+                }
+                for (const int level : effectiveLevels) {
                     if (config.skipExistingKeys.count(makeSkipKey(config.files[fileIdx], engine->name(), level, preprocessMode)) > 0) {
                         continue;
                     }
@@ -497,14 +547,33 @@ std::vector<BenchmarkResult> BenchmarkRunner::runWithConfig(const BenchmarkConfi
             break;
         }
 
+        std::error_code fileSizeEc;
+        const size_t fileSize = static_cast<size_t>(std::filesystem::file_size(file, fileSizeEc));
+
         const auto preprocessModes = preprocessModesForFile(config, file, classifications[fileIdx]);
         for (const auto& preprocessMode : preprocessModes) {
             BenchmarkConfig perModeConfig = config;
             perModeConfig.preprocessMode = preprocessMode;
 
             for (auto* engine : selectedEngines) {
-                const auto& levelSet = levelsByAlgorithm.at(engine->name());
-                for (int level : levelSet) {
+                auto effectiveLevels = levelsByAlgorithm.at(engine->name());
+                if (!config.skipConstraints) {
+                    const auto originalLevels = effectiveLevels;
+                    effectiveLevels = filterLevelsBySize(engine->name(), effectiveLevels, fileSize);
+                    if (!config.quiet && effectiveLevels.size() < originalLevels.size()) {
+                        for (int level : originalLevels) {
+                            if (std::find(effectiveLevels.begin(), effectiveLevels.end(), level) == effectiveLevels.end()) {
+                                std::cerr << "[WARN] Skipping " << engine->name() << "/" << level
+                                          << " for " << file.filename().string()
+                                          << " (" << formatBytes(fileSize) << " > "
+                                          << formatBytes(constraints_.at(engine->name()).maxFileSize)
+                                          << "): max allowed level = "
+                                          << constraints_.at(engine->name()).maxLevelForSize << "\n";
+                            }
+                        }
+                    }
+                }
+                for (int level : effectiveLevels) {
                     const std::string skipKey = makeSkipKey(file, engine->name(), level, preprocessMode);
                     if (config.skipExistingKeys.count(skipKey) > 0) {
                         continue;
@@ -546,6 +615,9 @@ void BenchmarkRunner::processFile(
     const int iterations = std::max(1, config.iterations);
     const int warmups = std::max(0, config.warmupIterations);
 
+    std::error_code fileSizeEc;
+    const size_t fileSize = static_cast<size_t>(std::filesystem::file_size(file, fileSizeEc));
+
     std::vector<BenchmarkResult> localResults;
     const auto preprocessModes = preprocessModesForFile(config, file, classification);
     for (const auto& preprocessMode : preprocessModes) {
@@ -560,9 +632,12 @@ void BenchmarkRunner::processFile(
         if (it == levelsByAlgorithm.end()) {
             continue;
         }
-        const auto& levelSet = it->second;
+        auto effectiveLevels = it->second;
+        if (!config.skipConstraints) {
+            effectiveLevels = filterLevelsBySize(engine->name(), effectiveLevels, fileSize);
+        }
 
-        for (int level : levelSet) {
+        for (int level : effectiveLevels) {
             if (config.skipExistingKeys.count(makeSkipKey(file, engine->name(), level, preprocessMode)) > 0) {
                 continue;
             }
