@@ -39,6 +39,7 @@ COPY src/ ./src/
 COPY cmake/ ./cmake/
 COPY tests/ ./tests/
 COPY third_party/ ./third_party/
+COPY docs/ ./docs/
 
 # Build application
 RUN cmake -B build -S . \
