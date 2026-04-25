@@ -1,4 +1,4 @@
-﻿add_executable(Version_test
+add_executable(Version_test
   unit/Version_test.cpp
 )
 
@@ -438,6 +438,39 @@ target_link_libraries(AlgorithmConstraint_test
     libmosqueeze
     SQLite::SQLite3
 )
+
+add_custom_command(TARGET AlgorithmConstraint_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:AlgorithmConstraint_test>
+)
+
 add_test(NAME AlgorithmConstraint_test COMMAND AlgorithmConstraint_test)
+
+add_executable(SignalHandler_test
+  unit/SignalHandler_test.cpp
+  ../src/mosqueeze-bench/src/BenchmarkRunner.cpp
+  ../src/mosqueeze-bench/src/ResultsStore.cpp
+  ../src/mosqueeze-bench/src/ThreadPool.cpp
+)
+
+target_include_directories(SignalHandler_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/mosqueeze-bench/include
+)
+
+target_link_libraries(SignalHandler_test
+  PRIVATE
+    libmosqueeze
+    SQLite::SQLite3
+)
+
+add_custom_command(TARGET SignalHandler_test POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:libmosqueeze>
+          $<TARGET_FILE_DIR:SignalHandler_test>
+)
+
+add_test(NAME SignalHandler_test COMMAND SignalHandler_test)
 
 add_subdirectory(prediction)

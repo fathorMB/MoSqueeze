@@ -3,6 +3,7 @@
 #include <mosqueeze/bench/Formatters.hpp>
 #include <mosqueeze/bench/ProgressReporter.hpp>
 #include <mosqueeze/bench/ResultsStore.hpp>
+#include <mosqueeze/bench/SignalHandler.hpp>
 #include <mosqueeze/engines/BrotliEngine.hpp>
 #include <mosqueeze/engines/LzmaEngine.hpp>
 #include <mosqueeze/engines/ZpaqEngine.hpp>
@@ -275,10 +276,15 @@ std::vector<mosqueeze::bench::BenchmarkResult> loadComparisonRows(const std::fil
         std::ifstream in(file, std::ios::binary);
         nlohmann::json payload;
         in >> payload;
-        if (!payload.is_array()) {
-            throw std::runtime_error("Comparison JSON must be an array");
+        nlohmann::json resultsArray;
+        if (payload.is_array()) {
+            resultsArray = std::move(payload);
+        } else if (payload.is_object() && payload.contains("results")) {
+            resultsArray = std::move(payload["results"]);
+        } else {
+            throw std::runtime_error("Comparison JSON must be an array or an object with a 'results' key");
         }
-        for (const auto& item : payload) {
+        for (const auto& item : resultsArray) {
             mosqueeze::bench::BenchmarkResult row{};
             row.algorithm = item.value("algorithm", "");
             row.level = item.value("level", 0);
@@ -618,6 +624,11 @@ int main(int argc, char* argv[]) {
         };
     }
 
+    mosqueeze::bench::SignalHandler::install();
+    config.shouldCancel = []() {
+        return mosqueeze::bench::SignalHandler::interrupted();
+    };
+
     std::filesystem::create_directories(outputDir);
     mosqueeze::bench::ResultsStore store(outputDir / "results.sqlite3");
     if (resume) {
@@ -637,16 +648,24 @@ int main(int argc, char* argv[]) {
     } else {
         results = runner.runWithConfig(config);
     }
+
+    const bool wasInterrupted = mosqueeze::bench::SignalHandler::interrupted();
+
     const auto stats = runner.computeStats(results);
     const auto finishedAt = std::chrono::steady_clock::now();
     progressReporter.reset();
+
+    if (wasInterrupted) {
+        std::cerr << "\n[INTERRUPTED] Received signal " << mosqueeze::bench::SignalHandler::receivedSignal()
+                  << ", flushing partial results...\n";
+    }
 
     store.saveAll(results);
 
     if (!exportFile.empty()) {
         std::filesystem::create_directories(exportFile.parent_path());
         if (format == "json") {
-            store.exportJson(exportFile);
+            store.exportJson(exportFile, wasInterrupted);
         } else if (format == "csv") {
             store.exportCsv(exportFile);
         } else if (format == "markdown") {
@@ -661,18 +680,18 @@ int main(int argc, char* argv[]) {
     if (exportFile.empty()) {
         if (exportJsonFlag || exportCsvFlag) {
             if (exportJsonFlag) {
-                store.exportJson(outputDir / "results.json");
+                store.exportJson(outputDir / "results.json", wasInterrupted);
             }
             if (exportCsvFlag) {
                 store.exportCsv(outputDir / "results.csv");
             }
         } else {
-            store.exportJson(outputDir / "results.json");
+            store.exportJson(outputDir / "results.json", wasInterrupted);
             store.exportCsv(outputDir / "results.csv");
         }
     } else if (exportJsonFlag || exportCsvFlag) {
         if (exportJsonFlag) {
-            store.exportJson(outputDir / "results.json");
+            store.exportJson(outputDir / "results.json", wasInterrupted);
         }
         if (exportCsvFlag) {
             store.exportCsv(outputDir / "results.csv");
@@ -681,7 +700,12 @@ int main(int argc, char* argv[]) {
 
     if (!quiet) {
         const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(finishedAt - startedAt).count();
-        std::cout << "Completed " << results.size() << " benchmark samples in " << elapsed << " ms\n";
+        if (wasInterrupted) {
+            std::cout << "Interrupted! Completed " << results.size() << " of " << config.files.size()
+                      << " files in " << elapsed << " ms\n";
+        } else {
+            std::cout << "Completed " << results.size() << " benchmark samples in " << elapsed << " ms\n";
+        }
         if (summary || !verbose) {
             std::cout << mosqueeze::bench::Formatters::formatSummaryTable(results, &stats);
         } else {
@@ -699,5 +723,8 @@ int main(int argc, char* argv[]) {
         printComparison(results, previous, diffOnly);
     }
 
+    if (wasInterrupted) {
+        return 128 + mosqueeze::bench::SignalHandler::receivedSignal();
+    }
     return 0;
 }
