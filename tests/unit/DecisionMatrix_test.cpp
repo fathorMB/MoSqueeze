@@ -67,7 +67,7 @@ void testPredictJson() {
 void testSkipFiles() {
     const auto m = loadMatrix();
 
-    for (const auto& ext : {".jpg", ".mp4", ".7z", ".gz", ".mov", ".png"}) {
+    for (const auto& ext : {".jpg", ".mp4", ".7z", ".gz", ".mov", ".png", ".flac", ".pdf"}) {
         if (!m.hasData(ext)) continue; // skip if not in this build's matrix
         const auto p = m.predict(ext);
         assert(p.shouldSkip && (std::string("expected shouldSkip for ") + ext).c_str());

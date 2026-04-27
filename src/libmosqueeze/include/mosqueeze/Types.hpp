@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <set>
 #include <string>
 
 namespace mosqueeze {
@@ -66,6 +67,12 @@ enum class FileType {
     Archive_7Z,
 
     Unknown
+};
+
+struct SelectionConfig {
+    double entropyThreshold = 7.5;
+    std::set<std::string> skipExtensions;
+    std::set<FileType> skipFileTypes;
 };
 
 } // namespace mosqueeze

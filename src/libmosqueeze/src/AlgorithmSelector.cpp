@@ -99,7 +99,13 @@ void AlgorithmSelector::initializeDefaultRules() {
 
     typeToRule_[FileType::Audio_FLAC] = {
         FileType::Audio_FLAC,
-        "", 0, "FLAC: already lossless compressed, skip",
+        "", 0, "FLAC: already lossless compressed, secondary compression < 10% gain",
+        true, "", 0
+    };
+
+    typeToRule_[FileType::Document_PDF] = {
+        FileType::Document_PDF,
+        "", 0, "PDF: internal compression often sufficient, < 5% gain",
         true, "", 0
     };
 
@@ -162,6 +168,13 @@ Selection AlgorithmSelector::select(
         Selection skipSelection;
         skipSelection.shouldSkip = true;
         skipSelection.rationale = "File type marked as skip: " + classification.mimeType;
+        return skipSelection;
+    }
+
+    if (shouldSkip(classification, FileFeatures{})) {
+        Selection skipSelection;
+        skipSelection.shouldSkip = true;
+        skipSelection.rationale = "File type in skip list: " + classification.mimeType;
         return skipSelection;
     }
 
@@ -367,6 +380,88 @@ std::vector<std::string> AlgorithmSelector::availableAlgorithms() const {
 
     std::sort(names.begin(), names.end());
     return names;
+}
+
+Selection AlgorithmSelector::select(
+    const FileClassification& classification,
+    const FileFeatures& features) const {
+
+    if (shouldSkip(classification, features)) {
+        Selection skipSelection;
+        skipSelection.shouldSkip = true;
+        if (features.entropy > config_.entropyThreshold && config_.entropyThreshold > 0.0) {
+            skipSelection.rationale = "High entropy (" + std::to_string(features.entropy).substr(0, 5)
+                + " > " + std::to_string(config_.entropyThreshold).substr(0, 5)
+                + "): likely already compressed";
+        } else {
+            skipSelection.rationale = "File type in skip list: " + classification.mimeType;
+        }
+        return skipSelection;
+    }
+
+    if (classification.recommendation == "extract-then-compress") {
+        Selection extractSelection;
+        extractSelection.shouldSkip = true;
+        extractSelection.rationale = "Archive detected: extract contents first, then compress individually";
+        return extractSelection;
+    }
+
+    if (!classification.canRecompress || classification.recommendation == "skip") {
+        Selection skipSelection;
+        skipSelection.shouldSkip = true;
+        skipSelection.rationale = "File type marked as skip: " + classification.mimeType;
+        return skipSelection;
+    }
+
+    if (hasBenchmarkData_) {
+        Selection benchmarkSelection = selectFromBenchmark(classification);
+        if (!benchmarkSelection.algorithm.empty()) {
+            benchmarkSelection.level = validateLevel(benchmarkSelection.algorithm, benchmarkSelection.level);
+            if (!benchmarkSelection.fallbackAlgorithm.empty()) {
+                benchmarkSelection.fallbackLevel = validateLevel(
+                    benchmarkSelection.fallbackAlgorithm,
+                    benchmarkSelection.fallbackLevel);
+            }
+            return benchmarkSelection;
+        }
+    }
+
+    Selection ruleSelection = selectFromRules(classification);
+    if (!ruleSelection.algorithm.empty()) {
+        ruleSelection.level = validateLevel(ruleSelection.algorithm, ruleSelection.level);
+    }
+    if (!ruleSelection.fallbackAlgorithm.empty()) {
+        ruleSelection.fallbackLevel = validateLevel(ruleSelection.fallbackAlgorithm, ruleSelection.fallbackLevel);
+    }
+
+    return ruleSelection;
+}
+
+bool AlgorithmSelector::shouldSkip(
+    const FileClassification& classification,
+    const FileFeatures& features) const {
+
+    if (config_.skipExtensions.count(classification.extension)) {
+        return true;
+    }
+
+    if (config_.skipFileTypes.count(classification.type)) {
+        return true;
+    }
+
+    if (config_.entropyThreshold > 0.0 && features.entropy > config_.entropyThreshold) {
+        return true;
+    }
+
+    return false;
+}
+
+void AlgorithmSelector::setConfig(const SelectionConfig& config) {
+    config_ = config;
+}
+
+const SelectionConfig& AlgorithmSelector::config() const {
+    return config_;
 }
 
 } // namespace mosqueeze

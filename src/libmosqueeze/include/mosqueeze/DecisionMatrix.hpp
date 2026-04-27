@@ -88,6 +88,7 @@ private:
     size_t totalBenchmarks_ = 0;
 
     bool parseJsonContent(std::string_view content);
+    void applySkipOverrides();
     CompressionSpeed classifySpeed(std::chrono::milliseconds encodeTime) const;
     std::string fileExtensionToLower(const std::filesystem::path& path) const;
     Prediction buildPrediction(const std::string& ext, const ExtensionData& ed, size_t fileSize) const;
