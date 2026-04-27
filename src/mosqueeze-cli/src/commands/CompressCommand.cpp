@@ -1,4 +1,5 @@
 #include "CompressCommand.hpp"
+#include "../ProgressIndicator.hpp"
 
 #include <mosqueeze/CompressionPipeline.hpp>
 #include <mosqueeze/Preprocessor.hpp>
@@ -32,6 +33,9 @@
 namespace mosqueeze::cli {
 namespace {
 
+constexpr int EXIT_ERROR = 1;
+constexpr size_t PROGRESS_THRESHOLD = 1024 * 1024; // 1 MB
+
 void setBinaryModeIfNeeded(bool useInputStdIn, bool useOutputStdOut) {
 #ifdef _WIN32
     if (useInputStdIn) {
@@ -57,7 +61,7 @@ void emitErrorJson(const std::string& input, const std::string& message) {
 
 } // namespace
 
-void addCompressCommand(CLI::App& app) {
+void addCompressCommand(CLI::App& app, const Terminal& term) {
     auto* compress = app.add_subcommand("compress", "Compress a file");
 
     auto opts = std::make_shared<CompressOptions>();
@@ -75,8 +79,30 @@ void addCompressCommand(CLI::App& app) {
         ->check(CLI::IsMember({"none", "json-canonical", "xml-canonical", "image-meta-strip", "png-optimizer", "bayer-raw"}));
     compress->add_flag("--json", opts->jsonOutput, "Output result as JSON");
 
-    compress->callback([opts]() {
-        const int exitCode = runCompress(*opts);
+    compress->footer(R"(
+Examples:
+  mosqueeze compress input.dat -o output.msz -a zstd
+  mosqueeze compress large.json -o compact.msz -a brotli -l 11
+  mosqueeze compress photo.raf -o photo.msz --preprocess bayer-raw
+  mosqueeze compress data.csv -o data.msz -a lzma --json
+
+Algorithms:
+  zstd    - Fast, good compression (levels 1-22, default: 3)
+  brotli  - Good for text (levels 0-11, default: 6)
+  lzma    - High compression (levels 0-9, default: 6)
+  zpaq    - Best ratio, slow (levels 1-5, default: 3)
+
+Preprocessors:
+  none            - No preprocessing (default)
+  json-canonical  - Canonicalize JSON before compression
+  xml-canonical   - Canonicalize XML before compression
+  image-meta-strip - Strip image metadata
+  png-optimizer   - Optimize PNG before compression
+  bayer-raw      - Bayer raw image preprocessing
+)");
+
+    compress->callback([opts, &term]() {
+        const int exitCode = runCompress(*opts, term);
         if (exitCode != 0) {
             throw CLI::RuntimeError(exitCode);
         }
@@ -137,7 +163,7 @@ int defaultLevelFor(const std::string& algorithm) {
     return 3;
 }
 
-int runCompress(const CompressOptions& opts) {
+int runCompress(const CompressOptions& opts, const Terminal& term) {
     try {
         const bool useInputStdIn = opts.inputFile == "-";
         const bool useOutputStdOut = opts.outputFile == "-";
@@ -147,9 +173,15 @@ int runCompress(const CompressOptions& opts) {
             if (opts.jsonOutput) {
                 emitErrorJson(opts.inputFile, "Input file not found");
             } else {
-                fmt::print(stderr, "Error: Input file not found: {}\n", opts.inputFile);
+                term.printError("Input file not found: " + opts.inputFile);
             }
-            return 1;
+            return EXIT_ERROR;
+        }
+
+        // Get file size for progress indication
+        size_t inputFileSize = 0;
+        if (!useInputStdIn) {
+            inputFileSize = std::filesystem::file_size(opts.inputFile);
         }
 
         auto engine = createEngine(opts.algorithm);
@@ -191,10 +223,18 @@ int runCompress(const CompressOptions& opts) {
             output = &outFile;
         }
 
+        // Show progress for large files
+        ProgressIndicator progress(term);
+        if (inputFileSize >= PROGRESS_THRESHOLD && !useOutputStdOut) {
+            progress.showProcessing("Compressing", opts.inputFile, inputFileSize);
+        }
+
         CompressionOptions compOpts{};
         compOpts.level = level;
         const PipelineResult pipelineResult = pipeline.compress(*input, *output, compOpts);
         output->flush();
+
+        progress.clearProcessing();
 
         const size_t inputSize = pipelineResult.wasPreprocessed
             ? pipelineResult.preprocessing.originalBytes
@@ -204,6 +244,7 @@ int runCompress(const CompressOptions& opts) {
         const double ratio = inputSize > 0
             ? static_cast<double>(outputSize) / static_cast<double>(inputSize)
             : 0.0;
+        const double elapsed = progress.elapsedSeconds();
 
         if (opts.jsonOutput) {
             nlohmann::json payload{
@@ -217,15 +258,22 @@ int runCompress(const CompressOptions& opts) {
                 {"level", level},
                 {"preprocessor", opts.preprocess}
             };
+            if (elapsed > 0.0) {
+                payload["elapsedSeconds"] = elapsed;
+            }
             fmt::print("{}\n", payload.dump());
         } else {
-            fmt::print("Compressed {} -> {}\n", opts.inputFile, opts.outputFile);
-            fmt::print("  Algorithm: {} level {}\n", opts.algorithm, level);
-            fmt::print("  Preprocess: {}\n", opts.preprocess);
-            fmt::print("  Size: {} -> {} bytes ({:.1f}%)\n",
+            term.printSuccess(fmt::format("Compressed {} -> {}", opts.inputFile, opts.outputFile));
+            fmt::print("  {}Algorithm:{} {} level {}\n", term.bold(), term.reset(), opts.algorithm, level);
+            fmt::print("  {}Preprocess:{} {}\n", term.bold(), term.reset(), opts.preprocess);
+            fmt::print("  {}Size:{} {} -> {} bytes ({:.1f}%)\n",
+                       term.bold(), term.reset(),
                        inputSize,
                        outputSize,
                        inputSize > 0 ? (100.0 * static_cast<double>(outputSize) / static_cast<double>(inputSize)) : 0.0);
+            if (elapsed > 0.0) {
+                fmt::print("  {}Time:{} {:.2f}s\n", term.bold(), term.reset(), elapsed);
+            }
         }
 
         return 0;
@@ -233,9 +281,9 @@ int runCompress(const CompressOptions& opts) {
         if (opts.jsonOutput) {
             emitErrorJson(opts.inputFile, e.what());
         } else {
-            fmt::print(stderr, "Error: {}\n", e.what());
+            term.printError(e.what());
         }
-        return 2;
+        return EXIT_ERROR;
     }
 }
 

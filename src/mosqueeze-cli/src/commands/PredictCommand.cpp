@@ -17,26 +17,28 @@ namespace mosqueeze::cli {
 
 namespace {
 
+constexpr int EXIT_ERROR = 1;
+
 // ---------------------------------------------------------------------------
 // Text formatter
 // ---------------------------------------------------------------------------
 
-std::string formatText(const PredictionResult& r) {
+std::string formatText(const PredictionResult& r, const Terminal& term) {
     std::string out;
 
-    out += fmt::format("File: {}\n", r.path.string());
-    out += fmt::format("Size: {} bytes\n", r.inputSize);
-    out += fmt::format("Type: {}\n", r.mimeType.empty() ? "unknown" : r.mimeType);
+    out += fmt::format("{}File:{} {}\n", term.bold(), term.reset(), r.path.string());
+    out += fmt::format("{}Size:{} {} bytes\n", term.bold(), term.reset(), r.inputSize);
+    out += fmt::format("{}Type:{} {}\n", term.bold(), term.reset(), r.mimeType.empty() ? "unknown" : r.mimeType);
 
     if (r.shouldSkip) {
-        out += fmt::format("\nSKIP: {}\n", r.skipReason);
+        out += fmt::format("\n{}SKIP:{} {}\n", term.yellow(), term.reset(), r.skipReason);
         return out;
     }
 
     if (r.preprocessorAvailable)
-        out += fmt::format("Preprocessor: {}\n", r.preprocessor);
+        out += fmt::format("{}Preprocessor:{} {}\n", term.bold(), term.reset(), r.preprocessor);
 
-    out += "\nRecommendations:\n";
+    out += fmt::format("\n{}Recommendations:{}\n", term.bold(), term.reset());
 
     int i = 1;
     for (const auto& opt : r.recommendations) {
@@ -79,11 +81,11 @@ std::string formatJsonBatch(const std::vector<PredictionResult>& results, int in
     return arr.dump(indent);
 }
 
-std::string formatTextBatch(const std::vector<PredictionResult>& results) {
+std::string formatTextBatch(const std::vector<PredictionResult>& results, const Terminal& term) {
     std::string out;
     for (size_t i = 0; i < results.size(); ++i) {
         if (i > 0) out += "\n---\n\n";
-        out += formatText(results[i]);
+        out += formatText(results[i], term);
     }
     return out;
 }
@@ -94,7 +96,7 @@ std::string formatTextBatch(const std::vector<PredictionResult>& results) {
 // Command registration
 // ---------------------------------------------------------------------------
 
-void addPredictCommand(CLI::App& app) {
+void addPredictCommand(CLI::App& app, const Terminal& term) {
     auto* predict = app.add_subcommand("predict",
         "Predict compression options for one or more files");
 
@@ -117,13 +119,28 @@ void addPredictCommand(CLI::App& app) {
     predict->add_flag("-v,--verbose", *verbose,
         "Show debug information");
 
-    predict->callback([=]() {
+    predict->footer(R"(
+Examples:
+  mosqueeze predict document.json
+  mosqueeze predict photo.raf --prefer-speed
+  mosqueeze predict file1.bin file2.dat -o results.txt
+  mosqueeze predict data.csv --format json --verbose
+  mosqueeze predict *.json --decision-matrix custom_matrix.json
+
+Output formats:
+  text  - Human-readable output (default)
+  json  - Machine-readable JSON format
+)");
+
+    predict->callback([=, &term]() {
         namespace fs = std::filesystem;
 
         // Validate all inputs exist before doing any work
         for (const auto& f : *files) {
-            if (!fs::exists(f))
-                throw std::runtime_error("File does not exist: " + f);
+            if (!fs::exists(f)) {
+                term.printError("File does not exist: " + f);
+                throw CLI::RuntimeError(EXIT_ERROR);
+            }
         }
 
         PredictionConfig cfg;
@@ -151,15 +168,17 @@ void addPredictCommand(CLI::App& app) {
         const std::string output =
             *format == "json"
                 ? formatJsonBatch(results, 2)
-                : formatTextBatch(results);
+                : formatTextBatch(results, term);
 
         // Emit
         if (outputFile->empty()) {
             fmt::print("{}\n", output);
         } else {
             std::ofstream out(*outputFile);
-            if (!out)
-                throw std::runtime_error("Cannot open output file: " + *outputFile);
+            if (!out) {
+                term.printError("Cannot open output file: " + *outputFile);
+                throw CLI::RuntimeError(EXIT_ERROR);
+            }
             out << output << "\n";
             spdlog::info("Prediction written to {}", *outputFile);
         }
