@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Terminal.hpp"
+
 #include <CLI/CLI.hpp>
 
 #include <string>
@@ -12,7 +14,7 @@ struct DecompressOptions {
     bool jsonOutput = false;
 };
 
-void addDecompressCommand(CLI::App& app);
-int runDecompress(const DecompressOptions& opts);
+void addDecompressCommand(CLI::App& app, const Terminal& term);
+int runDecompress(const DecompressOptions& opts, const Terminal& term);
 
 } // namespace mosqueeze::cli

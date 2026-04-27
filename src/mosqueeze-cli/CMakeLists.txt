@@ -5,6 +5,7 @@ find_package(nlohmann_json CONFIG REQUIRED)
 
 add_executable(mosqueeze
   src/main.cpp
+  src/Terminal.cpp
   src/commands/CompressCommand.cpp
   src/commands/DecompressCommand.cpp
   src/commands/PredictCommand.cpp

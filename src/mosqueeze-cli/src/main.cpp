@@ -1,6 +1,7 @@
 #include "commands/CompressCommand.hpp"
 #include "commands/DecompressCommand.hpp"
 #include "commands/PredictCommand.hpp"
+#include "Terminal.hpp"
 #include <CLI/CLI.hpp>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -13,8 +14,9 @@
 #include <mosqueeze/engines/LzmaEngine.hpp>
 #include <mosqueeze/engines/ZpaqEngine.hpp>
 #include <mosqueeze/engines/ZstdEngine.hpp>
-#include <spdlog/spdlog.h>
 
+#include <atomic>
+#include <csignal>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -23,7 +25,24 @@
 
 namespace {
 
-void addAnalyzeCommand(CLI::App& app) {
+// Exit codes
+constexpr int EXIT_SUCCESS_CODE = 0;
+constexpr int EXIT_ERROR = 1;
+constexpr int EXIT_CANCELLED = 2;
+constexpr int EXIT_INVALID_ARGS = 3;
+
+std::atomic<bool> g_interrupted{false};
+
+void signalHandler(int) {
+    g_interrupted = true;
+}
+
+void setupSignalHandlers() {
+    std::signal(SIGINT, signalHandler);
+    std::signal(SIGTERM, signalHandler);
+}
+
+void addAnalyzeCommand(CLI::App& app, const mosqueeze::cli::Terminal& term) {
     auto* analyze = app.add_subcommand("analyze", "Analyze file and recommend algorithm");
 
     auto inputFile = std::make_shared<std::string>();
@@ -42,10 +61,23 @@ void addAnalyzeCommand(CLI::App& app) {
         ->check(CLI::IsMember(
             {"auto", "none", "json-canonical", "xml-canonical", "image-meta-strip", "png-optimizer", "bayer-raw", "zstd-dict"}));
 
-    analyze->callback([inputFile, verbose, benchmark, preprocess]() {
+    analyze->footer(R"(
+Examples:
+  mosqueeze analyze document.json
+  mosqueeze analyze photo.raf -v
+  mosqueeze analyze data.csv --preprocess auto
+
+Note: For benchmarking compression algorithms across multiple files,
+use the separate mosqueeze-bench tool:
+
+  mosqueeze-bench -d ./corpus -a zstd,xz,brotli,zpaq --default-only
+)");
+
+    analyze->callback([inputFile, verbose, benchmark, preprocess, &term]() {
         std::filesystem::path path(*inputFile);
         if (!std::filesystem::exists(path)) {
-            throw std::runtime_error("Input file does not exist: " + path.string());
+            term.printError("Input file does not exist: " + path.string());
+            throw CLI::RuntimeError(EXIT_ERROR);
         }
 
         mosqueeze::FileTypeDetector detector;
@@ -63,34 +95,34 @@ void addAnalyzeCommand(CLI::App& app) {
 
         const auto selection = selector.select(classification, path);
 
-        fmt::print("File: {}\n", path.string());
-        fmt::print("Type: {}\n", classification.mimeType);
-        fmt::print("Compressed: {}\n", classification.isCompressed ? "yes" : "no");
+        fmt::print("{}File:{} {}\n", term.bold(), term.reset(), path.string());
+        fmt::print("{}Type:{} {}\n", term.bold(), term.reset(), classification.mimeType);
+        fmt::print("{}Compressed:{} {}\n", term.bold(), term.reset(), classification.isCompressed ? "yes" : "no");
 
         if (*verbose) {
-            fmt::print("FileType enum: {}\n", static_cast<int>(classification.type));
-            fmt::print("Can recompress: {}\n", classification.canRecompress ? "yes" : "no");
+            fmt::print("{}FileType enum:{} {}\n", term.bold(), term.reset(), static_cast<int>(classification.type));
+            fmt::print("{}Can recompress:{} {}\n", term.bold(), term.reset(), classification.canRecompress ? "yes" : "no");
             auto algorithms = selector.availableAlgorithms();
-            fmt::print("Available algorithms: {}\n", fmt::join(algorithms, ", "));
+            fmt::print("{}Available algorithms:{} {}\n", term.bold(), term.reset(), fmt::join(algorithms, ", "));
         }
 
-        fmt::print("\nRecommendation:\n");
+        fmt::print("\n{}Recommendation:{}\n", term.bold(), term.reset());
 
         if (selection.shouldSkip) {
-            fmt::print("  Action: SKIP\n");
-            fmt::print("  Reason: {}\n", selection.rationale);
+            fmt::print("  {}Action:{} SKIP\n", term.bold(), term.reset());
+            fmt::print("  {}Reason:{} {}\n", term.bold(), term.reset(), selection.rationale);
             return;
         }
 
-        fmt::print("  Algorithm: {} level {}\n", selection.algorithm, selection.level);
+        term.printSuccess(fmt::format("Algorithm: {} level {}", selection.algorithm, selection.level));
         if (!selection.fallbackAlgorithm.empty()) {
-            fmt::print("  Fallback: {} level {}\n", selection.fallbackAlgorithm, selection.fallbackLevel);
+            fmt::print("  {}Fallback:{} {} level {}\n", term.bold(), term.reset(), selection.fallbackAlgorithm, selection.fallbackLevel);
         }
-        fmt::print("  Reason: {}\n", selection.rationale);
-        fmt::print("  Preprocess: {}\n", *preprocess);
+        fmt::print("  {}Reason:{} {}\n", term.bold(), term.reset(), selection.rationale);
+        fmt::print("  {}Preprocess:{} {}\n", term.bold(), term.reset(), *preprocess);
 
         if (*benchmark) {
-            fmt::print("\nQuick benchmark not implemented yet; use mosqueeze-bench for full runs.\n");
+            term.printWarning("Quick benchmark not implemented yet; use mosqueeze-bench for full runs.");
         }
     });
 }
@@ -111,7 +143,7 @@ mosqueeze::OptimizationGoal parseGoal(const std::string& value) {
     return mosqueeze::OptimizationGoal::MinSize;
 }
 
-void printRecommendation(const mosqueeze::Recommendation& rec, bool jsonOutput) {
+void printRecommendation(const mosqueeze::Recommendation& rec, bool jsonOutput, const mosqueeze::cli::Terminal& term) {
     if (jsonOutput) {
         fmt::print(
             "{{\"preprocessor\":\"{}\",\"algorithm\":\"{}\",\"level\":{},\"expectedRatio\":{},\"expectedTimeMs\":{},\"expectedSize\":{},\"confidence\":{},\"sampleCount\":{},\"explanation\":\"{}\"}}\n",
@@ -127,17 +159,17 @@ void printRecommendation(const mosqueeze::Recommendation& rec, bool jsonOutput) 
         return;
     }
 
-    fmt::print("Recommendation\n");
-    fmt::print("  Preprocessor: {}\n", rec.preprocessor);
-    fmt::print("  Algorithm:    {}\n", rec.algorithm);
-    fmt::print("  Level:        {}\n", rec.level);
-    fmt::print("  Expected ratio: {:.3f}\n", rec.expectedRatio);
-    fmt::print("  Expected time : {:.1f} ms\n", rec.expectedTimeMs);
-    fmt::print("  Confidence    : {:.0f}%\n", rec.confidence * 100.0);
-    fmt::print("  Explanation   : {}\n", rec.explanation);
+    fmt::print("{}Recommendation{}\n", term.bold(), term.reset());
+    fmt::print("  {}Preprocessor:{} {}\n", term.bold(), term.reset(), rec.preprocessor);
+    fmt::print("  {}Algorithm:{}    {}\n", term.bold(), term.reset(), rec.algorithm);
+    fmt::print("  {}Level:{}        {}\n", term.bold(), term.reset(), rec.level);
+    fmt::print("  {}Expected ratio:{} {:.3f}\n", term.bold(), term.reset(), rec.expectedRatio);
+    fmt::print("  {}Expected time :{} {:.1f} ms\n", term.bold(), term.reset(), rec.expectedTimeMs);
+    fmt::print("  {}Confidence    :{} {:.0f}%\n", term.bold(), term.reset(), rec.confidence * 100.0);
+    fmt::print("  {}Explanation   :{} {}\n", term.bold(), term.reset(), rec.explanation);
 
     if (!rec.alternatives.empty()) {
-        fmt::print("Alternatives:\n");
+        fmt::print("{}Alternatives:{}\n", term.bold(), term.reset());
         for (const auto& alt : rec.alternatives) {
             fmt::print(
                 "  - {} + {}:{} (ratio {:.3f}, {:.1f} ms, conf {:.0f}%)\n",
@@ -151,7 +183,7 @@ void printRecommendation(const mosqueeze::Recommendation& rec, bool jsonOutput) 
     }
 }
 
-void addSuggestCommand(CLI::App& app) {
+void addSuggestCommand(CLI::App& app, const mosqueeze::cli::Terminal& term) {
     auto* suggest = app.add_subcommand("suggest", "Intelligent compression suggestion for a single file");
 
     auto inputFile = std::make_shared<std::string>();
@@ -167,31 +199,59 @@ void addSuggestCommand(CLI::App& app) {
     suggest->add_option("--db", *dbPath, "Optional benchmark database path");
     suggest->add_flag("--json", *jsonOutput, "Print compact JSON output");
 
-    suggest->callback([inputFile, goal, dbPath, jsonOutput]() {
+    suggest->footer(R"(
+Examples:
+  mosqueeze suggest large.json
+  mosqueeze suggest photo.raf --goal fastest
+  mosqueeze suggest data.csv --goal balanced --db benchmarks.db
+  mosqueeze suggest document.pdf --json
+
+Goals:
+  min-size           - Smallest output (default)
+  fastest            - Fastest compression
+  balanced           - Balance speed and ratio
+  min-memory         - Minimal memory usage
+  best-decompression - Fastest decompression
+)");
+
+    suggest->callback([inputFile, goal, dbPath, jsonOutput, &term]() {
         std::filesystem::path path(*inputFile);
         if (!std::filesystem::exists(path)) {
-            throw std::runtime_error("Input file does not exist: " + path.string());
+            term.printError("Input file does not exist: " + path.string());
+            throw CLI::RuntimeError(EXIT_ERROR);
         }
 
         mosqueeze::IntelligentSelector selector(parseGoal(*goal));
         if (!dbPath->empty()) {
             const bool opened = selector.loadBenchmarkDatabase(*dbPath);
             if (!opened) {
-                throw std::runtime_error("Failed to open benchmark database: " + *dbPath);
+                term.printError("Failed to open benchmark database: " + *dbPath);
+                throw CLI::RuntimeError(EXIT_ERROR);
             }
         }
 
         auto recommendation = selector.analyzeWithAlternatives(
             path,
             {mosqueeze::OptimizationGoal::Fastest, mosqueeze::OptimizationGoal::Balanced});
-        printRecommendation(recommendation, *jsonOutput);
+        printRecommendation(recommendation, *jsonOutput, term);
     });
 }
 
 } // namespace
 
 int main(int argc, char** argv) {
+    setupSignalHandlers();
+
+    mosqueeze::cli::Terminal term;
+
     CLI::App app{"MoSqueeze - Cold Storage Compression Library"};
+    app.footer(R"(
+Note: For benchmarking compression algorithms across multiple files,
+use the separate mosqueeze-bench tool:
+
+  mosqueeze-bench -d ./corpus -a zstd,xz,brotli,zpaq --default-only
+)");
+
     bool listPreprocessors = false;
 
     app.add_flag("-V,--version", [](std::int64_t) {
@@ -200,18 +260,36 @@ int main(int argc, char** argv) {
     }, "Print version and exit");
     app.add_flag("--list-preprocessors", listPreprocessors, "List available preprocessors");
 
-    addAnalyzeCommand(app);
-    addSuggestCommand(app);
-    mosqueeze::cli::addCompressCommand(app);
-    mosqueeze::cli::addDecompressCommand(app);
-    mosqueeze::cli::addPredictCommand(app);
+    addAnalyzeCommand(app, term);
+    addSuggestCommand(app, term);
+    mosqueeze::cli::addCompressCommand(app, term);
+    mosqueeze::cli::addDecompressCommand(app, term);
+    mosqueeze::cli::addPredictCommand(app, term);
 
-    CLI11_PARSE(app, argc, argv);
+    try {
+        app.parse(argc, argv);
+    } catch (const CLI::RuntimeError& e) {
+        // RuntimeError is thrown by command callbacks with specific exit codes
+        // (e.g., EXIT_ERROR=1 for file-not-found, etc.)
+        return e.get_exit_code();
+    } catch (const CLI::ParseError& e) {
+        // CLI::Success (from --help, --version) returns 0
+        if (e.get_exit_code() == 0) {
+            return app.exit(e);
+        }
+        // All other parse errors = invalid arguments -> exit code 3
+        return EXIT_INVALID_ARGS;
+    }
+
+    if (g_interrupted.load()) {
+        term.printError("Operation cancelled by user");
+        return EXIT_CANCELLED;
+    }
 
     if (listPreprocessors) {
         mosqueeze::PreprocessorSelector selector;
         fmt::print("Available preprocessors: {}\n", fmt::join(selector.listNames(), ", "));
     }
 
-    return 0;
+    return EXIT_SUCCESS_CODE;
 }

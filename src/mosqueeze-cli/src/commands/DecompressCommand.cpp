@@ -1,6 +1,6 @@
 #include "DecompressCommand.hpp"
-
 #include "CompressCommand.hpp"
+#include "../ProgressIndicator.hpp"
 
 #include <mosqueeze/CompressionPipeline.hpp>
 #include <mosqueeze/ICompressionEngine.hpp>
@@ -27,6 +27,9 @@
 
 namespace mosqueeze::cli {
 namespace {
+
+constexpr int EXIT_ERROR = 1;
+constexpr size_t PROGRESS_THRESHOLD = 1024 * 1024; // 1 MB
 
 void setBinaryModeIfNeeded(bool useInputStdIn, bool useOutputStdOut) {
 #ifdef _WIN32
@@ -137,7 +140,7 @@ std::pair<std::string, std::string> tryDecompressWithDetection(
 
 } // namespace
 
-void addDecompressCommand(CLI::App& app) {
+void addDecompressCommand(CLI::App& app, const Terminal& term) {
     auto* decompress = app.add_subcommand("decompress", "Decompress a file");
     auto opts = std::make_shared<DecompressOptions>();
 
@@ -146,15 +149,25 @@ void addDecompressCommand(CLI::App& app) {
     decompress->add_option("-o,--output", opts->outputFile, "Output file (default: input without .msz)");
     decompress->add_flag("--json", opts->jsonOutput, "Output result as JSON");
 
-    decompress->callback([opts]() {
-        const int exitCode = runDecompress(*opts);
+    decompress->footer(R"(
+Examples:
+  mosqueeze decompress output.msz
+  mosqueeze decompress archive.msz -o restored.dat
+  mosqueeze decompress compressed.msz -o - | other-command
+  mosqueeze decompress input.msz --json
+
+Note: Algorithm is auto-detected from the file content and extension.
+)");
+
+    decompress->callback([opts, &term]() {
+        const int exitCode = runDecompress(*opts, term);
         if (exitCode != 0) {
             throw CLI::RuntimeError(exitCode);
         }
     });
 }
 
-int runDecompress(const DecompressOptions& opts) {
+int runDecompress(const DecompressOptions& opts, const Terminal& term) {
     try {
         const bool useInputStdIn = opts.inputFile == "-";
         const std::string resolvedOutput = opts.outputFile.empty() ? deriveOutputPath(opts.inputFile) : opts.outputFile;
@@ -165,9 +178,21 @@ int runDecompress(const DecompressOptions& opts) {
             if (opts.jsonOutput) {
                 emitErrorJson(opts.inputFile, "Input file not found");
             } else {
-                fmt::print(stderr, "Error: Input file not found: {}\n", opts.inputFile);
+                term.printError("Input file not found: " + opts.inputFile);
             }
-            return 1;
+            return EXIT_ERROR;
+        }
+
+        // Get file size for progress indication
+        size_t inputFileSize = 0;
+        if (!useInputStdIn) {
+            inputFileSize = std::filesystem::file_size(opts.inputFile);
+        }
+
+        // Show progress for large files
+        ProgressIndicator progress(term);
+        if (inputFileSize >= PROGRESS_THRESHOLD && !useOutputStdOut) {
+            progress.showProcessing("Decompressing", opts.inputFile, inputFileSize);
         }
 
         std::ifstream inFile;
@@ -206,9 +231,12 @@ int runDecompress(const DecompressOptions& opts) {
         output->write(decompressedPayload.data(), static_cast<std::streamsize>(decompressedPayload.size()));
         output->flush();
 
+        progress.clearProcessing();
+
         const double ratio = inputSize > 0
             ? static_cast<double>(outputSize) / static_cast<double>(inputSize)
             : 0.0;
+        const double elapsed = progress.elapsedSeconds();
 
         if (opts.jsonOutput) {
             nlohmann::json payload{
@@ -220,14 +248,21 @@ int runDecompress(const DecompressOptions& opts) {
                 {"ratio", ratio},
                 {"algorithm", algorithm}
             };
+            if (elapsed > 0.0) {
+                payload["elapsedSeconds"] = elapsed;
+            }
             fmt::print("{}\n", payload.dump());
         } else {
-            fmt::print("Decompressed {} -> {}\n", opts.inputFile, resolvedOutput);
-            fmt::print("  Algorithm: {}\n", algorithm);
-            fmt::print("  Size: {} -> {} bytes ({:.1f}%)\n",
+            term.printSuccess(fmt::format("Decompressed {} -> {}", opts.inputFile, resolvedOutput));
+            fmt::print("  {}Algorithm:{} {}\n", term.bold(), term.reset(), algorithm);
+            fmt::print("  {}Size:{} {} -> {} bytes ({:.1f}%)\n",
+                       term.bold(), term.reset(),
                        inputSize,
                        outputSize,
                        inputSize > 0 ? (100.0 * static_cast<double>(outputSize) / static_cast<double>(inputSize)) : 0.0);
+            if (elapsed > 0.0) {
+                fmt::print("  {}Time:{} {:.2f}s\n", term.bold(), term.reset(), elapsed);
+            }
         }
 
         return 0;
@@ -235,9 +270,9 @@ int runDecompress(const DecompressOptions& opts) {
         if (opts.jsonOutput) {
             emitErrorJson(opts.inputFile, e.what());
         } else {
-            fmt::print(stderr, "Error: {}\n", e.what());
+            term.printError(e.what());
         }
-        return 2;
+        return EXIT_ERROR;
     }
 }
 

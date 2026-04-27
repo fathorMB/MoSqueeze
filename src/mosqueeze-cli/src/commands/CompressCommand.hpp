@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Terminal.hpp"
+
 #include <CLI/CLI.hpp>
 
 #include <memory>
@@ -21,11 +23,11 @@ struct CompressOptions {
     bool jsonOutput = false;
 };
 
-void addCompressCommand(CLI::App& app);
+void addCompressCommand(CLI::App& app, const Terminal& term);
 
 std::unique_ptr<ICompressionEngine> createEngine(const std::string& algorithm);
 std::unique_ptr<IPreprocessor> createPreprocessor(const std::string& preprocess);
 int defaultLevelFor(const std::string& algorithm);
-int runCompress(const CompressOptions& opts);
+int runCompress(const CompressOptions& opts, const Terminal& term);
 
 } // namespace mosqueeze::cli
