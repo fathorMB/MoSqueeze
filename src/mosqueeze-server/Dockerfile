@@ -19,7 +19,8 @@ ENV VCPKG_ROOT=/opt/vcpkg
 ENV VCPKG_BINARY_SOURCES="x-archives,/root/.cache/vcpkg/archives,readwrite"
 
 RUN git clone https://github.com/microsoft/vcpkg.git ${VCPKG_ROOT} \
-    && ${VCPKG_ROOT}/bootstrap-vcpkg.sh -disableMetrics
+    && ${VCPKG_ROOT}/bootstrap-vcpkg.sh -disableMetrics \
+    && mkdir -p /root/.cache/vcpkg/archives
 
 WORKDIR /app
 
